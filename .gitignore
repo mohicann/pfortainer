@@ -1,4 +1,4 @@
 .env
-pfortainer
-pfortainer-freebsd
+/pfortainer
+/pfortainer-freebsd
 *.exe

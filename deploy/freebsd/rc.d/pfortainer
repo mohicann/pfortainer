@@ -1,0 +1,72 @@
+#!/bin/sh
+#
+# PROVIDE: pfortainer
+# REQUIRE: NETWORKING
+# KEYWORD: shutdown
+#
+# 설치:
+#   sudo cp deploy/freebsd/rc.d/pfortainer /usr/local/etc/rc.d/pfortainer
+#   sudo chmod +x /usr/local/etc/rc.d/pfortainer
+#   sudo sysrc pfortainer_enable=YES
+#   sudo service pfortainer start
+#
+# 변수 재정의 (rc.conf 또는 rc.conf.d/pfortainer):
+#   pfortainer_dir="/zdata/apps/pfortainer"
+#   pfortainer_port="11000"
+
+. /etc/rc.subr
+
+name="pfortainer"
+desc="Podman container management UI"
+rcvar="pfortainer_enable"
+
+: ${pfortainer_enable:="NO"}
+: ${pfortainer_dir:="/zdata/apps/pfortainer"}
+: ${pfortainer_port:="11000"}
+
+pidfile="/var/run/${name}.pid"
+logfile="${pfortainer_dir}/pfortainer.log"
+
+start_cmd="${name}_start"
+stop_cmd="${name}_stop"
+status_cmd="${name}_status"
+restart_cmd="${name}_restart"
+extra_commands="status restart"
+
+pfortainer_start() {
+    if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+        echo "${name} is already running (pid $(cat "${pidfile}"))."
+        return 1
+    fi
+    echo "Starting ${name} on port ${pfortainer_port}."
+    /usr/sbin/daemon -P "${pidfile}" -o "${logfile}" \
+        /bin/sh -c "cd '${pfortainer_dir}' && PORT=${pfortainer_port} exec ./${name}"
+    echo "${name} started. Log: ${logfile}"
+}
+
+pfortainer_stop() {
+    if [ ! -f "${pidfile}" ] || ! kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+        echo "${name} is not running."
+        return 1
+    fi
+    pid=$(cat "${pidfile}")
+    kill "${pid}" && rm -f "${pidfile}"
+    echo "${name} stopped."
+}
+
+pfortainer_status() {
+    if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+        echo "${name} is running as pid $(cat "${pidfile}")."
+    else
+        echo "${name} is not running."
+    fi
+}
+
+pfortainer_restart() {
+    pfortainer_stop || true
+    sleep 1
+    pfortainer_start
+}
+
+load_rc_config ${name}
+run_rc_command "$1"
