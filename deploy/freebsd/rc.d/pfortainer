@@ -23,6 +23,7 @@ rcvar="pfortainer_enable"
 : ${pfortainer_enable:="NO"}
 : ${pfortainer_dir:="/zdata/tools/pfortainer-freebsd"}
 : ${pfortainer_port:="11000"}
+: ${pfortainer_podman_sock:="/run/podman/podman.sock"}
 
 pidfile="/var/run/${name}.pid"
 logfile="${pfortainer_dir}/pfortainer.log"
@@ -37,6 +38,14 @@ pfortainer_start() {
     if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
         echo "${name} is already running (pid $(cat "${pidfile}"))."
         return 1
+    fi
+    # Podman API 소켓 확인 및 시작
+    if [ ! -S "${pfortainer_podman_sock}" ]; then
+        echo "Starting Podman API socket..."
+        mkdir -p "$(dirname "${pfortainer_podman_sock}")"
+        /usr/sbin/daemon -o /var/log/podman-api.log \
+            podman system service --time=0 "unix://${pfortainer_podman_sock}"
+        sleep 1
     fi
     echo "Starting ${name} on port ${pfortainer_port}."
     /usr/sbin/daemon -P "${pidfile}" -o "${logfile}" \
