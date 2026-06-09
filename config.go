@@ -20,7 +20,7 @@ func loadConfig() *Config {
 		AdminPassword: getEnv("ADMIN_PASSWORD", "changeme"),
 		SessionSecret: getEnv("SESSION_SECRET", "change-this-secret-in-production-xx"),
 		Host:          getEnv("HOST", "0.0.0.0"),
-		Port:          getEnv("PORT", "9000"),
+		Port:          getEnv("PORT", "11000"),
 	}
 }
 
