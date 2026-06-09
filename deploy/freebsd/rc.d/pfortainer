@@ -11,8 +11,7 @@
 #   sudo service pfortainer start
 #
 # 변수 재정의 (rc.conf 또는 rc.conf.d/pfortainer):
-#   pfortainer_dir="/zdata/tools/pfortainer"
-#   pfortainer_bin="pfortainer-freebsd"
+#   pfortainer_dir="/zdata/tools/pfortainer/pfortainer-freebsd"
 #   pfortainer_port="11000"
 
 . /etc/rc.subr
@@ -22,8 +21,7 @@ desc="Podman container management UI"
 rcvar="pfortainer_enable"
 
 : ${pfortainer_enable:="NO"}
-: ${pfortainer_dir:="/zdata/tools/pfortainer"}
-: ${pfortainer_bin:="pfortainer-freebsd"}
+: ${pfortainer_dir:="/zdata/tools/pfortainer/pfortainer-freebsd"}
 : ${pfortainer_port:="11000"}
 
 pidfile="/var/run/${name}.pid"
@@ -42,7 +40,7 @@ pfortainer_start() {
     fi
     echo "Starting ${name} on port ${pfortainer_port}."
     /usr/sbin/daemon -P "${pidfile}" -o "${logfile}" \
-        /bin/sh -c "cd '${pfortainer_dir}' && PORT=${pfortainer_port} exec ./${pfortainer_bin}"
+        /bin/sh -c "cd '${pfortainer_dir}' && PORT=${pfortainer_port} exec ./pfortainer"
     echo "${name} started. Log: ${logfile}"
 }
 
