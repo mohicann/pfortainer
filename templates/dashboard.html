@@ -1,0 +1,52 @@
+{{define "title"}}Dashboard — pfortainer{{end}}
+{{define "pagetitle"}}Dashboard{{end}}
+{{define "content"}}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="num text-primary">{{.Total}}</div>
+      <div class="lbl">전체 컨테이너</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="num" style="color:#28a745">{{.Running}}</div>
+      <div class="lbl">실행 중</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="num text-danger">{{.Stopped}}</div>
+      <div class="lbl">정지</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="num text-secondary">{{.ImageCount}}</div>
+      <div class="lbl">이미지</div>
+    </div>
+  </div>
+</div>
+
+<div class="card-table">
+  <div class="ct-header">
+    <span class="fw-semibold" style="font-size:.88rem">실행 중인 컨테이너</span>
+    <a href="/containers" class="btn btn-sm btn-outline-secondary">전체 보기 →</a>
+  </div>
+  <table class="table table-hover mb-0">
+    <thead><tr><th>이름</th><th>상태</th><th>이미지</th><th>포트</th></tr></thead>
+    <tbody>
+      {{range .RunningContainers}}
+      <tr>
+        <td><span class="cname">{{.Name}}</span></td>
+        <td><span class="badge badge-{{.State}}">{{.State}}</span></td>
+        <td><small class="text-muted">{{.Image}}</small></td>
+        <td>{{range .Ports}}<span class="ptag">{{.}}</span>{{end}}</td>
+      </tr>
+      {{else}}
+      <tr><td colspan="4" class="text-center text-muted py-4">실행 중인 컨테이너 없음</td></tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+{{end}}
