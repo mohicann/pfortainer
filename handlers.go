@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/subtle"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math"
@@ -48,6 +49,7 @@ func (h *handlers) logout(w http.ResponseWriter, r *http.Request) {
 // ── Pages ─────────────────────────────────────────────────────────────────────
 
 type ContainerVM struct {
+	ID      string
 	Name    string
 	State   string
 	Status  string
@@ -110,6 +112,66 @@ func (h *handlers) containers(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// ── Container actions ────────────────────────────────────────────────────────
+
+func (h *handlers) containerAction(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	action := r.PathValue("action")
+
+	var err error
+	switch action {
+	case "start":
+		err = h.pc.StartContainer(id)
+	case "stop":
+		err = h.pc.StopContainer(id)
+	case "restart":
+		err = h.pc.RestartContainer(id)
+	case "kill":
+		err = h.pc.KillContainer(id)
+	case "pause":
+		err = h.pc.PauseContainer(id)
+	case "resume":
+		err = h.pc.UnpauseContainer(id)
+	case "remove":
+		err = h.pc.RemoveContainer(id)
+	default:
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "알 수 없는 작업입니다."})
+		return
+	}
+
+	if err != nil {
+		writeJSON(w, http.StatusConflict, map[string]string{"error": actionErrorMessage(action, err)})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"success": true})
+}
+
+func actionErrorMessage(action string, err error) string {
+	var pe *PodmanError
+	if pErr, ok := err.(*PodmanError); ok {
+		pe = pErr
+	}
+	if pe == nil {
+		return err.Error()
+	}
+	switch {
+	case action == "remove" && pe.StatusCode == http.StatusConflict:
+		return "실행 중인 컨테이너는 삭제할 수 없습니다. 먼저 정지(stop) 후 다시 시도해주세요."
+	case pe.StatusCode == http.StatusNotFound:
+		return "컨테이너를 찾을 수 없습니다."
+	case pe.StatusCode == http.StatusConflict:
+		return "현재 상태에서는 이 작업을 수행할 수 없습니다: " + pe.Message
+	default:
+		return pe.Message
+	}
+}
+
+func writeJSON(w http.ResponseWriter, status int, v any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(v)
+}
+
 func (h *handlers) images(w http.ResponseWriter, r *http.Request) {
 	imgs, err := h.pc.ListImages()
 	if err != nil {
@@ -132,6 +194,7 @@ func toContainerVMs(cs []APIContainer) []ContainerVM {
 			name = strings.TrimPrefix(c.Names[0], "/")
 		}
 		out = append(out, ContainerVM{
+			ID:      c.ID,
 			Name:    name,
 			State:   strings.ToLower(c.State),
 			Status:  c.Status,

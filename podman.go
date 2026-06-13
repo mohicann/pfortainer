@@ -17,7 +17,7 @@ type PodmanClient struct {
 func newPodmanClient(socketPath string) *PodmanClient {
 	return &PodmanClient{
 		hc: &http.Client{
-			Timeout: 10 * time.Second,
+			Timeout: 30 * time.Second,
 			Transport: &http.Transport{
 				DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
 					return (&net.Dialer{}).DialContext(ctx, "unix", socketPath)
@@ -63,6 +63,49 @@ func (c *PodmanClient) get(path string, out any) error {
 	return json.Unmarshal(body, out)
 }
 
+// PodmanError represents an error response from the Podman API.
+type PodmanError struct {
+	StatusCode int
+	Cause      string
+	Message    string
+}
+
+func (e *PodmanError) Error() string {
+	if e.Message != "" {
+		return e.Message
+	}
+	return fmt.Sprintf("podman: unexpected status %d", e.StatusCode)
+}
+
+// do performs a request against the Podman API and returns a *PodmanError
+// if the response status code indicates failure.
+func (c *PodmanClient) do(method, path string) error {
+	req, err := http.NewRequest(method, "http://podman"+path, nil)
+	if err != nil {
+		return fmt.Errorf("podman: %w", err)
+	}
+	resp, err := c.hc.Do(req)
+	if err != nil {
+		return fmt.Errorf("podman: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 || resp.StatusCode == http.StatusNotModified {
+		return nil
+	}
+
+	body, _ := io.ReadAll(resp.Body)
+	var apiErr struct {
+		Cause   string `json:"cause"`
+		Message string `json:"message"`
+	}
+	_ = json.Unmarshal(body, &apiErr)
+	if apiErr.Message == "" {
+		apiErr.Message = string(body)
+	}
+	return &PodmanError{StatusCode: resp.StatusCode, Cause: apiErr.Cause, Message: apiErr.Message}
+}
+
 func (c *PodmanClient) ListContainers() ([]APIContainer, error) {
 	var result []APIContainer
 	return result, c.get("/containers/json?all=true", &result)
@@ -71,4 +114,32 @@ func (c *PodmanClient) ListContainers() ([]APIContainer, error) {
 func (c *PodmanClient) ListImages() ([]APIImage, error) {
 	var result []APIImage
 	return result, c.get("/images/json", &result)
+}
+
+func (c *PodmanClient) StartContainer(id string) error {
+	return c.do(http.MethodPost, "/containers/"+id+"/start")
+}
+
+func (c *PodmanClient) StopContainer(id string) error {
+	return c.do(http.MethodPost, "/containers/"+id+"/stop")
+}
+
+func (c *PodmanClient) RestartContainer(id string) error {
+	return c.do(http.MethodPost, "/containers/"+id+"/restart")
+}
+
+func (c *PodmanClient) KillContainer(id string) error {
+	return c.do(http.MethodPost, "/containers/"+id+"/kill")
+}
+
+func (c *PodmanClient) PauseContainer(id string) error {
+	return c.do(http.MethodPost, "/containers/"+id+"/pause")
+}
+
+func (c *PodmanClient) UnpauseContainer(id string) error {
+	return c.do(http.MethodPost, "/containers/"+id+"/unpause")
+}
+
+func (c *PodmanClient) RemoveContainer(id string) error {
+	return c.do(http.MethodDelete, "/containers/"+id)
 }

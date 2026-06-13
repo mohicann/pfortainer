@@ -30,6 +30,7 @@ func main() {
 
 	mux.Handle("GET /{$}", auth(h.dashboard))
 	mux.Handle("GET /containers", auth(h.containers))
+	mux.Handle("POST /containers/{id}/{action}", auth(h.containerAction))
 	mux.Handle("GET /images", auth(h.images))
 
 	addr := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
