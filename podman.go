@@ -116,6 +116,14 @@ func (c *PodmanClient) ListImages() ([]APIImage, error) {
 	return result, c.get("/images/json", &result)
 }
 
+func (c *PodmanClient) RemoveImage(id string, force bool) error {
+	path := "/images/" + id
+	if force {
+		path += "?force=true"
+	}
+	return c.do(http.MethodDelete, path)
+}
+
 func (c *PodmanClient) StartContainer(id string) error {
 	return c.do(http.MethodPost, "/containers/"+id+"/start")
 }

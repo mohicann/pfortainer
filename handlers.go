@@ -60,6 +60,7 @@ type ContainerVM struct {
 }
 
 type ImageVM struct {
+	ID      string
 	Tags    []string
 	ShortID string
 	Size    string
@@ -184,6 +185,46 @@ func (h *handlers) images(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// ── Image actions ─────────────────────────────────────────────────────────────
+
+func (h *handlers) imageAction(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	action := r.PathValue("action")
+	force := r.URL.Query().Get("force") == "true"
+
+	var err error
+	switch action {
+	case "remove":
+		err = h.pc.RemoveImage(id, force)
+	default:
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "알 수 없는 작업입니다."})
+		return
+	}
+
+	if err != nil {
+		writeJSON(w, http.StatusConflict, map[string]string{"error": imageActionErrorMessage(force, err)})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"success": true})
+}
+
+func imageActionErrorMessage(force bool, err error) string {
+	pe, ok := err.(*PodmanError)
+	if !ok {
+		return err.Error()
+	}
+	switch {
+	case pe.StatusCode == http.StatusNotFound:
+		return "이미지를 찾을 수 없습니다."
+	case pe.StatusCode == http.StatusConflict && force:
+		return "실행 중인 컨테이너가 사용 중인 이미지는 강제 삭제할 수 없습니다. 컨테이너를 먼저 정지/삭제해주세요."
+	case pe.StatusCode == http.StatusConflict:
+		return "이 이미지를 사용 중인 컨테이너가 있어 삭제할 수 없습니다. 강제 삭제(force)를 시도해보세요."
+	default:
+		return pe.Message
+	}
+}
+
 // ── Converters ────────────────────────────────────────────────────────────────
 
 func toContainerVMs(cs []APIContainer) []ContainerVM {
@@ -218,6 +259,7 @@ func toImageVMs(imgs []APIImage) []ImageVM {
 		}
 		id := strings.TrimPrefix(img.ID, "sha256:")
 		out = append(out, ImageVM{
+			ID:      id,
 			Tags:    tags,
 			ShortID: shortID(id),
 			Size:    fmtBytes(img.Size),

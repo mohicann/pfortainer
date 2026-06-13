@@ -6,14 +6,29 @@
     <span class="fw-semibold" style="font-size:.88rem">
       이미지 <span class="badge bg-secondary ms-1">{{len .Images}}</span>
     </span>
+    <div class="d-flex align-items-center gap-2">
+      <input type="search" id="imageSearch" class="form-control form-control-sm" placeholder="이미지 검색..." style="width: 220px">
+      <div class="btn-group btn-group-sm" role="group">
+        <button type="button" class="btn btn-outline-danger" id="removeBtn" data-force="false" disabled><i class="bi bi-trash"></i> 삭제</button>
+        <button type="button" class="btn btn-outline-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" disabled></button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#" data-force="false">삭제</a></li>
+          <li><a class="dropdown-item text-danger" href="#" data-force="true">강제 삭제 (Force Remove)</a></li>
+        </ul>
+      </div>
+    </div>
   </div>
   <table class="table table-hover mb-0">
     <thead>
-      <tr><th>이름:태그</th><th>Image ID</th><th>크기</th><th>생성일</th></tr>
+      <tr>
+        <th style="width:2.2rem"><input type="checkbox" class="form-check-input" id="selectAll"></th>
+        <th>이름:태그</th><th>Image ID</th><th>크기</th><th>생성일</th>
+      </tr>
     </thead>
     <tbody>
       {{range .Images}}
-      <tr>
+      <tr class="image-row">
+        <td><input type="checkbox" class="form-check-input row-check" value="{{.ID}}"></td>
         <td>
           {{if .Tags}}
             {{range .Tags}}<div class="fw-semibold" style="font-size:.875rem">{{.}}</div>{{end}}
@@ -26,9 +41,81 @@
         <td><small class="text-muted">{{.Created}}</small></td>
       </tr>
       {{else}}
-      <tr><td colspan="4" class="text-center text-muted py-4">이미지 없음</td></tr>
+      <tr><td colspan="5" class="text-center text-muted py-4">이미지 없음</td></tr>
       {{end}}
     </tbody>
   </table>
 </div>
+
+<script>
+(function () {
+  const search = document.getElementById('imageSearch');
+  const selectAll = document.getElementById('selectAll');
+  const removeBtn = document.getElementById('removeBtn');
+  const dropdownToggle = document.querySelector('.dropdown-toggle-split');
+
+  function rowChecks() {
+    return Array.from(document.querySelectorAll('.row-check'));
+  }
+
+  search.addEventListener('input', () => {
+    const q = search.value.trim().toLowerCase();
+    document.querySelectorAll('.image-row').forEach((row) => {
+      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+
+  function updateToolbar() {
+    const all = rowChecks();
+    const checked = all.filter((c) => c.checked);
+    removeBtn.disabled = checked.length === 0;
+    dropdownToggle.disabled = checked.length === 0;
+    selectAll.checked = all.length > 0 && checked.length === all.length;
+    selectAll.indeterminate = checked.length > 0 && checked.length < all.length;
+  }
+
+  selectAll.addEventListener('change', () => {
+    rowChecks().forEach((c) => { c.checked = selectAll.checked; });
+    updateToolbar();
+  });
+
+  rowChecks().forEach((c) => c.addEventListener('change', updateToolbar));
+
+  async function removeSelected(force) {
+    const selected = rowChecks().filter((c) => c.checked);
+    if (selected.length === 0) return;
+
+    const verb = force ? '강제 삭제' : '삭제';
+    if (!confirm(`선택한 이미지 ${selected.length}개를 ${verb}하시겠습니까?`)) return;
+
+    const errors = [];
+    for (const cb of selected) {
+      try {
+        const res = await fetch(`/images/${cb.value}/remove?force=${force}`, { method: 'POST' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          errors.push(`${cb.value.substring(0, 12)}: ${data.error || '작업에 실패했습니다.'}`);
+        }
+      } catch (err) {
+        errors.push(`${cb.value.substring(0, 12)}: ${err.message}`);
+      }
+    }
+
+    if (errors.length) {
+      alert(errors.join('\n'));
+    }
+    location.reload();
+  }
+
+  removeBtn.addEventListener('click', () => removeSelected(false));
+  document.querySelectorAll('.dropdown-item').forEach((item) => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      removeSelected(item.dataset.force === 'true');
+    });
+  });
+
+  updateToolbar();
+})();
+</script>
 {{end}}

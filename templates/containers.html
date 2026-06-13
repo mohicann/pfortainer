@@ -7,6 +7,7 @@
       컨테이너 <span class="badge bg-secondary ms-1">{{len .Containers}}</span>
     </span>
     <div class="d-flex align-items-center gap-3">
+      <input type="search" id="containerSearch" class="form-control form-control-sm" placeholder="컨테이너 검색..." style="width: 200px">
       <span class="text-muted" style="font-size:.8rem">
         <span class="text-success fw-semibold">{{.RunningCount}}</span> 실행 중 ·
         <span class="text-danger fw-semibold">{{.StoppedCount}}</span> 정지
@@ -31,7 +32,7 @@
     </thead>
     <tbody>
       {{range .Containers}}
-      <tr>
+      <tr class="container-row">
         <td><input type="checkbox" class="form-check-input row-check" value="{{.ID}}" data-name="{{.Name}}"></td>
         <td>
           <span class="cname">{{.Name}}</span>
@@ -54,10 +55,18 @@
 (function () {
   const selectAll = document.getElementById('selectAll');
   const bulkActions = document.getElementById('bulkActions');
+  const search = document.getElementById('containerSearch');
 
   function rowChecks() {
     return Array.from(document.querySelectorAll('.row-check'));
   }
+
+  search.addEventListener('input', () => {
+    const q = search.value.trim().toLowerCase();
+    document.querySelectorAll('.container-row').forEach((row) => {
+      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
 
   function updateToolbar() {
     const all = rowChecks();

@@ -32,6 +32,7 @@ func main() {
 	mux.Handle("GET /containers", auth(h.containers))
 	mux.Handle("POST /containers/{id}/{action}", auth(h.containerAction))
 	mux.Handle("GET /images", auth(h.images))
+	mux.Handle("POST /images/{id}/{action}", auth(h.imageAction))
 
 	addr := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
 	srv := &http.Server{
