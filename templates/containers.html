@@ -6,18 +6,33 @@
     <span class="fw-semibold" style="font-size:.88rem">
       컨테이너 <span class="badge bg-secondary ms-1">{{len .Containers}}</span>
     </span>
-    <span class="text-muted" style="font-size:.8rem">
-      <span class="text-success fw-semibold">{{.RunningCount}}</span> 실행 중 ·
-      <span class="text-danger fw-semibold">{{.StoppedCount}}</span> 정지
-    </span>
+    <div class="d-flex align-items-center gap-3">
+      <span class="text-muted" style="font-size:.8rem">
+        <span class="text-success fw-semibold">{{.RunningCount}}</span> 실행 중 ·
+        <span class="text-danger fw-semibold">{{.StoppedCount}}</span> 정지
+      </span>
+      <div class="btn-group btn-group-sm" id="bulkActions" role="group">
+        <button type="button" class="btn btn-outline-secondary" data-action="start" disabled><i class="bi bi-play-fill"></i> 시작</button>
+        <button type="button" class="btn btn-outline-secondary" data-action="stop" disabled><i class="bi bi-stop-fill"></i> 정지</button>
+        <button type="button" class="btn btn-outline-secondary" data-action="kill" disabled><i class="bi bi-x-octagon"></i> Kill</button>
+        <button type="button" class="btn btn-outline-secondary" data-action="restart" disabled><i class="bi bi-arrow-clockwise"></i> 재시작</button>
+        <button type="button" class="btn btn-outline-secondary" data-action="pause" disabled><i class="bi bi-pause-fill"></i> 일시정지</button>
+        <button type="button" class="btn btn-outline-secondary" data-action="resume" disabled><i class="bi bi-play-circle"></i> 재개</button>
+        <button type="button" class="btn btn-outline-danger" data-action="remove" disabled><i class="bi bi-trash"></i> 삭제</button>
+      </div>
+    </div>
   </div>
   <table class="table table-hover mb-0">
     <thead>
-      <tr><th>이름</th><th>상태</th><th>이미지</th><th>생성일</th><th>포트</th><th>ID</th><th>작업</th></tr>
+      <tr>
+        <th style="width:2.2rem"><input type="checkbox" class="form-check-input" id="selectAll"></th>
+        <th>이름</th><th>상태</th><th>이미지</th><th>생성일</th><th>포트</th><th>ID</th>
+      </tr>
     </thead>
     <tbody>
       {{range .Containers}}
       <tr>
+        <td><input type="checkbox" class="form-check-input row-check" value="{{.ID}}" data-name="{{.Name}}"></td>
         <td>
           <span class="cname">{{.Name}}</span>
           <div class="text-muted" style="font-size:.75rem">{{.Status}}</div>
@@ -27,23 +42,6 @@
         <td><small class="text-muted">{{.Created}}</small></td>
         <td>{{range .Ports}}<span class="ptag">{{.}}</span>{{end}}</td>
         <td><span class="mono">{{.ShortID}}</span></td>
-        <td>
-          <div class="btn-group btn-group-sm" role="group">
-            {{if eq .State "running"}}
-            <button type="button" class="btn btn-outline-secondary" title="정지" onclick="containerAction('{{.ID}}','stop','{{.Name}}')"><i class="bi bi-stop-fill"></i></button>
-            <button type="button" class="btn btn-outline-secondary" title="재시작" onclick="containerAction('{{.ID}}','restart','{{.Name}}')"><i class="bi bi-arrow-clockwise"></i></button>
-            <button type="button" class="btn btn-outline-secondary" title="일시정지" onclick="containerAction('{{.ID}}','pause','{{.Name}}')"><i class="bi bi-pause-fill"></i></button>
-            <button type="button" class="btn btn-outline-secondary" title="강제 종료" onclick="containerAction('{{.ID}}','kill','{{.Name}}')"><i class="bi bi-x-octagon"></i></button>
-            {{else if eq .State "paused"}}
-            <button type="button" class="btn btn-outline-secondary" title="재개" onclick="containerAction('{{.ID}}','resume','{{.Name}}')"><i class="bi bi-play-fill"></i></button>
-            <button type="button" class="btn btn-outline-secondary" title="강제 종료" onclick="containerAction('{{.ID}}','kill','{{.Name}}')"><i class="bi bi-x-octagon"></i></button>
-            {{else}}
-            <button type="button" class="btn btn-outline-secondary" title="시작" onclick="containerAction('{{.ID}}','start','{{.Name}}')"><i class="bi bi-play-fill"></i></button>
-            <button type="button" class="btn btn-outline-secondary" title="재시작" onclick="containerAction('{{.ID}}','restart','{{.Name}}')"><i class="bi bi-arrow-clockwise"></i></button>
-            {{end}}
-            <button type="button" class="btn btn-outline-danger" title="삭제" onclick="containerAction('{{.ID}}','remove','{{.Name}}')"><i class="bi bi-trash"></i></button>
-          </div>
-        </td>
       </tr>
       {{else}}
       <tr><td colspan="7" class="text-center text-muted py-4">컨테이너 없음</td></tr>
@@ -53,24 +51,69 @@
 </div>
 
 <script>
-function containerAction(id, action, name) {
-  const confirmMsgs = {
-    stop:    `'${name}' 컨테이너를 정지하시겠습니까?`,
-    kill:    `'${name}' 컨테이너를 강제 종료(kill)하시겠습니까?`,
-    remove:  `'${name}' 컨테이너를 삭제하시겠습니까?`,
-    restart: `'${name}' 컨테이너를 재시작하시겠습니까?`,
-  };
-  if (confirmMsgs[action] && !confirm(confirmMsgs[action])) return;
+(function () {
+  const selectAll = document.getElementById('selectAll');
+  const bulkActions = document.getElementById('bulkActions');
 
-  fetch(`/containers/${id}/${action}`, { method: 'POST' })
-    .then(async (res) => {
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data.error || '작업에 실패했습니다.');
+  function rowChecks() {
+    return Array.from(document.querySelectorAll('.row-check'));
+  }
+
+  function updateToolbar() {
+    const all = rowChecks();
+    const checked = all.filter((c) => c.checked);
+    bulkActions.querySelectorAll('button').forEach((btn) => {
+      btn.disabled = checked.length === 0;
+    });
+    selectAll.checked = all.length > 0 && checked.length === all.length;
+    selectAll.indeterminate = checked.length > 0 && checked.length < all.length;
+  }
+
+  selectAll.addEventListener('change', () => {
+    rowChecks().forEach((c) => { c.checked = selectAll.checked; });
+    updateToolbar();
+  });
+
+  rowChecks().forEach((c) => c.addEventListener('change', updateToolbar));
+
+  const actionLabels = {
+    start: '시작', stop: '정지', kill: '강제 종료(kill)',
+    restart: '재시작', pause: '일시정지', resume: '재개', remove: '삭제',
+  };
+  const confirmActions = new Set(['stop', 'kill', 'restart', 'remove']);
+
+  bulkActions.querySelectorAll('button').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const action = btn.dataset.action;
+      const selected = rowChecks().filter((c) => c.checked);
+      if (selected.length === 0) return;
+
+      if (confirmActions.has(action)) {
+        const names = selected.map((c) => c.dataset.name).join(', ');
+        if (!confirm(`선택한 컨테이너(${names})를 ${actionLabels[action]}하시겠습니까?`)) return;
+      }
+
+      const errors = [];
+      for (const cb of selected) {
+        try {
+          const res = await fetch(`/containers/${cb.value}/${action}`, { method: 'POST' });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            errors.push(`${cb.dataset.name}: ${data.error || '작업에 실패했습니다.'}`);
+          }
+        } catch (err) {
+          errors.push(`${cb.dataset.name}: ${err.message}`);
+        }
+      }
+
+      if (errors.length) {
+        alert(errors.join('\n'));
       }
       location.reload();
-    })
-    .catch((err) => alert(err.message));
-}
+    });
+  });
+
+  updateToolbar();
+})();
 </script>
 {{end}}
