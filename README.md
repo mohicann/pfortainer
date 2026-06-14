@@ -68,3 +68,15 @@ GOOS=freebsd GOARCH=amd64 go build -o pfortainer-freebsd .
 - `session.go` — 쿠키 기반 인증
 - `config.go` — 환경변수/`.env` 로딩
 - `templates/` — HTML 템플릿 (Bootstrap 5 + Bootstrap Icons)
+
+## 문제 해결
+
+- **대시보드에서 "Podman 연결 실패: runtime error: invalid memory address or nil
+  pointer dereference"**: Podman 5.8.1/FreeBSD의 Docker 호환 API
+  (`/containers/json`)가 컨테이너 목록 조회 시 panic을 일으키는 버그가 있습니다.
+  이를 회피하기 위해 컨테이너 목록은 네이티브 libpod API
+  (`/v5.0.0/libpod/containers/json`)를 사용합니다(`podman.go`의
+  `ListContainers`). 만약 이 에러가 다시 보인다면 Podman 버전이 바뀌면서
+  libpod API 응답 형식이 변경되었을 가능성이 있으니
+  `podman ps -a` / `curl --unix-socket ... http://d/v5.0.0/libpod/containers/json?all=true`
+  로 직접 비교해보세요.

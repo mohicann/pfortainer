@@ -28,19 +28,23 @@ func newPodmanClient(socketPath string) *PodmanClient {
 }
 
 type APIContainer struct {
-	ID      string    `json:"Id"`
-	Names   []string  `json:"Names"`
-	Image   string    `json:"Image"`
-	State   string    `json:"State"`
-	Status  string    `json:"Status"`
-	Created int64     `json:"Created"`
-	Ports   []APIPort `json:"Ports"`
+	ID        string    `json:"Id"`
+	Names     []string  `json:"Names"`
+	Image     string    `json:"Image"`
+	State     string    `json:"State"`
+	Created   string    `json:"Created"`
+	StartedAt int64     `json:"StartedAt"`
+	ExitedAt  int64     `json:"ExitedAt"`
+	ExitCode  int       `json:"ExitCode"`
+	Ports     []APIPort `json:"Ports"`
 }
 
 type APIPort struct {
-	PrivatePort int    `json:"PrivatePort"`
-	PublicPort  int    `json:"PublicPort"`
-	Type        string `json:"Type"`
+	HostIP        string `json:"host_ip,omitempty"`
+	ContainerPort uint16 `json:"container_port"`
+	HostPort      uint16 `json:"host_port"`
+	Range         uint16 `json:"range,omitempty"`
+	Protocol      string `json:"protocol,omitempty"`
 }
 
 type APIImage struct {
@@ -179,7 +183,9 @@ func (c *PodmanClient) do(method, path string) error {
 
 func (c *PodmanClient) ListContainers() ([]APIContainer, error) {
 	var result []APIContainer
-	return result, c.get("/containers/json?all=true", &result)
+	// Docker-compat /containers/json panics (nil pointer) on Podman 5.8.1/FreeBSD,
+	// so use the native libpod endpoint instead.
+	return result, c.get("/v5.0.0/libpod/containers/json?all=true", &result)
 }
 
 func (c *PodmanClient) ListImages() ([]APIImage, error) {

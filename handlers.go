@@ -295,9 +295,9 @@ func toContainerVMs(cs []APIContainer) []ContainerVM {
 			ID:      c.ID,
 			Name:    name,
 			State:   strings.ToLower(c.State),
-			Status:  c.Status,
+			Status:  containerStatusText(c),
 			Image:   c.Image,
-			Created: fmtTS(c.Created),
+			Created: fmtTSStr(c.Created),
 			Ports:   fmtPorts(c.Ports),
 			ShortID: shortID(c.ID),
 		})
@@ -439,16 +439,60 @@ func fmtPorts(ports []APIPort) []string {
 	seen := map[string]bool{}
 	out := []string{}
 	for _, p := range ports {
-		var label string
-		if p.PublicPort > 0 {
-			label = fmt.Sprintf("%d:%d/%s", p.PublicPort, p.PrivatePort, p.Type)
-		} else {
-			label = fmt.Sprintf("%d/%s", p.PrivatePort, p.Type)
+		count := int(p.Range)
+		if count == 0 {
+			count = 1
 		}
-		if !seen[label] {
-			seen[label] = true
-			out = append(out, label)
+		for i := 0; i < count; i++ {
+			cport := int(p.ContainerPort) + i
+			var label string
+			if p.HostPort > 0 {
+				hostIP := p.HostIP
+				if hostIP == "" {
+					hostIP = "0.0.0.0"
+				}
+				label = fmt.Sprintf("%s:%d->%d/%s", hostIP, int(p.HostPort)+i, cport, p.Protocol)
+			} else {
+				label = fmt.Sprintf("%d/%s", cport, p.Protocol)
+			}
+			if !seen[label] {
+				seen[label] = true
+				out = append(out, label)
+			}
 		}
 	}
 	return out
+}
+
+// containerStatusText builds a Docker-style status string (e.g. "Up 2 hours",
+// "Exited (0) 5 minutes ago") from libpod's container list fields.
+func containerStatusText(c APIContainer) string {
+	switch strings.ToLower(c.State) {
+	case "running":
+		return "Up " + humanizeDuration(time.Since(time.Unix(c.StartedAt, 0)))
+	case "paused":
+		return "Paused"
+	case "created":
+		return "Created"
+	case "exited", "stopped":
+		if c.ExitedAt > 0 {
+			return fmt.Sprintf("Exited (%d) %s ago", c.ExitCode, humanizeDuration(time.Since(time.Unix(c.ExitedAt, 0))))
+		}
+		return fmt.Sprintf("Exited (%d)", c.ExitCode)
+	default:
+		return c.State
+	}
+}
+
+func humanizeDuration(d time.Duration) string {
+	switch {
+	case d < time.Minute:
+		return fmt.Sprintf("%d seconds", int(d.Seconds()))
+	case d < time.Hour:
+		return fmt.Sprintf("%d minutes", int(d.Minutes()))
+	case d < 24*time.Hour:
+		return fmt.Sprintf("%d hours", int(d.Hours()))
+	default:
+		return fmt.Sprintf("%d days", int(d.Hours()/24))
+	}
 }
