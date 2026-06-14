@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 )
@@ -57,6 +58,45 @@ type ContainerVM struct {
 	Created string
 	Ports   []string
 	ShortID string
+}
+
+type NetworkVM struct {
+	Name       string
+	IPAddress  string
+	Gateway    string
+	MacAddress string
+}
+
+type MountVM struct {
+	Type        string
+	Source      string
+	Destination string
+	Mode        string
+	RW          bool
+}
+
+type ContainerDetailVM struct {
+	ID            string
+	ShortID       string
+	Name          string
+	Image         string
+	Command       string
+	Created       string
+	State         string
+	Status        string
+	Running       bool
+	Pid           int
+	ExitCode      int
+	StartedAt     string
+	FinishedAt    string
+	RestartCount  int
+	RestartPolicy string
+	NetworkMode   string
+	Ports         []string
+	Networks      []NetworkVM
+	Mounts        []MountVM
+	Env           []string
+	Labels        map[string]string
 }
 
 type ImageVM struct {
@@ -110,6 +150,23 @@ func (h *handlers) containers(w http.ResponseWriter, r *http.Request) {
 		"Containers":   vms,
 		"RunningCount": runningCount,
 		"StoppedCount": len(vms) - runningCount,
+	})
+}
+
+func (h *handlers) containerDetail(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	c, err := h.pc.InspectContainer(id)
+	if err != nil {
+		if pe, ok := err.(*PodmanError); ok && pe.StatusCode == http.StatusNotFound {
+			http.Error(w, "컨테이너를 찾을 수 없습니다.", http.StatusNotFound)
+			return
+		}
+		renderErr(w, err)
+		return
+	}
+	render(w, "container-detail", map[string]any{
+		"ActivePage": "containers",
+		"C":          toContainerDetailVM(c),
 	})
 }
 
@@ -269,6 +326,72 @@ func toImageVMs(imgs []APIImage) []ImageVM {
 	return out
 }
 
+func toContainerDetailVM(c *APIContainerDetail) ContainerDetailVM {
+	command := strings.Join(append(append([]string{}, c.Config.Entrypoint...), c.Config.Cmd...), " ")
+
+	ports := []string{}
+	for port, bindings := range c.NetworkSettings.Ports {
+		if len(bindings) == 0 {
+			ports = append(ports, port)
+			continue
+		}
+		for _, b := range bindings {
+			ports = append(ports, fmt.Sprintf("%s:%s->%s", b.HostIP, b.HostPort, port))
+		}
+	}
+	sort.Strings(ports)
+
+	networks := make([]NetworkVM, 0, len(c.NetworkSettings.Networks))
+	for name, n := range c.NetworkSettings.Networks {
+		networks = append(networks, NetworkVM{
+			Name:       name,
+			IPAddress:  n.IPAddress,
+			Gateway:    n.Gateway,
+			MacAddress: n.MacAddress,
+		})
+	}
+	sort.Slice(networks, func(i, j int) bool { return networks[i].Name < networks[j].Name })
+
+	mounts := make([]MountVM, 0, len(c.Mounts))
+	for _, m := range c.Mounts {
+		src := m.Source
+		if m.Type == "volume" && m.Name != "" {
+			src = m.Name
+		}
+		mounts = append(mounts, MountVM{
+			Type:        m.Type,
+			Source:      src,
+			Destination: m.Destination,
+			Mode:        m.Mode,
+			RW:          m.RW,
+		})
+	}
+
+	return ContainerDetailVM{
+		ID:            c.ID,
+		ShortID:       shortID(c.ID),
+		Name:          strings.TrimPrefix(c.Name, "/"),
+		Image:         c.Image,
+		Command:       command,
+		Created:       fmtTSStr(c.Created),
+		State:         strings.ToLower(c.State.Status),
+		Status:        c.State.Status,
+		Running:       c.State.Running,
+		Pid:           c.State.Pid,
+		ExitCode:      c.State.ExitCode,
+		StartedAt:     fmtTSStr(c.State.StartedAt),
+		FinishedAt:    fmtTSStr(c.State.FinishedAt),
+		RestartCount:  c.RestartCount,
+		RestartPolicy: c.HostConfig.RestartPolicy.Name,
+		NetworkMode:   c.HostConfig.NetworkMode,
+		Ports:         ports,
+		Networks:      networks,
+		Mounts:        mounts,
+		Env:           c.Config.Env,
+		Labels:        c.Config.Labels,
+	}
+}
+
 func filterRunning(cs []ContainerVM) []ContainerVM {
 	out := make([]ContainerVM, 0)
 	for _, c := range cs {
@@ -290,6 +413,14 @@ func shortID(id string) string {
 
 func fmtTS(unix int64) string {
 	return time.Unix(unix, 0).UTC().Format("2006-01-02 15:04")
+}
+
+func fmtTSStr(ts string) string {
+	t, err := time.Parse(time.RFC3339Nano, ts)
+	if err != nil || t.IsZero() {
+		return ""
+	}
+	return t.UTC().Format("2006-01-02 15:04:05")
 }
 
 func fmtBytes(b int64) string {

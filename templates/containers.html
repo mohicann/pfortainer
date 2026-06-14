@@ -32,10 +32,10 @@
     </thead>
     <tbody>
       {{range .Containers}}
-      <tr class="container-row">
+      <tr class="container-row" data-href="/containers/{{.ID}}" style="cursor:pointer">
         <td><input type="checkbox" class="form-check-input row-check" value="{{.ID}}" data-name="{{.Name}}"></td>
         <td>
-          <span class="cname">{{.Name}}</span>
+          <a href="/containers/{{.ID}}" class="cname">{{.Name}}</a>
           <div class="text-muted" style="font-size:.75rem">{{.Status}}</div>
         </td>
         <td><span class="badge badge-{{.State}}">{{.State}}</span></td>
@@ -84,6 +84,13 @@
   });
 
   rowChecks().forEach((c) => c.addEventListener('change', updateToolbar));
+
+  document.querySelectorAll('.container-row').forEach((row) => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('input, a, button')) return;
+      location.href = row.dataset.href;
+    });
+  });
 
   const actionLabels = {
     start: '시작', stop: '정지', kill: '강제 종료(kill)',

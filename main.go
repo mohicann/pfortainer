@@ -30,6 +30,7 @@ func main() {
 
 	mux.Handle("GET /{$}", auth(h.dashboard))
 	mux.Handle("GET /containers", auth(h.containers))
+	mux.Handle("GET /containers/{id}", auth(h.containerDetail))
 	mux.Handle("POST /containers/{id}/{action}", auth(h.containerAction))
 	mux.Handle("GET /images", auth(h.images))
 	mux.Handle("POST /images/{id}/{action}", auth(h.imageAction))

@@ -50,6 +50,66 @@ type APIImage struct {
 	Size     int64    `json:"Size"`
 }
 
+type APIContainerDetail struct {
+	ID      string   `json:"Id"`
+	Name    string   `json:"Name"`
+	Created string   `json:"Created"`
+	Image   string   `json:"Image"`
+	Path    string   `json:"Path"`
+	Args    []string `json:"Args"`
+
+	State struct {
+		Status     string `json:"Status"`
+		Running    bool   `json:"Running"`
+		Paused     bool   `json:"Paused"`
+		Restarting bool   `json:"Restarting"`
+		Pid        int    `json:"Pid"`
+		ExitCode   int    `json:"ExitCode"`
+		Error      string `json:"Error"`
+		StartedAt  string `json:"StartedAt"`
+		FinishedAt string `json:"FinishedAt"`
+	} `json:"State"`
+
+	RestartCount int `json:"RestartCount"`
+
+	Mounts []struct {
+		Type        string `json:"Type"`
+		Name        string `json:"Name"`
+		Source      string `json:"Source"`
+		Destination string `json:"Destination"`
+		Mode        string `json:"Mode"`
+		RW          bool   `json:"RW"`
+	} `json:"Mounts"`
+
+	Config struct {
+		Hostname   string            `json:"Hostname"`
+		Env        []string          `json:"Env"`
+		Cmd        []string          `json:"Cmd"`
+		Entrypoint []string          `json:"Entrypoint"`
+		WorkingDir string            `json:"WorkingDir"`
+		Labels     map[string]string `json:"Labels"`
+	} `json:"Config"`
+
+	HostConfig struct {
+		NetworkMode   string `json:"NetworkMode"`
+		RestartPolicy struct {
+			Name string `json:"Name"`
+		} `json:"RestartPolicy"`
+	} `json:"HostConfig"`
+
+	NetworkSettings struct {
+		Ports map[string][]struct {
+			HostIP   string `json:"HostIp"`
+			HostPort string `json:"HostPort"`
+		} `json:"Ports"`
+		Networks map[string]struct {
+			IPAddress  string `json:"IPAddress"`
+			Gateway    string `json:"Gateway"`
+			MacAddress string `json:"MacAddress"`
+		} `json:"Networks"`
+	} `json:"NetworkSettings"`
+}
+
 func (c *PodmanClient) get(path string, out any) error {
 	resp, err := c.hc.Get("http://podman" + path)
 	if err != nil {
@@ -59,6 +119,17 @@ func (c *PodmanClient) get(path string, out any) error {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		var apiErr struct {
+			Cause   string `json:"cause"`
+			Message string `json:"message"`
+		}
+		_ = json.Unmarshal(body, &apiErr)
+		if apiErr.Message == "" {
+			apiErr.Message = string(body)
+		}
+		return &PodmanError{StatusCode: resp.StatusCode, Cause: apiErr.Cause, Message: apiErr.Message}
 	}
 	return json.Unmarshal(body, out)
 }
@@ -114,6 +185,14 @@ func (c *PodmanClient) ListContainers() ([]APIContainer, error) {
 func (c *PodmanClient) ListImages() ([]APIImage, error) {
 	var result []APIImage
 	return result, c.get("/images/json", &result)
+}
+
+func (c *PodmanClient) InspectContainer(id string) (*APIContainerDetail, error) {
+	var result APIContainerDetail
+	if err := c.get("/containers/"+id+"/json", &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
 
 func (c *PodmanClient) RemoveImage(id string, force bool) error {
