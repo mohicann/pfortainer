@@ -24,7 +24,6 @@ Podman REST API(유닉스 소켓)에 직접 연결해 컨테이너/이미지를 
 | 변수 | 기본값 | 설명 |
 |---|---|---|
 | `PODMAN_SOCKET` | `/run/podman/podman.sock` | Podman API 유닉스 소켓 경로 |
-| `ADMIN_PASSWORD` | `changeme` | 로그인 비밀번호 |
 | `SESSION_SECRET` | (기본값 변경 필요) | 세션 쿠키 서명용 시크릿 |
 | `HOST` | `0.0.0.0` | 바인드 호스트 |
 | `PORT` | `11000` | 바인드 포트 |
