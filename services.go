@@ -31,57 +31,8 @@ type ServicesVM struct {
 
 // ── Data collection ───────────────────────────────────────────────────────────
 
-type containerPort struct {
-	Name  string
-	Proto string // "TCP" | "UDP"
-}
-
-// containerPubPorts returns "port:PROTO" → containerPort for running containers.
-// Using proto in the key correctly handles containers that publish the same port
-// number on both tcp and udp (e.g. DNS: -p 53:53/tcp -p 53:53/udp).
-func (h *handlers) containerPubPorts() (map[string]containerPort, []ServiceEntry) {
-	byKey := make(map[string]containerPort)
-	var direct []ServiceEntry // entries to inject directly (not via sockstat)
-
-	cs, err := h.pc.ListContainers()
-	if err != nil {
-		return byKey, direct
-	}
-	for _, c := range cs {
-		if strings.ToLower(c.State) != "running" {
-			continue
-		}
-		name := "unnamed"
-		if len(c.Names) > 0 {
-			name = strings.TrimPrefix(c.Names[0], "/")
-		}
-		for _, p := range c.Ports {
-			if p.HostPort == 0 {
-				continue
-			}
-			proto := strings.ToUpper(p.Protocol)
-			if proto == "" {
-				proto = "TCP"
-			}
-			key := strconv.Itoa(int(p.HostPort)) + ":" + proto
-			byKey[key] = containerPort{Name: name, Proto: proto}
-
-			// Pre-build a direct entry; we'll deduplicate against sockstat later.
-			direct = append(direct, ServiceEntry{
-				Port:    int(p.HostPort),
-				Proto:   proto,
-				Addr:    "0.0.0.0",
-				Type:    "container",
-				Name:    name,
-				Command: "—",
-				User:    "—",
-			})
-		}
-	}
-	return byKey, direct
-}
-
 // jailNames returns jid → jail name via `jls jid name`.
+// On FreeBSD+Podman the jail name is the full container ID.
 func jailNames() map[int]string {
 	m := make(map[int]string)
 	out, err := exec.Command("jls", "jid", "name").Output()
@@ -96,34 +47,68 @@ func jailNames() map[int]string {
 		}
 		jid, err := strconv.Atoi(f[0])
 		if err != nil || jid == 0 {
-			continue // skip header ("JID") or bad lines
+			continue // skip header "JID" line
 		}
 		m[jid] = f[1]
 	}
 	return m
 }
 
-// pidJIDs returns pid → jid (0 = not in a jail) via `ps`.
-func pidJIDs() map[int]int {
+// pidJIDsFromJails builds PID → JID by running `ps -J <JID>` for each jail.
+// This is more reliable than `ps -ax -o jid=` which fails on some FreeBSD configs.
+func pidJIDsFromJails(jailMap map[int]string) map[int]int {
 	m := make(map[int]int)
-	out, err := exec.Command("ps", "-ax", "-o", "pid=,jid=").Output()
-	if err != nil {
-		return m
-	}
-	s := bufio.NewScanner(bytes.NewReader(out))
-	for s.Scan() {
-		f := strings.Fields(s.Text())
-		if len(f) < 2 {
+	for jid := range jailMap {
+		out, err := exec.Command("ps", "-J", strconv.Itoa(jid), "-o", "pid=").Output()
+		if err != nil {
 			continue
 		}
-		pid, e1 := strconv.Atoi(f[0])
-		jid, e2 := strconv.Atoi(f[1])
-		if e1 != nil || e2 != nil {
-			continue
+		s := bufio.NewScanner(bytes.NewReader(out))
+		for s.Scan() {
+			pid, err := strconv.Atoi(strings.TrimSpace(s.Text()))
+			if err != nil || pid == 0 {
+				continue
+			}
+			m[pid] = jid
 		}
-		m[pid] = jid
 	}
 	return m
+}
+
+// jidContainerNames matches jail names (= Podman container IDs) to container
+// display names, returning JID → containerName for Podman-managed jails.
+func (h *handlers) jidContainerNames(jailMap map[int]string) map[int]string {
+	result := make(map[int]string)
+	cs, err := h.pc.ListContainers()
+	if err != nil {
+		return result
+	}
+
+	// Build containerID → displayName
+	idToName := make(map[string]string)
+	for _, c := range cs {
+		name := "unnamed"
+		if len(c.Names) > 0 {
+			name = strings.TrimPrefix(c.Names[0], "/")
+		}
+		idToName[c.ID] = name
+	}
+
+	// Match: jail name == container ID (Podman names jails after container IDs)
+	for jid, jailName := range jailMap {
+		if name, ok := idToName[jailName]; ok {
+			result[jid] = name
+			continue
+		}
+		// Prefix match for truncated IDs
+		for id, name := range idToName {
+			if strings.HasPrefix(id, jailName) || strings.HasPrefix(jailName, id) {
+				result[jid] = name
+				break
+			}
+		}
+	}
+	return result
 }
 
 // listeningSockets parses `sockstat -l` and returns deduplicated entries.
@@ -170,12 +155,11 @@ func listeningSockets() ([]ServiceEntry, error) {
 			continue
 		}
 
-		// Strip 4/6 suffix to get proto family
-		protoFam := proto
-		if strings.HasSuffix(protoFam, "4") || strings.HasSuffix(protoFam, "6") {
-			protoFam = protoFam[:len(protoFam)-1]
-		}
+		// Strip trailing 4/6 to normalize: tcp4/tcp6 → tcp, udp4/udp6 → udp
+		protoFam := strings.TrimRight(proto, "46")
+		protoDisplay := strings.ToUpper(protoFam)
 
+		// Dedup: same service (command+port+protoFam) → one row
 		key := f[1] + ":" + strconv.Itoa(port) + ":" + protoFam
 		if seen[key] {
 			continue
@@ -184,7 +168,7 @@ func listeningSockets() ([]ServiceEntry, error) {
 
 		entries = append(entries, ServiceEntry{
 			Port:    port,
-			Proto:   strings.ToUpper(protoFam),
+			Proto:   protoDisplay,
 			Addr:    addr,
 			Command: f[1],
 			User:    f[0],
@@ -199,11 +183,12 @@ func listeningSockets() ([]ServiceEntry, error) {
 
 func (h *handlers) servicesDebug(w http.ResponseWriter, r *http.Request) {
 	type debugOut struct {
-		Containers []map[string]any `json:"containers"`
-		Sockstat   []ServiceEntry   `json:"sockstat"`
-		PidJIDs    map[int]int      `json:"pidJIDs"`
-		Jails      map[int]string   `json:"jails"`
-		Error      string           `json:"error,omitempty"`
+		Containers   []map[string]any `json:"containers"`
+		Sockstat     []ServiceEntry   `json:"sockstat"`
+		PidJIDs      map[int]int      `json:"pidJIDs"`
+		Jails        map[int]string   `json:"jails"`
+		ContByJID    map[int]string   `json:"containerByJID"`
+		Error        string           `json:"error,omitempty"`
 	}
 	out := debugOut{}
 
@@ -224,7 +209,7 @@ func (h *handlers) servicesDebug(w http.ResponseWriter, r *http.Request) {
 			})
 		}
 		out.Containers = append(out.Containers, map[string]any{
-			"name": name, "state": c.State, "ports": ports,
+			"id": c.ID, "name": name, "state": c.State, "ports": ports,
 		})
 	}
 
@@ -233,8 +218,9 @@ func (h *handlers) servicesDebug(w http.ResponseWriter, r *http.Request) {
 		out.Error += " | sockstat: " + sockErr.Error()
 	}
 	out.Sockstat = sock
-	out.PidJIDs = pidJIDs()
 	out.Jails = jailNames()
+	out.PidJIDs = pidJIDsFromJails(out.Jails)
+	out.ContByJID = h.jidContainerNames(out.Jails)
 
 	writeJSON(w, http.StatusOK, out)
 }
@@ -244,63 +230,50 @@ func (h *handlers) servicesDebug(w http.ResponseWriter, r *http.Request) {
 func (h *handlers) servicesInfo(w http.ResponseWriter, r *http.Request) {
 	vm := ServicesVM{ActivePage: "services"}
 
-	// Gather all data sources.
 	sockEntries, sockErr := listeningSockets()
-	cByKey, cDirect := h.containerPubPorts() // from Podman API
-	pidJID := pidJIDs()
-	jails := jailNames()
-
 	if sockErr != nil {
 		vm.FetchError = "sockstat 실행 실패: " + sockErr.Error()
 	}
 
-	// Step 1: classify sockstat entries.
-	// "port:PROTO" keys that were already matched to a container.
-	coveredByContainer := make(map[string]bool)
+	jailMap := jailNames()
+	containerByJID := h.jidContainerNames(jailMap)
+	pidJID := pidJIDsFromJails(jailMap)
 
-	var entries []ServiceEntry
 	for i := range sockEntries {
-		e := sockEntries[i]
-		key := strconv.Itoa(e.Port) + ":" + e.Proto
+		e := &sockEntries[i]
 
-		// 1. Container: port+proto matches a Podman published port
-		if cp, ok := cByKey[key]; ok {
-			e.Type = "container"
-			e.Name = cp.Name
-			coveredByContainer[key] = true
-		} else if jid := pidJID[e.PID]; jid > 0 {
-			// 2. Jail: process runs inside a FreeBSD jail
-			e.Type = "jail"
-			if jname, ok := jails[jid]; ok {
-				e.Name = jname
+		jid := pidJID[e.PID]
+		if jid > 0 {
+			if name, ok := containerByJID[jid]; ok {
+				// Process is in a Podman container jail
+				e.Type = "container"
+				e.Name = name
 			} else {
-				e.Name = "JID:" + strconv.Itoa(jid)
+				// Process is in a non-container FreeBSD jail
+				e.Type = "jail"
+				if jname, ok := jailMap[jid]; ok {
+					if len(jname) > 12 {
+						e.Name = jname[:12] // truncate long container IDs
+					} else {
+						e.Name = jname
+					}
+				} else {
+					e.Name = "JID:" + strconv.Itoa(jid)
+				}
 			}
 		} else {
-			// 3. Native
 			e.Type = "native"
 			e.Name = e.Command
 		}
-		entries = append(entries, e)
 	}
 
-	// Step 2: add container ports that sockstat didn't expose.
-	// On FreeBSD, Podman may forward ports via pf(4) rules rather than binding
-	// a user-space socket, so those ports never appear in sockstat output.
-	for _, ce := range cDirect {
-		key := strconv.Itoa(ce.Port) + ":" + ce.Proto
-		if !coveredByContainer[key] {
-			entries = append(entries, ce)
+	sort.Slice(sockEntries, func(i, j int) bool {
+		if sockEntries[i].Port != sockEntries[j].Port {
+			return sockEntries[i].Port < sockEntries[j].Port
 		}
-	}
-
-	sort.Slice(entries, func(i, j int) bool {
-		if entries[i].Port != entries[j].Port {
-			return entries[i].Port < entries[j].Port
-		}
-		return entries[i].Proto < entries[j].Proto
+		return sockEntries[i].Proto < sockEntries[j].Proto
 	})
 
-	vm.Services = entries
+	vm.Services = sockEntries
 	render(w, "services", vm)
 }
