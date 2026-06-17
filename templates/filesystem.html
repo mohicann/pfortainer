@@ -9,17 +9,31 @@
   .health-UNAVAIL  { background:#dc3545!important; }
   .health-OFFLINE,
   .health-REMOVED  { background:#6c757d!important; }
-  .ds-pool    { font-weight:700; background:#f8f9fa; }
-  .ds-snap    { color:#999; font-style:italic; }
-  .ds-indent  { display:flex; align-items:center; gap:.35rem; }
-  .ds-indent .ds-icon { color:#adb5bd; font-size:.78rem; }
+
+  /* 트리 토글 버튼 */
+  .toggle-btn {
+    background: none; border: none; padding: 0;
+    cursor: pointer; color: #5a6a7e;
+    font-size: .95rem; line-height: 1;
+    width: 18px; flex-shrink: 0;
+    display: inline-flex; align-items: center;
+  }
+  .toggle-btn:hover { color: #1a73e8; }
+  .toggle-placeholder { width: 18px; flex-shrink: 0; display: inline-flex; }
+
+  .ds-name-cell {
+    display: flex; align-items: center; gap: .4rem;
+    white-space: nowrap;
+  }
+  .ds-snap { color: #999; }
+
   .cli-hint {
-    font-size:.76rem; color:#6c757d;
-    display:flex; align-items:center; gap:.3rem;
+    font-size: .76rem; color: #6c757d;
+    display: flex; align-items: center; gap: .3rem;
   }
   .cli-hint code {
-    background:#f0f2f5; padding:1px 5px;
-    border-radius:3px; font-size:.73rem;
+    background: #f0f2f5; padding: 1px 5px;
+    border-radius: 3px; font-size: .73rem;
   }
 </style>
 
@@ -31,12 +45,8 @@
   <table class="table mb-0">
     <thead>
       <tr>
-        <th>이름</th>
-        <th>전체</th>
-        <th>할당</th>
-        <th>여유</th>
-        <th style="min-width:130px">사용률</th>
-        <th>상태</th>
+        <th>이름</th><th>전체</th><th>할당</th><th>여유</th>
+        <th style="min-width:140px">사용률</th><th>상태</th>
       </tr>
     </thead>
     <tbody>
@@ -65,30 +75,49 @@
 {{/* ── 데이터셋 ─────────────────────────────────────── */}}
 <div class="card-table">
   <div class="ct-header">
-    <span style="font-weight:600">데이터셋 <span class="badge bg-secondary ms-1">{{len .Datasets}}</span></span>
-    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
-      <i class="bi bi-plus-lg me-1"></i>데이터셋 추가
-    </button>
+    <span style="font-weight:600">
+      데이터셋 <span class="badge bg-secondary ms-1">{{len .Datasets}}</span>
+    </span>
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-outline-secondary" onclick="expandAll()">
+        <i class="bi bi-arrows-expand me-1"></i>모두 펼치기
+      </button>
+      <button class="btn btn-sm btn-outline-secondary" onclick="collapseAll()">
+        <i class="bi bi-arrows-collapse me-1"></i>모두 접기
+      </button>
+      <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+        <i class="bi bi-plus-lg me-1"></i>데이터셋 추가
+      </button>
+    </div>
   </div>
   <table class="table mb-0" style="font-size:.875rem">
     <thead>
       <tr>
-        <th style="min-width:220px">이름</th>
-        <th>유형</th>
-        <th>사용</th>
-        <th>여유</th>
-        <th>참조</th>
-        <th>마운트포인트</th>
-        <th>작업</th>
+        <th style="min-width:240px">이름</th>
+        <th>유형</th><th>사용</th><th>여유</th><th>참조</th>
+        <th>마운트포인트</th><th>작업</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="dsTable">
       {{range .Datasets}}
-      <tr class="{{if .IsPool}}ds-pool{{end}}{{if eq .Type "snapshot"}} ds-snap{{end}}">
+      <tr data-name="{{.Name}}"
+          data-parent="{{.Parent}}"
+          data-depth="{{.Depth}}"
+          {{if ge .Depth 2}}style="display:none"{{end}}>
         <td>
-          <div class="ds-indent" style="padding-left:{{.IndentPx}}px">
-            {{if not .IsPool}}<i class="bi bi-chevron-right ds-icon"></i>{{end}}
-            <span class="mono">{{.ShortName}}</span>
+          <div class="ds-name-cell" style="padding-left:{{.IndentPx}}px">
+            {{if .HasChildren}}
+            {{/* depth=0(풀) 자식은 depth=1이 기본 표시 → 펼침(-) 상태, 그 외 접힘(+) */}}
+            <button class="toggle-btn"
+                    data-toggle="{{.Name}}"
+                    data-expanded="{{if eq .Depth 0}}true{{else}}false{{end}}"
+                    onclick="toggleNode('{{.Name}}')">
+              <i class="bi {{if eq .Depth 0}}bi-dash-square{{else}}bi-plus-square{{end}}"></i>
+            </button>
+            {{else}}
+            <span class="toggle-placeholder"></span>
+            {{end}}
+            <span class="mono{{if eq .Type "snapshot"}} ds-snap{{end}}">{{.ShortName}}</span>
           </div>
         </td>
         <td>
@@ -103,19 +132,18 @@
         <td class="mono" style="font-size:.8rem;color:#6c757d">{{.Mountpoint}}</td>
         <td>
           {{if .CanDelete}}
-          <button class="btn btn-sm btn-outline-danger"
-                  onclick="confirmDelete('{{.Name}}')">
+          <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete('{{.Name}}')">
             <i class="bi bi-trash3"></i>
           </button>
           {{else if and .HasFiles (not .IsPool) (eq .Type "filesystem")}}
           <div class="cli-hint">
             <i class="bi bi-terminal"></i>
-            <span>파일 있음 — CLI 사용:</span>
+            <span>파일 있음 — CLI:</span>
             <code>zfs destroy {{.Name}}</code>
           </div>
           {{else if and .HasChildren (not .IsPool) (eq .Type "filesystem")}}
           <span class="text-muted" style="font-size:.78rem">
-            <i class="bi bi-diagram-2 me-1"></i>하위 데이터셋 있음
+            <i class="bi bi-diagram-2 me-1"></i>하위 있음
           </span>
           {{end}}
         </td>
@@ -138,7 +166,7 @@
           <label class="form-label fw-medium" style="font-size:.87rem">상위 데이터셋</label>
           <select id="addParent" class="form-select form-select-sm">
             {{range .Datasets}}
-            {{if and (eq .Type "filesystem") (not (eq .Type "snapshot"))}}
+            {{if eq .Type "filesystem"}}
             <option value="{{.Name}}">{{.Name}}</option>
             {{end}}
             {{end}}
@@ -162,7 +190,7 @@
   </div>
 </div>
 
-{{/* ── 삭제 확인 모달 ─────────────────────────────── */}}
+{{/* ── 1차 삭제 확인 모달 ─────────────────────────── */}}
 <div class="modal fade" id="deleteModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content border-danger">
@@ -181,15 +209,13 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
-        <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete2()">
-          삭제
-        </button>
+        <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete2()">삭제</button>
       </div>
     </div>
   </div>
 </div>
 
-{{/* ── 최종 확인 모달 ─────────────────────────────── */}}
+{{/* ── 2차(최종) 삭제 확인 모달 ─────────────────── */}}
 <div class="modal fade" id="deleteModal2" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content border-danger">
@@ -219,7 +245,7 @@
 
 <script>
 var pendingDataset = '';
-var modal1 = null, modal2 = null, addModal = null;
+var modal1, modal2, addModal;
 
 document.addEventListener('DOMContentLoaded', function() {
   modal1   = new bootstrap.Modal(document.getElementById('deleteModal'));
@@ -227,15 +253,71 @@ document.addEventListener('DOMContentLoaded', function() {
   addModal = new bootstrap.Modal(document.getElementById('addModal'));
 });
 
-// 1차 확인 모달
+/* ── 트리 토글 ──────────────────────────────────── */
+
+function toggleNode(name) {
+  var btn = document.querySelector('[data-toggle="' + name + '"]');
+  var expanded = btn.getAttribute('data-expanded') === 'true';
+  if (expanded) {
+    hideDescendants(name);
+    btn.querySelector('i').className = 'bi bi-plus-square';
+    btn.setAttribute('data-expanded', 'false');
+  } else {
+    // 직계 자식만 표시
+    document.querySelectorAll('[data-parent="' + name + '"]').forEach(function(row) {
+      row.style.display = '';
+    });
+    btn.querySelector('i').className = 'bi bi-dash-square';
+    btn.setAttribute('data-expanded', 'true');
+  }
+}
+
+// name의 모든 하위 행 숨기고 토글 상태 초기화
+function hideDescendants(name) {
+  document.querySelectorAll('[data-parent="' + name + '"]').forEach(function(row) {
+    var childName = row.getAttribute('data-name');
+    row.style.display = 'none';
+    hideDescendants(childName);
+    var childBtn = document.querySelector('[data-toggle="' + childName + '"]');
+    if (childBtn) {
+      childBtn.querySelector('i').className = 'bi bi-plus-square';
+      childBtn.setAttribute('data-expanded', 'false');
+    }
+  });
+}
+
+// 모두 펼치기
+function expandAll() {
+  document.querySelectorAll('#dsTable tr').forEach(function(row) {
+    row.style.display = '';
+  });
+  document.querySelectorAll('[data-toggle]').forEach(function(btn) {
+    btn.querySelector('i').className = 'bi bi-dash-square';
+    btn.setAttribute('data-expanded', 'true');
+  });
+}
+
+// 모두 접기 (풀 행은 유지)
+function collapseAll() {
+  document.querySelectorAll('#dsTable tr').forEach(function(row) {
+    if (row.getAttribute('data-depth') !== '0') {
+      row.style.display = 'none';
+    }
+  });
+  document.querySelectorAll('[data-toggle]').forEach(function(btn) {
+    btn.querySelector('i').className = 'bi bi-plus-square';
+    btn.setAttribute('data-expanded', 'false');
+  });
+}
+
+/* ── 삭제 ────────────────────────────────────────── */
+
 function confirmDelete(name) {
   pendingDataset = name;
   document.getElementById('deleteTarget').textContent = name;
-  document.getElementById('deleteError').classList.add('d-none');
   modal1.show();
 }
 
-// 2차 확인 모달
 function confirmDelete2() {
   modal1.hide();
   document.getElementById('deleteTarget2').textContent = pendingDataset;
@@ -243,11 +325,9 @@ function confirmDelete2() {
   modal2.show();
 }
 
-// 실제 삭제 요청
 function doDelete() {
   var errEl = document.getElementById('deleteError');
   errEl.classList.add('d-none');
-
   fetch('/api/filesystem/delete', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
@@ -255,33 +335,24 @@ function doDelete() {
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    if (data.success) {
-      modal2.hide();
-      location.reload();
-    } else {
-      errEl.textContent = data.error || '삭제 실패';
-      errEl.classList.remove('d-none');
-    }
+    if (data.success) { modal2.hide(); location.reload(); }
+    else { errEl.textContent = data.error || '삭제 실패'; errEl.classList.remove('d-none'); }
   })
-  .catch(function(e) {
-    errEl.textContent = '요청 오류: ' + e;
-    errEl.classList.remove('d-none');
-  });
+  .catch(function(e) { errEl.textContent = '요청 오류: ' + e; errEl.classList.remove('d-none'); });
 }
 
-// 데이터셋 생성
+/* ── 생성 ────────────────────────────────────────── */
+
 function submitCreate() {
   var errEl = document.getElementById('addError');
   var parent = document.getElementById('addParent').value;
   var name   = document.getElementById('addName').value.trim();
   errEl.classList.add('d-none');
-
   if (!name) {
     errEl.textContent = '데이터셋 이름을 입력하세요.';
     errEl.classList.remove('d-none');
     return;
   }
-
   fetch('/api/filesystem/create', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
@@ -289,18 +360,10 @@ function submitCreate() {
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    if (data.success) {
-      addModal.hide();
-      location.reload();
-    } else {
-      errEl.textContent = data.error || '생성 실패';
-      errEl.classList.remove('d-none');
-    }
+    if (data.success) { addModal.hide(); location.reload(); }
+    else { errEl.textContent = data.error || '생성 실패'; errEl.classList.remove('d-none'); }
   })
-  .catch(function(e) {
-    errEl.textContent = '요청 오류: ' + e;
-    errEl.classList.remove('d-none');
-  });
+  .catch(function(e) { errEl.textContent = '요청 오류: ' + e; errEl.classList.remove('d-none'); });
 }
 </script>
 {{end}}

@@ -23,6 +23,7 @@ type ZFSPool struct {
 type ZFSDataset struct {
 	Name        string
 	ShortName   string // 마지막 경로 컴포넌트 (display용)
+	Parent      string // 직계 부모 이름 (풀은 "")
 	Type        string // filesystem | volume | snapshot
 	Used        string
 	Avail       string
@@ -120,6 +121,16 @@ func listZFSDatasets() ([]ZFSDataset, error) {
 		return name
 	}
 
+	parentOf := func(name string) string {
+		if atIdx := strings.LastIndex(name, "@"); atIdx > strings.LastIndex(name, "/") {
+			return name[:atIdx]
+		}
+		if slashIdx := strings.LastIndex(name, "/"); slashIdx >= 0 {
+			return name[:slashIdx]
+		}
+		return ""
+	}
+
 	depth := func(name string) int {
 		// 스냅샷은 @ 앞의 경로 깊이 + 1
 		if atIdx := strings.LastIndex(name, "@"); atIdx > strings.LastIndex(name, "/") {
@@ -153,6 +164,7 @@ func listZFSDatasets() ([]ZFSDataset, error) {
 		datasets = append(datasets, ZFSDataset{
 			Name:        name,
 			ShortName:   shortName(name),
+			Parent:      parentOf(name),
 			Type:        dsType,
 			Used:        fmtBytes(used),
 			Avail:       fmtBytes(avail),
