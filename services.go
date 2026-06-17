@@ -195,6 +195,50 @@ func listeningSockets() ([]ServiceEntry, error) {
 	return entries, nil
 }
 
+// ── Debug ─────────────────────────────────────────────────────────────────────
+
+func (h *handlers) servicesDebug(w http.ResponseWriter, r *http.Request) {
+	type debugOut struct {
+		Containers []map[string]any `json:"containers"`
+		Sockstat   []ServiceEntry   `json:"sockstat"`
+		PidJIDs    map[int]int      `json:"pidJIDs"`
+		Jails      map[int]string   `json:"jails"`
+		Error      string           `json:"error,omitempty"`
+	}
+	out := debugOut{}
+
+	cs, err := h.pc.ListContainers()
+	if err != nil {
+		out.Error = "ListContainers: " + err.Error()
+	}
+	for _, c := range cs {
+		name := "unnamed"
+		if len(c.Names) > 0 {
+			name = strings.TrimPrefix(c.Names[0], "/")
+		}
+		ports := make([]map[string]any, 0, len(c.Ports))
+		for _, p := range c.Ports {
+			ports = append(ports, map[string]any{
+				"host_port": p.HostPort, "container_port": p.ContainerPort,
+				"protocol": p.Protocol, "host_ip": p.HostIP,
+			})
+		}
+		out.Containers = append(out.Containers, map[string]any{
+			"name": name, "state": c.State, "ports": ports,
+		})
+	}
+
+	sock, sockErr := listeningSockets()
+	if sockErr != nil {
+		out.Error += " | sockstat: " + sockErr.Error()
+	}
+	out.Sockstat = sock
+	out.PidJIDs = pidJIDs()
+	out.Jails = jailNames()
+
+	writeJSON(w, http.StatusOK, out)
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 func (h *handlers) servicesInfo(w http.ResponseWriter, r *http.Request) {
