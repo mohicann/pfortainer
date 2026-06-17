@@ -27,13 +27,12 @@
   }
   .ds-snap { color: #999; }
 
-  .cli-hint {
-    font-size: .76rem; color: #6c757d;
-    display: flex; align-items: center; gap: .3rem;
-  }
-  .cli-hint code {
-    background: #f0f2f5; padding: 1px 5px;
-    border-radius: 3px; font-size: .73rem;
+  .cli-code {
+    background: #1e2a3a; color: #e8f0fe;
+    padding: .6rem .9rem; border-radius: 6px;
+    font-family: 'SF Mono','Fira Code',monospace;
+    font-size: .88rem; user-select: all;
+    word-break: break-all;
   }
 </style>
 
@@ -136,11 +135,10 @@
             <i class="bi bi-trash3"></i>
           </button>
           {{else if and .HasFiles (not .IsPool) (eq .Type "filesystem")}}
-          <div class="cli-hint">
-            <i class="bi bi-terminal"></i>
-            <span>파일 있음 — CLI:</span>
-            <code>zfs destroy {{.Name}}</code>
-          </div>
+          <button class="btn btn-sm btn-outline-warning"
+                  onclick="showCliHint('{{.Name}}')">
+            <i class="bi bi-trash3"></i>
+          </button>
           {{else if and .HasChildren (not .IsPool) (eq .Type "filesystem")}}
           <span class="text-muted" style="font-size:.78rem">
             <i class="bi bi-diagram-2 me-1"></i>하위 있음
@@ -185,6 +183,34 @@
         <button type="button" class="btn btn-sm btn-primary" onclick="submitCreate()">
           <i class="bi bi-plus-lg me-1"></i>생성
         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{/* ── 파일 있음 CLI 안내 모달 ────────────────────── */}}
+<div class="modal fade" id="cliModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title fw-semibold">
+          <i class="bi bi-terminal me-2 text-warning"></i>파일이 있는 데이터셋
+        </h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:.88rem" class="mb-3">
+          이 데이터셋에는 파일이 있어 UI에서 직접 삭제할 수 없습니다.<br>
+          터미널에서 아래 명령어를 실행하세요.
+        </p>
+        <div class="cli-code" id="cliCommand"></div>
+        <p class="text-danger mt-3 mb-0" style="font-size:.82rem">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i>
+          데이터가 영구 삭제됩니다. 실행 전 반드시 내용을 확인하세요.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">닫기</button>
       </div>
     </div>
   </div>
@@ -245,13 +271,19 @@
 
 <script>
 var pendingDataset = '';
-var modal1, modal2, addModal;
+var modal1, modal2, addModal, cliModal;
 
 document.addEventListener('DOMContentLoaded', function() {
   modal1   = new bootstrap.Modal(document.getElementById('deleteModal'));
   modal2   = new bootstrap.Modal(document.getElementById('deleteModal2'));
   addModal = new bootstrap.Modal(document.getElementById('addModal'));
+  cliModal = new bootstrap.Modal(document.getElementById('cliModal'));
 });
+
+function showCliHint(name) {
+  document.getElementById('cliCommand').textContent = 'zfs destroy ' + name;
+  cliModal.show();
+}
 
 /* ── 트리 토글 ──────────────────────────────────── */
 
