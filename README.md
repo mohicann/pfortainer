@@ -5,17 +5,16 @@ Podman REST API(유닉스 소켓)에 직접 연결해 컨테이너/이미지를 
 
 ## 주요 기능
 
+**pfortainer 메뉴**
 - **Dashboard**: 전체/실행 중/정지 컨테이너 수, 이미지 수, 실행 중인 컨테이너 목록
-- **Containers**
-  - 목록 조회 (이름, 상태, 이미지, 생성일, 포트, ID)
-  - 검색(이름/상태/이미지/포트/ID 텍스트 필터)
-  - 체크박스 다중 선택 + 상단 작업 툴바: 시작 / 정지 / Kill / 재시작 / 일시정지(pause) / 재개(resume) / 삭제
-  - 실행 중인 컨테이너를 삭제하려고 하면 "실행 중인 컨테이너는 삭제할 수 없습니다" 안내
-- **Images**
-  - 목록 조회 (태그, Image ID, 크기, 생성일)
-  - 검색(태그/ID/크기/생성일 텍스트 필터)
-  - 체크박스 다중 선택 + 삭제 / 강제 삭제(force remove, 드롭다운)
-- **인증**: 단일 관리자 비밀번호 + HMAC 서명된 세션 쿠키 (8시간 유지)
+- **Containers**: 목록 조회·검색, 상세 보기, 다중 선택 작업(시작/정지/Kill/재시작/일시정지/재개/삭제)
+- **Images**: 목록 조회·검색, 다중 선택 삭제/강제 삭제
+
+**시스템 메뉴**
+- **시스템 정보**: Podman `/libpod/info` API로 호스트 정보(hostname·OS·커널·아키텍처·업타임), CPU 사용률, 메모리/스왑, Podman 버전, 컨테이너·이미지 수, 스토리지 경로 표시
+
+**공통**
+- 단일 관리자 비밀번호 + HMAC-SHA256 서명된 세션 쿠키 (8시간 유지)
 
 ## 설정
 
@@ -24,8 +23,8 @@ Podman REST API(유닉스 소켓)에 직접 연결해 컨테이너/이미지를 
 | 변수 | 기본값 | 설명 |
 |---|---|---|
 | `PODMAN_SOCKET` | `/run/podman/podman.sock` | Podman API 유닉스 소켓 경로 |
-| `ADMIN_PASSWORD` | (변경 필요) | 로그인 비밀번호 |
-| `SESSION_SECRET` | (기본값 변경 필요) | 세션 쿠키 서명용 시크릿 |
+| `ADMIN_PASSWORD` | (필수) | 로그인 비밀번호 |
+| `SESSION_SECRET` | (필수) | 세션 쿠키 서명용 시크릿 |
 | `HOST` | `0.0.0.0` | 바인드 호스트 |
 | `PORT` | `11000` | 바인드 포트 |
 
@@ -50,33 +49,31 @@ GOOS=freebsd GOARCH=amd64 go build -o pfortainer-freebsd .
 
 배포 위치: `/zdata/tools/pfortainer-freebsd/`
 
-1. 빌드한 `pfortainer-freebsd` 바이너리를 서버로 전송 후 `pfortainer`로 교체
-   (실행 중인 바이너리는 `service stop` 후 교체해야 "Text file busy" 오류를 피할 수 있음)
-2. `deploy/freebsd/rc.d/pfortainer`를 `/usr/local/etc/rc.d/pfortainer`에 설치하고
-   `sysrc pfortainer_enable=YES` 설정
-3. `service pfortainer start|stop|restart|status`로 관리
-   - 시작 시 Podman API 소켓(`/run/podman/podman.sock`)이 없으면 자동으로
-     `podman system service`를 백그라운드로 띄움
+**초기 설치:**
+1. `deploy/freebsd/rc.d/pfortainer`를 `/usr/local/etc/rc.d/pfortainer`에 복사
+2. `sysrc pfortainer_enable=YES`
+3. `/zdata/tools/pfortainer-freebsd/.env` 생성 (`.env.example` 참고)
+4. `service pfortainer start`
 
-수동 실행이 필요하면 `deploy/freebsd/start.sh` 참고.
+**바이너리 업데이트:**
+```sh
+sudo service pfortainer stop
+# pfortainer-freebsd 전송 후 배포 경로에 교체
+sudo service pfortainer start
+```
 
-## 구조
+> 실행 중인 바이너리를 바로 덮어쓰면 "Text file busy" 오류가 발생하므로 반드시 stop 후 교체.
 
-- `main.go` — 라우팅, 인증 미들웨어
-- `handlers.go` — 페이지 렌더링 및 컨테이너/이미지 액션 핸들러
-- `podman.go` — Podman REST API 클라이언트 (조회 + 시작/정지/재시작/kill/pause/resume/remove, 이미지 remove)
-- `session.go` — 쿠키 기반 인증
-- `config.go` — 환경변수/`.env` 로딩
-- `templates/` — HTML 템플릿 (Bootstrap 5 + Bootstrap Icons)
+rc.d 스크립트는 시작 시 Podman API 소켓(`/run/podman/podman.sock`)이 없으면 자동으로 `podman system service`를 백그라운드로 띄운다. 소켓 자체는 별도 rc 서비스(`podman_api`)로도 관리 가능.
 
 ## 문제 해결
 
-- **대시보드에서 "Podman 연결 실패: runtime error: invalid memory address or nil
-  pointer dereference"**: Podman 5.8.1/FreeBSD의 Docker 호환 API
-  (`/containers/json`)가 컨테이너 목록 조회 시 panic을 일으키는 버그가 있습니다.
-  이를 회피하기 위해 컨테이너 목록은 네이티브 libpod API
-  (`/v5.0.0/libpod/containers/json`)를 사용합니다(`podman.go`의
-  `ListContainers`). 만약 이 에러가 다시 보인다면 Podman 버전이 바뀌면서
-  libpod API 응답 형식이 변경되었을 가능성이 있으니
-  `podman ps -a` / `curl --unix-socket ... http://d/v5.0.0/libpod/containers/json?all=true`
-  로 직접 비교해보세요.
+**컨테이너 목록/상세에서 nil pointer panic**
+
+Podman 5.8.1/FreeBSD의 Docker 호환 API(`/containers/json`, `/containers/{id}/json`)가 panic을 일으키는 버그가 있다. 이를 피하기 위해 목록·상세 조회는 네이티브 libpod API(`/v5.0.0/libpod/...`)를 사용한다. 상세 조회에서 5xx가 발생하면 목록 데이터로 대체 렌더링하며 페이지 상단에 경고 배너를 표시한다.
+
+Podman 버전 업그레이드 후 같은 증상이 재발하면 libpod API 응답 형식 변경 여부를 확인:
+```sh
+curl --unix-socket /run/podman/podman.sock \
+  http://d/v5.0.0/libpod/containers/json?all=true
+```
