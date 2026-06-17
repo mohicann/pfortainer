@@ -5,10 +5,15 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"path/filepath"
 )
 
 //go:embed templates/*
 var templateFS embed.FS
+
+var tmplFuncs = template.FuncMap{
+	"dir": filepath.Dir,
+}
 
 func render(w http.ResponseWriter, page string, data any) {
 	var (
@@ -17,10 +22,10 @@ func render(w http.ResponseWriter, page string, data any) {
 		err      error
 	)
 	if page == "login" {
-		tmpl, err = template.ParseFS(templateFS, "templates/login.html")
+		tmpl, err = template.New("login").Funcs(tmplFuncs).ParseFS(templateFS, "templates/login.html")
 		rootName = "login"
 	} else {
-		tmpl, err = template.ParseFS(templateFS, "templates/base.html", "templates/"+page+".html")
+		tmpl, err = template.New("base").Funcs(tmplFuncs).ParseFS(templateFS, "templates/base.html", "templates/"+page+".html")
 		rootName = "base"
 	}
 	if err != nil {

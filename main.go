@@ -40,6 +40,19 @@ func main() {
 	mux.Handle("POST /api/filesystem/create", auth(h.filesystemCreate))
 	mux.Handle("POST /api/filesystem/delete", auth(h.filesystemDelete))
 
+	mux.Handle("GET /files", auth(h.fileList))
+	mux.Handle("GET /files/edit", auth(h.fileEdit))
+	mux.Handle("GET /api/files/download", auth(h.fileDownload))
+	mux.Handle("POST /api/files/upload", auth(h.fileUpload))
+	mux.Handle("POST /api/files/mkdir", auth(h.fileMkdir))
+	mux.Handle("POST /api/files/create", auth(h.fileCreate))
+	mux.Handle("POST /api/files/delete", auth(h.fileDelete))
+	mux.Handle("POST /api/files/rename", auth(h.fileRename))
+	mux.Handle("POST /api/files/chmod", auth(h.fileChmod))
+	mux.Handle("POST /api/files/save", auth(h.fileSave))
+	mux.Handle("POST /api/files/clip", auth(h.fileClip))
+	mux.Handle("POST /api/files/paste", auth(h.filePaste))
+
 	addr := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
 	srv := &http.Server{
 		Addr:         addr,

@@ -1,0 +1,628 @@
+{{template "base" .}}
+{{define "title"}}파일매니저 — pfortainer{{end}}
+{{define "pagetitle"}}파일매니저{{end}}
+{{define "content"}}
+<style>
+  .fm-breadcrumb { font-size:.88rem; margin-bottom:1rem; }
+  .fm-breadcrumb a { color:#1a73e8; text-decoration:none; }
+  .fm-breadcrumb a:hover { text-decoration:underline; }
+  .fm-breadcrumb .sep { color:#aaa; margin:0 .3rem; }
+
+  #selToolbar {
+    background:#eef2ff; border-bottom:1px solid #d0d8f0;
+    padding:.5rem 1rem; display:none; gap:.5rem; align-items:center; flex-wrap:wrap;
+  }
+
+  .fm-icon { font-size:1rem; }
+  .bi-folder-fill { color:#f0b429; }
+  .bi-arrow-right-square { color:#6c757d; }
+  .fm-name { font-weight:500; color:#212529; text-decoration:none; }
+  .fm-name:hover { color:#1a73e8; text-decoration:underline; }
+
+  .drop-zone-active { outline:2px dashed #1a73e8; background:#eef5ff; }
+
+  .clip-banner {
+    background:#fff3cd; border:1px solid #ffc107; border-radius:6px;
+    padding:.45rem .8rem; font-size:.83rem; margin-bottom:.75rem;
+    display:flex; align-items:center; gap:.5rem;
+  }
+</style>
+
+{{/* ── 클립보드 배너 ─────────────────────────────── */}}
+{{if .Clip.Op}}
+<div class="clip-banner">
+  {{if eq .Clip.Op "cut"}}
+  <i class="bi bi-scissors text-warning"></i>
+  <span>잘라낸 항목 {{len .Clip.Paths}}개</span>
+  {{else}}
+  <i class="bi bi-files text-primary"></i>
+  <span>복사할 항목 {{len .Clip.Paths}}개</span>
+  {{end}}
+  <button class="btn btn-sm btn-outline-success ms-1" onclick="doPaste()">
+    <i class="bi bi-clipboard-check me-1"></i>여기에 붙여넣기
+  </button>
+  <button class="btn btn-sm btn-link text-muted p-0 ms-1" onclick="clearClip()">취소</button>
+</div>
+{{end}}
+
+{{/* ── 브레드크럼 + 숨김파일 토글 ───────────────── */}}
+<div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+  <nav class="fm-breadcrumb mb-0">
+    {{range $i, $b := .Breadcrumbs}}
+    {{if $i}}<span class="sep">/</span>{{end}}
+    {{if eq $b.Path $.CWD}}
+    <span class="fw-semibold">{{$b.Name}}</span>
+    {{else}}
+    <a href="/files?path={{$b.Path}}{{if $.ShowHidden}}&hidden=1{{end}}">{{$b.Name}}</a>
+    {{end}}
+    {{end}}
+  </nav>
+  <div class="d-flex gap-2 align-items-center">
+    <label class="form-check form-switch mb-0 d-flex align-items-center gap-1" style="cursor:pointer;font-size:.83rem">
+      <input class="form-check-input" type="checkbox" id="hiddenToggle"
+             {{if .ShowHidden}}checked{{end}} onchange="toggleHidden(this)">
+      숨김파일
+    </label>
+    <button class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+      <i class="bi bi-arrow-clockwise"></i>
+    </button>
+  </div>
+</div>
+
+{{/* ── 파일 목록 카드 ──────────────────────────── */}}
+<div class="card-table" id="dropZone">
+  {{/* 헤더 툴바 */}}
+  <div class="ct-header">
+    <span style="font-weight:600">
+      {{.CWD}} <span class="badge bg-secondary ms-1">{{len .Entries}}</span>
+    </span>
+    <div class="d-flex gap-2 flex-wrap">
+      {{if .Parent}}
+      <a href="/files?path={{.Parent}}{{if .ShowHidden}}&hidden=1{{end}}"
+         class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-up me-1"></i>상위
+      </a>
+      {{end}}
+      <button class="btn btn-sm btn-outline-secondary" onclick="openUploadModal()">
+        <i class="bi bi-upload me-1"></i>업로드
+      </button>
+      <button class="btn btn-sm btn-outline-secondary" onclick="openMkdirModal()">
+        <i class="bi bi-folder-plus me-1"></i>폴더
+      </button>
+      <button class="btn btn-sm btn-outline-secondary" onclick="openCreateFileModal()">
+        <i class="bi bi-file-earmark-plus me-1"></i>파일
+      </button>
+    </div>
+  </div>
+
+  {{/* 선택 툴바 */}}
+  <div id="selToolbar" style="display:none;padding:.5rem 1rem;background:#eef2ff;border-bottom:1px solid #d0d8f0">
+    <div class="d-flex gap-2 align-items-center flex-wrap">
+      <span id="selCount" class="badge bg-primary" style="font-size:.8rem"></span>
+      <button class="btn btn-sm btn-outline-secondary" onclick="doCopy()">
+        <i class="bi bi-files me-1"></i>복사
+      </button>
+      <button class="btn btn-sm btn-outline-secondary" onclick="doCut()">
+        <i class="bi bi-scissors me-1"></i>잘라내기
+      </button>
+      <button class="btn btn-sm btn-outline-secondary" onclick="openRenameModal()">
+        <i class="bi bi-pencil me-1"></i>이름변경
+      </button>
+      <button class="btn btn-sm btn-outline-secondary" onclick="openChmodModal()">
+        <i class="bi bi-gear me-1"></i>권한
+      </button>
+      <button class="btn btn-sm btn-danger" onclick="openDeleteModal()">
+        <i class="bi bi-trash3 me-1"></i>삭제
+      </button>
+      <button class="btn btn-sm btn-link text-muted p-0 ms-1" onclick="clearSelection()" style="font-size:.82rem">선택 해제</button>
+    </div>
+  </div>
+
+  {{/* 테이블 */}}
+  <table class="table mb-0" style="font-size:.875rem">
+    <thead>
+      <tr>
+        <th style="width:36px">
+          <input type="checkbox" class="form-check-input" id="selectAll" onclick="toggleAll(this)">
+        </th>
+        <th>이름</th>
+        <th style="min-width:90px">크기</th>
+        <th style="min-width:80px">권한</th>
+        <th>소유자</th>
+        <th style="min-width:130px">수정일</th>
+        <th style="width:80px"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {{if not .Entries}}
+      <tr><td colspan="7" class="text-muted text-center py-4" style="font-size:.85rem">비어 있음</td></tr>
+      {{end}}
+      {{range .Entries}}
+      <tr data-path="{{.Path}}" data-is-dir="{{.IsDir}}">
+        <td><input type="checkbox" class="fm-cb form-check-input" onchange="updateToolbar()"></td>
+        <td>
+          <i class="bi {{.Icon}} fm-icon me-1"></i>
+          {{if .IsDir}}
+          <a class="fm-name" href="/files?path={{.Path}}{{if $.ShowHidden}}&hidden=1{{end}}">{{.Name}}</a>
+          {{else}}
+          <a class="fm-name" href="/files/edit?path={{.Path}}" title="{{.Path}}">{{.Name}}</a>
+          {{end}}
+          {{if .IsLink}}<span class="text-muted ms-1" style="font-size:.78rem">→ {{.LinkTarget}}</span>{{end}}
+        </td>
+        <td class="mono">{{if .IsDir}}—{{else}}{{.Size}}{{end}}</td>
+        <td class="mono" style="font-size:.8rem">{{.ModeOctal}}</td>
+        <td class="mono" style="font-size:.8rem;color:#6c757d">{{.Owner}}:{{.Group}}</td>
+        <td style="font-size:.8rem;color:#6c757d">{{.ModTime}}</td>
+        <td>
+          {{if not .IsDir}}
+          <a href="/api/files/download?path={{.Path}}" class="btn btn-xs btn-outline-secondary"
+             style="font-size:.75rem;padding:1px 6px" title="다운로드">
+            <i class="bi bi-download"></i>
+          </a>
+          {{end}}
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+
+{{/* ── 폴더 생성 모달 ──────────────────────────── */}}
+<div class="modal fade" id="mkdirModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title fw-semibold"><i class="bi bi-folder-plus me-2"></i>새 폴더</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input id="mkdirName" type="text" class="form-control" placeholder="폴더 이름" autocomplete="off">
+        <div id="mkdirError" class="alert alert-danger py-2 mt-2 d-none" style="font-size:.84rem"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="submitMkdir()">생성</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{/* ── 파일 생성 모달 ──────────────────────────── */}}
+<div class="modal fade" id="createFileModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title fw-semibold"><i class="bi bi-file-earmark-plus me-2"></i>새 파일</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input id="createFileName" type="text" class="form-control" placeholder="파일 이름" autocomplete="off">
+        <div id="createFileError" class="alert alert-danger py-2 mt-2 d-none" style="font-size:.84rem"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="submitCreateFile()">생성</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{/* ── 이름변경 모달 ───────────────────────────── */}}
+<div class="modal fade" id="renameModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title fw-semibold"><i class="bi bi-pencil me-2"></i>이름 변경</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input id="renamePath" type="hidden">
+        <input id="renameNewName" type="text" class="form-control" placeholder="새 이름" autocomplete="off">
+        <div id="renameError" class="alert alert-danger py-2 mt-2 d-none" style="font-size:.84rem"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="submitRename()">변경</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{/* ── 권한 변경 모달 ──────────────────────────── */}}
+<div class="modal fade" id="chmodModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title fw-semibold"><i class="bi bi-gear me-2"></i>권한 변경 (chmod)</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label" style="font-size:.87rem">8진수 권한 (예: 644, 755)</label>
+        <input id="chmodMode" type="text" class="form-control form-control-sm font-monospace"
+               placeholder="644" maxlength="4" autocomplete="off">
+        <div id="chmodError" class="alert alert-danger py-2 mt-2 d-none" style="font-size:.84rem"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="submitChmod()">적용</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{/* ── 삭제 확인 모달 ──────────────────────────── */}}
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content border-danger">
+      <div class="modal-header bg-danger text-white py-2">
+        <h6 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>삭제 확인</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:.9rem" class="mb-2">다음 항목을 삭제하시겠습니까? <strong>되돌릴 수 없습니다.</strong></p>
+        <div id="deleteList" style="max-height:200px;overflow-y:auto"></div>
+        <div id="deleteError" class="alert alert-danger py-2 mt-2 d-none" style="font-size:.84rem"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-sm btn-danger" onclick="doDelete()">
+          <i class="bi bi-trash3-fill me-1"></i>삭제
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{/* ── 업로드 모달 ─────────────────────────────── */}}
+<div class="modal fade" id="uploadModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title fw-semibold"><i class="bi bi-upload me-2"></i>파일 업로드</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="uploadDropArea"
+             style="border:2px dashed #ccc;border-radius:8px;padding:2rem;text-align:center;cursor:pointer;color:#888;transition:all .15s"
+             onclick="document.getElementById('uploadInput').click()"
+             ondragover="event.preventDefault();this.style.borderColor='#1a73e8';this.style.background='#eef5ff'"
+             ondragleave="this.style.borderColor='#ccc';this.style.background=''"
+             ondrop="handleDrop(event)">
+          <i class="bi bi-cloud-upload fs-3 d-block mb-2"></i>
+          클릭하거나 파일을 드래그하세요
+        </div>
+        <input id="uploadInput" type="file" multiple style="display:none" onchange="handleFileSelect(this)">
+        <div id="uploadFileList" class="mt-2" style="font-size:.84rem"></div>
+        <div id="uploadError" class="alert alert-danger py-2 mt-2 d-none" style="font-size:.84rem"></div>
+        <div id="uploadProgress" class="mt-2 d-none">
+          <div class="progress"><div id="uploadProgressBar" class="progress-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="submitUpload()">업로드</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var CWD = {{.CWD | js}};
+var modals = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+  ['mkdirModal','createFileModal','renameModal','chmodModal','deleteModal','uploadModal'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) modals[id] = new bootstrap.Modal(el);
+  });
+
+  // 엔터키로 모달 제출
+  bindEnter('mkdirName',      submitMkdir);
+  bindEnter('createFileName', submitCreateFile);
+  bindEnter('renameNewName',  submitRename);
+  bindEnter('chmodMode',      submitChmod);
+});
+
+function bindEnter(id, fn) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('keydown', function(e) { if (e.key === 'Enter') fn(); });
+}
+
+/* ── 체크박스 / 툴바 ────────────────────────────── */
+
+function getCheckedRows() {
+  return Array.from(document.querySelectorAll('.fm-cb:checked'))
+              .map(function(cb) { return cb.closest('tr'); });
+}
+
+function getCheckedPaths() {
+  return getCheckedRows().map(function(r) { return r.dataset.path; });
+}
+
+function updateToolbar() {
+  var rows = getCheckedRows();
+  var toolbar = document.getElementById('selToolbar');
+  var countEl = document.getElementById('selCount');
+
+  var allCbs = document.querySelectorAll('.fm-cb');
+  var sel = document.getElementById('selectAll');
+  sel.indeterminate = rows.length > 0 && rows.length < allCbs.length;
+  sel.checked = rows.length === allCbs.length && allCbs.length > 0;
+
+  if (rows.length === 0) { toolbar.style.display = 'none'; return; }
+  toolbar.style.display = 'block';
+  countEl.textContent = rows.length + '개 선택';
+
+  document.querySelector('#selToolbar .btn-outline-secondary[onclick="openRenameModal()"]')
+    .style.display = rows.length === 1 ? '' : 'none';
+}
+
+function toggleAll(master) {
+  document.querySelectorAll('.fm-cb').forEach(function(cb) { cb.checked = master.checked; });
+  updateToolbar();
+}
+
+function clearSelection() {
+  document.querySelectorAll('.fm-cb').forEach(function(cb) { cb.checked = false; });
+  document.getElementById('selectAll').checked = false;
+  updateToolbar();
+}
+
+/* ── 폴더 생성 ──────────────────────────────────── */
+
+function openMkdirModal() {
+  document.getElementById('mkdirName').value = '';
+  document.getElementById('mkdirError').classList.add('d-none');
+  modals['mkdirModal'].show();
+  setTimeout(function() { document.getElementById('mkdirName').focus(); }, 300);
+}
+
+function submitMkdir() {
+  var name = document.getElementById('mkdirName').value.trim();
+  var errEl = document.getElementById('mkdirError');
+  errEl.classList.add('d-none');
+  if (!name) { errEl.textContent = '이름을 입력하세요.'; errEl.classList.remove('d-none'); return; }
+  fetch('/api/files/mkdir', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({dir: CWD, name: name})
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.success) { modals['mkdirModal'].hide(); location.reload(); }
+    else { errEl.textContent = d.error || '생성 실패'; errEl.classList.remove('d-none'); }
+  });
+}
+
+/* ── 파일 생성 ──────────────────────────────────── */
+
+function openCreateFileModal() {
+  document.getElementById('createFileName').value = '';
+  document.getElementById('createFileError').classList.add('d-none');
+  modals['createFileModal'].show();
+  setTimeout(function() { document.getElementById('createFileName').focus(); }, 300);
+}
+
+function submitCreateFile() {
+  var name = document.getElementById('createFileName').value.trim();
+  var errEl = document.getElementById('createFileError');
+  errEl.classList.add('d-none');
+  if (!name) { errEl.textContent = '이름을 입력하세요.'; errEl.classList.remove('d-none'); return; }
+  fetch('/api/files/create', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({dir: CWD, name: name})
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.success) { modals['createFileModal'].hide(); location.reload(); }
+    else { errEl.textContent = d.error || '생성 실패'; errEl.classList.remove('d-none'); }
+  });
+}
+
+/* ── 이름 변경 ──────────────────────────────────── */
+
+function openRenameModal() {
+  var rows = getCheckedRows();
+  if (rows.length !== 1) return;
+  var path = rows[0].dataset.path;
+  var curName = path.split('/').pop();
+  document.getElementById('renamePath').value = path;
+  document.getElementById('renameNewName').value = curName;
+  document.getElementById('renameError').classList.add('d-none');
+  modals['renameModal'].show();
+  setTimeout(function() {
+    var el = document.getElementById('renameNewName');
+    el.focus();
+    var dot = curName.lastIndexOf('.');
+    if (dot > 0) el.setSelectionRange(0, dot);
+    else el.select();
+  }, 300);
+}
+
+function submitRename() {
+  var path = document.getElementById('renamePath').value;
+  var newName = document.getElementById('renameNewName').value.trim();
+  var errEl = document.getElementById('renameError');
+  errEl.classList.add('d-none');
+  if (!newName) { errEl.textContent = '이름을 입력하세요.'; errEl.classList.remove('d-none'); return; }
+  fetch('/api/files/rename', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({path: path, newName: newName})
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.success) { modals['renameModal'].hide(); location.reload(); }
+    else { errEl.textContent = d.error || '변경 실패'; errEl.classList.remove('d-none'); }
+  });
+}
+
+/* ── 권한 변경 ──────────────────────────────────── */
+
+function openChmodModal() {
+  document.getElementById('chmodMode').value = '';
+  document.getElementById('chmodError').classList.add('d-none');
+  modals['chmodModal'].show();
+  setTimeout(function() { document.getElementById('chmodMode').focus(); }, 300);
+}
+
+function submitChmod() {
+  var mode = document.getElementById('chmodMode').value.trim();
+  var errEl = document.getElementById('chmodError');
+  errEl.classList.add('d-none');
+  if (!mode) { errEl.textContent = '권한을 입력하세요.'; errEl.classList.remove('d-none'); return; }
+  fetch('/api/files/chmod', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({paths: getCheckedPaths(), mode: mode})
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.success) { modals['chmodModal'].hide(); location.reload(); }
+    else { errEl.textContent = d.error || '변경 실패'; errEl.classList.remove('d-none'); }
+  });
+}
+
+/* ── 삭제 ───────────────────────────────────────── */
+
+function openDeleteModal() {
+  var paths = getCheckedPaths();
+  if (!paths.length) return;
+  var listEl = document.getElementById('deleteList');
+  listEl.innerHTML = '';
+  paths.forEach(function(p) {
+    var d = document.createElement('div');
+    d.className = 'alert alert-warning py-1 mb-1';
+    d.style.fontSize = '.84rem';
+    d.innerHTML = '<code class="text-dark">' + escHtml(p) + '</code>';
+    listEl.appendChild(d);
+  });
+  document.getElementById('deleteError').classList.add('d-none');
+  modals['deleteModal'].show();
+}
+
+function doDelete() {
+  var paths = getCheckedPaths();
+  var errEl = document.getElementById('deleteError');
+  errEl.classList.add('d-none');
+  fetch('/api/files/delete', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({paths: paths})
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.success) { modals['deleteModal'].hide(); location.reload(); }
+    else { errEl.textContent = d.error || '삭제 실패'; errEl.classList.remove('d-none'); }
+  });
+}
+
+/* ── 복사 / 잘라내기 / 붙여넣기 ────────────────── */
+
+function doCopy() {
+  var paths = getCheckedPaths();
+  if (!paths.length) return;
+  fetch('/api/files/clip', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({op:'copy', paths: paths})
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.success) location.reload();
+  });
+}
+
+function doCut() {
+  var paths = getCheckedPaths();
+  if (!paths.length) return;
+  fetch('/api/files/clip', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({op:'cut', paths: paths})
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.success) location.reload();
+  });
+}
+
+function doPaste() {
+  fetch('/api/files/paste', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({destDir: CWD})
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.success) location.reload();
+    else alert(d.error || '붙여넣기 실패');
+  });
+}
+
+function clearClip() {
+  document.cookie = 'fm_clip=;path=/;max-age=-1';
+  location.reload();
+}
+
+/* ── 업로드 ─────────────────────────────────────── */
+
+var uploadFiles = [];
+
+function openUploadModal() {
+  uploadFiles = [];
+  document.getElementById('uploadInput').value = '';
+  document.getElementById('uploadFileList').innerHTML = '';
+  document.getElementById('uploadError').classList.add('d-none');
+  document.getElementById('uploadProgress').classList.add('d-none');
+  modals['uploadModal'].show();
+}
+
+function handleFileSelect(input) {
+  uploadFiles = Array.from(input.files);
+  renderUploadList();
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadDropArea').style.borderColor = '#ccc';
+  document.getElementById('uploadDropArea').style.background = '';
+  uploadFiles = Array.from(e.dataTransfer.files);
+  renderUploadList();
+}
+
+function renderUploadList() {
+  var el = document.getElementById('uploadFileList');
+  el.innerHTML = uploadFiles.map(function(f) {
+    return '<div><i class="bi bi-file-earmark me-1"></i>' + escHtml(f.name) +
+           ' <span class="text-muted">(' + fmtSize(f.size) + ')</span></div>';
+  }).join('');
+}
+
+function submitUpload() {
+  if (!uploadFiles.length) return;
+  var errEl = document.getElementById('uploadError');
+  var progEl = document.getElementById('uploadProgress');
+  var barEl = document.getElementById('uploadProgressBar');
+  errEl.classList.add('d-none');
+  progEl.classList.remove('d-none');
+  barEl.style.width = '0%';
+
+  var fd = new FormData();
+  fd.append('dir', CWD);
+  uploadFiles.forEach(function(f) { fd.append('files', f); });
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', '/api/files/upload');
+  xhr.upload.onprogress = function(e) {
+    if (e.lengthComputable) barEl.style.width = (e.loaded/e.total*100).toFixed(0) + '%';
+  };
+  xhr.onload = function() {
+    var d = JSON.parse(xhr.responseText);
+    if (d.success) { modals['uploadModal'].hide(); location.reload(); }
+    else { errEl.textContent = d.error || '업로드 실패'; errEl.classList.remove('d-none'); }
+  };
+  xhr.onerror = function() {
+    errEl.textContent = '네트워크 오류'; errEl.classList.remove('d-none');
+  };
+  xhr.send(fd);
+}
+
+/* ── 유틸 ───────────────────────────────────────── */
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtSize(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  if (b < 1073741824) return (b/1048576).toFixed(1) + ' MB';
+  return (b/1073741824).toFixed(1) + ' GB';
+}
+
+function toggleHidden(chk) {
+  var url = new URL(location.href);
+  if (chk.checked) url.searchParams.set('hidden','1');
+  else url.searchParams.delete('hidden');
+  location.href = url.toString();
+}
+</script>
+{{end}}

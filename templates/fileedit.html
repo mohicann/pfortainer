@@ -1,0 +1,108 @@
+{{template "base" .}}
+{{define "title"}}{{.FilePath}} — pfortainer{{end}}
+{{define "pagetitle"}}파일 편집{{end}}
+{{define "content"}}
+<style>
+  .editor-header {
+    background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:8px;
+    padding:.6rem 1rem; margin-bottom:.75rem;
+    display:flex; align-items:center; justify-content:space-between; gap:.5rem; flex-wrap:wrap;
+  }
+  .editor-path { font-family:'SF Mono','Fira Code',monospace; font-size:.84rem; color:#5a6a7e; word-break:break-all; }
+  #editor {
+    width:100%; box-sizing:border-box;
+    font-family:'SF Mono','Fira Code',monospace; font-size:.87rem;
+    border:1px solid #dee2e6; border-radius:6px;
+    padding:.75rem; resize:vertical; min-height:60vh;
+    background:#fff; line-height:1.55; tab-size:4;
+    outline:none;
+  }
+  #editor:focus { border-color:#86b7fe; box-shadow:0 0 0 .2rem rgba(13,110,253,.15); }
+  .save-status { font-size:.82rem; color:#6c757d; }
+  .save-status.saved { color:#28a745; }
+  .save-status.error { color:#dc3545; }
+</style>
+
+<div class="editor-header">
+  <div>
+    <a href="/files?path={{.FilePath | dir}}" class="btn btn-sm btn-outline-secondary me-2">
+      <i class="bi bi-arrow-left me-1"></i>돌아가기
+    </a>
+    <span class="editor-path">{{.FilePath}}</span>
+  </div>
+  {{if and (not .TooLarge) (not .Binary) (not .ReadOnly)}}
+  <div class="d-flex align-items-center gap-2">
+    <span id="saveStatus" class="save-status"></span>
+    <a href="/api/files/download?path={{.FilePath}}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-download me-1"></i>다운로드
+    </a>
+    <button class="btn btn-sm btn-primary" onclick="saveFile()">
+      <i class="bi bi-floppy me-1"></i>저장
+    </button>
+  </div>
+  {{else}}
+  <a href="/api/files/download?path={{.FilePath}}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-download me-1"></i>다운로드
+  </a>
+  {{end}}
+</div>
+
+{{if .TooLarge}}
+<div class="alert alert-warning">
+  <i class="bi bi-exclamation-triangle-fill me-2"></i>
+  파일이 너무 큽니다 (1 MB 초과). 다운로드를 통해 확인하세요.
+</div>
+{{else if .Binary}}
+<div class="alert alert-secondary">
+  <i class="bi bi-file-binary me-2"></i>
+  바이너리 파일은 편집할 수 없습니다. 다운로드를 통해 확인하세요.
+</div>
+{{else}}
+<textarea id="editor" spellcheck="false">{{.Content}}</textarea>
+<script>
+var FILE_PATH = {{.FilePath | js}};
+
+// Ctrl+S / Cmd+S 저장
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    saveFile();
+  }
+});
+
+// Tab 키 → 스페이스 4칸 삽입
+document.getElementById('editor').addEventListener('keydown', function(e) {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    var s = this.selectionStart, end = this.selectionEnd;
+    this.value = this.value.substring(0, s) + '    ' + this.value.substring(end);
+    this.selectionStart = this.selectionEnd = s + 4;
+  }
+});
+
+function saveFile() {
+  var content = document.getElementById('editor').value;
+  var status = document.getElementById('saveStatus');
+  status.className = 'save-status';
+  status.textContent = '저장 중…';
+  fetch('/api/files/save', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({path: FILE_PATH, content: content})
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.success) {
+      status.className = 'save-status saved';
+      status.textContent = '저장됨';
+      setTimeout(function() { status.textContent = ''; }, 2500);
+    } else {
+      status.className = 'save-status error';
+      status.textContent = d.error || '저장 실패';
+    }
+  }).catch(function(e) {
+    status.className = 'save-status error';
+    status.textContent = '오류: ' + e;
+  });
+}
+</script>
+{{end}}
+{{end}}
