@@ -36,6 +36,9 @@ func main() {
 	mux.Handle("POST /images/{id}/{action}", auth(h.imageAction))
 	mux.Handle("GET /system", auth(h.systemInfo))
 	mux.Handle("GET /api/system/stats", auth(h.systemStats))
+	mux.Handle("GET /filesystem", auth(h.filesystemInfo))
+	mux.Handle("POST /api/filesystem/create", auth(h.filesystemCreate))
+	mux.Handle("POST /api/filesystem/delete", auth(h.filesystemDelete))
 
 	addr := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
 	srv := &http.Server{

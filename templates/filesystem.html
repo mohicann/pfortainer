@@ -1,0 +1,306 @@
+{{template "base" .}}
+{{define "title"}}파일시스템 — pfortainer{{end}}
+{{define "pagetitle"}}파일시스템{{end}}
+{{define "content"}}
+<style>
+  .health-ONLINE   { background:#28a745!important; }
+  .health-DEGRADED { background:#ffc107!important; color:#212529!important; }
+  .health-FAULTED,
+  .health-UNAVAIL  { background:#dc3545!important; }
+  .health-OFFLINE,
+  .health-REMOVED  { background:#6c757d!important; }
+  .ds-pool    { font-weight:700; background:#f8f9fa; }
+  .ds-snap    { color:#999; font-style:italic; }
+  .ds-indent  { display:flex; align-items:center; gap:.35rem; }
+  .ds-indent .ds-icon { color:#adb5bd; font-size:.78rem; }
+  .cli-hint {
+    font-size:.76rem; color:#6c757d;
+    display:flex; align-items:center; gap:.3rem;
+  }
+  .cli-hint code {
+    background:#f0f2f5; padding:1px 5px;
+    border-radius:3px; font-size:.73rem;
+  }
+</style>
+
+{{/* ── ZFS 풀 ─────────────────────────────────────── */}}
+<div class="card-table mb-3">
+  <div class="ct-header">
+    <span style="font-weight:600">ZFS 풀 <span class="badge bg-secondary ms-1">{{len .Pools}}</span></span>
+  </div>
+  <table class="table mb-0">
+    <thead>
+      <tr>
+        <th>이름</th>
+        <th>전체</th>
+        <th>할당</th>
+        <th>여유</th>
+        <th style="min-width:130px">사용률</th>
+        <th>상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Pools}}
+      <tr>
+        <td class="mono fw-semibold">{{.Name}}</td>
+        <td>{{.Size}}</td>
+        <td>{{.Alloc}}</td>
+        <td>{{.Free}}</td>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <div class="progress flex-grow-1" style="height:6px">
+              <div class="progress-bar {{if gt .UsePct 85}}bg-danger{{else if gt .UsePct 70}}bg-warning{{else}}bg-info{{end}}"
+                   style="width:{{.UsePct}}%"></div>
+            </div>
+            <span style="font-size:.8rem;min-width:2.5rem;text-align:right">{{.UsePct}}%</span>
+          </div>
+        </td>
+        <td><span class="badge health-{{.Health}}">{{.Health}}</span></td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+
+{{/* ── 데이터셋 ─────────────────────────────────────── */}}
+<div class="card-table">
+  <div class="ct-header">
+    <span style="font-weight:600">데이터셋 <span class="badge bg-secondary ms-1">{{len .Datasets}}</span></span>
+    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+      <i class="bi bi-plus-lg me-1"></i>데이터셋 추가
+    </button>
+  </div>
+  <table class="table mb-0" style="font-size:.875rem">
+    <thead>
+      <tr>
+        <th style="min-width:220px">이름</th>
+        <th>유형</th>
+        <th>사용</th>
+        <th>여유</th>
+        <th>참조</th>
+        <th>마운트포인트</th>
+        <th>작업</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Datasets}}
+      <tr class="{{if .IsPool}}ds-pool{{end}}{{if eq .Type "snapshot"}} ds-snap{{end}}">
+        <td>
+          <div class="ds-indent" style="padding-left:{{.IndentPx}}px">
+            {{if not .IsPool}}<i class="bi bi-chevron-right ds-icon"></i>{{end}}
+            <span class="mono">{{.ShortName}}</span>
+          </div>
+        </td>
+        <td>
+          {{if eq .Type "filesystem"}}<span class="badge bg-light text-dark border">파일시스템</span>
+          {{else if eq .Type "volume"}}<span class="badge bg-light text-dark border">볼륨</span>
+          {{else if eq .Type "snapshot"}}<span class="badge bg-light text-secondary border">스냅샷</span>
+          {{else}}{{.Type}}{{end}}
+        </td>
+        <td>{{.Used}}</td>
+        <td>{{.Avail}}</td>
+        <td>{{.Refer}}</td>
+        <td class="mono" style="font-size:.8rem;color:#6c757d">{{.Mountpoint}}</td>
+        <td>
+          {{if .CanDelete}}
+          <button class="btn btn-sm btn-outline-danger"
+                  onclick="confirmDelete('{{.Name}}')">
+            <i class="bi bi-trash3"></i>
+          </button>
+          {{else if and .HasFiles (not .IsPool) (eq .Type "filesystem")}}
+          <div class="cli-hint">
+            <i class="bi bi-terminal"></i>
+            <span>파일 있음 — CLI 사용:</span>
+            <code>zfs destroy {{.Name}}</code>
+          </div>
+          {{else if and .HasChildren (not .IsPool) (eq .Type "filesystem")}}
+          <span class="text-muted" style="font-size:.78rem">
+            <i class="bi bi-diagram-2 me-1"></i>하위 데이터셋 있음
+          </span>
+          {{end}}
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+
+{{/* ── 데이터셋 추가 모달 ─────────────────────────── */}}
+<div class="modal fade" id="addModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title fw-semibold"><i class="bi bi-plus-circle me-2"></i>데이터셋 추가</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label fw-medium" style="font-size:.87rem">상위 데이터셋</label>
+          <select id="addParent" class="form-select form-select-sm">
+            {{range .Datasets}}
+            {{if and (eq .Type "filesystem") (not (eq .Type "snapshot"))}}
+            <option value="{{.Name}}">{{.Name}}</option>
+            {{end}}
+            {{end}}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-medium" style="font-size:.87rem">새 데이터셋 이름</label>
+          <input id="addName" type="text" class="form-control form-control-sm"
+                 placeholder="예: mydata" autocomplete="off">
+          <div class="form-text">슬래시(/) 없이 마지막 컴포넌트 이름만 입력하세요.</div>
+        </div>
+        <div id="addError" class="alert alert-danger py-2 d-none" style="font-size:.84rem"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="submitCreate()">
+          <i class="bi bi-plus-lg me-1"></i>생성
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{/* ── 삭제 확인 모달 ─────────────────────────────── */}}
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content border-danger">
+      <div class="modal-header bg-danger text-white py-2">
+        <h6 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>데이터셋 삭제 확인</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-2" style="font-size:.9rem">다음 데이터셋을 삭제하시겠습니까?</p>
+        <div class="alert alert-warning py-2 mb-3" style="font-size:.85rem">
+          <code id="deleteTarget" class="text-dark fw-semibold"></code>
+        </div>
+        <p class="text-danger mb-0" style="font-size:.84rem">
+          <i class="bi bi-exclamation-circle me-1"></i>이 작업은 되돌릴 수 없습니다.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete2()">
+          삭제
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{/* ── 최종 확인 모달 ─────────────────────────────── */}}
+<div class="modal fade" id="deleteModal2" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content border-danger">
+      <div class="modal-header bg-danger text-white py-2">
+        <h6 class="modal-title"><i class="bi bi-shield-exclamation me-2"></i>최종 확인</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-2 fw-semibold" style="font-size:.9rem">정말로 영구 삭제하시겠습니까?</p>
+        <p class="mb-3" style="font-size:.85rem">
+          <code id="deleteTarget2" class="text-dark fw-semibold"></code>
+        </p>
+        <p class="text-muted mb-0" style="font-size:.82rem">
+          빈 데이터셋만 삭제됩니다. 파일이 있는 경우 서버에서 오류를 반환합니다.
+        </p>
+        <div id="deleteError" class="alert alert-danger py-2 mt-3 d-none" style="font-size:.84rem"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-sm btn-danger" onclick="doDelete()">
+          <i class="bi bi-trash3-fill me-1"></i>최종 삭제
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var pendingDataset = '';
+var modal1 = null, modal2 = null, addModal = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+  modal1   = new bootstrap.Modal(document.getElementById('deleteModal'));
+  modal2   = new bootstrap.Modal(document.getElementById('deleteModal2'));
+  addModal = new bootstrap.Modal(document.getElementById('addModal'));
+});
+
+// 1차 확인 모달
+function confirmDelete(name) {
+  pendingDataset = name;
+  document.getElementById('deleteTarget').textContent = name;
+  document.getElementById('deleteError').classList.add('d-none');
+  modal1.show();
+}
+
+// 2차 확인 모달
+function confirmDelete2() {
+  modal1.hide();
+  document.getElementById('deleteTarget2').textContent = pendingDataset;
+  document.getElementById('deleteError').classList.add('d-none');
+  modal2.show();
+}
+
+// 실제 삭제 요청
+function doDelete() {
+  var errEl = document.getElementById('deleteError');
+  errEl.classList.add('d-none');
+
+  fetch('/api/filesystem/delete', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({dataset: pendingDataset})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      modal2.hide();
+      location.reload();
+    } else {
+      errEl.textContent = data.error || '삭제 실패';
+      errEl.classList.remove('d-none');
+    }
+  })
+  .catch(function(e) {
+    errEl.textContent = '요청 오류: ' + e;
+    errEl.classList.remove('d-none');
+  });
+}
+
+// 데이터셋 생성
+function submitCreate() {
+  var errEl = document.getElementById('addError');
+  var parent = document.getElementById('addParent').value;
+  var name   = document.getElementById('addName').value.trim();
+  errEl.classList.add('d-none');
+
+  if (!name) {
+    errEl.textContent = '데이터셋 이름을 입력하세요.';
+    errEl.classList.remove('d-none');
+    return;
+  }
+
+  fetch('/api/filesystem/create', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({parent: parent, name: name})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      addModal.hide();
+      location.reload();
+    } else {
+      errEl.textContent = data.error || '생성 실패';
+      errEl.classList.remove('d-none');
+    }
+  })
+  .catch(function(e) {
+    errEl.textContent = '요청 오류: ' + e;
+    errEl.classList.remove('d-none');
+  });
+}
+</script>
+{{end}}

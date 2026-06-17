@@ -416,6 +416,76 @@ func (h *handlers) systemInfo(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *handlers) filesystemInfo(w http.ResponseWriter, r *http.Request) {
+	pools, err := listZFSPools()
+	if err != nil {
+		log.Printf("zfs error: %v", err)
+		renderErr(w, err)
+		return
+	}
+	datasets, err := listZFSDatasets()
+	if err != nil {
+		log.Printf("zfs error: %v", err)
+		renderErr(w, err)
+		return
+	}
+	render(w, "filesystem", map[string]any{
+		"ActivePage": "filesystem",
+		"Pools":      pools,
+		"Datasets":   datasets,
+	})
+}
+
+func (h *handlers) filesystemCreate(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Parent string `json:"parent"`
+		Name   string `json:"name"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "잘못된 요청입니다."})
+		return
+	}
+	parent := strings.TrimSpace(req.Parent)
+	name := strings.TrimSpace(req.Name)
+	if parent == "" || name == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "상위 데이터셋과 이름을 모두 입력하세요."})
+		return
+	}
+	// ZFS 데이터셋 이름: 영문자·숫자·'-'·'_'·'.'·':'만 허용
+	for _, c := range name {
+		if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+			(c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.' || c == ':') {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "데이터셋 이름에 사용할 수 없는 문자가 포함되어 있습니다. (허용: 영문·숫자·-·_·.·:)"})
+			return
+		}
+	}
+	if err := createZFSDataset(parent + "/" + name); err != nil {
+		writeJSON(w, http.StatusConflict, map[string]string{"error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"success": true})
+}
+
+func (h *handlers) filesystemDelete(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Dataset string `json:"dataset"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "잘못된 요청입니다."})
+		return
+	}
+	name := strings.TrimSpace(req.Dataset)
+	if name == "" || !strings.Contains(name, "/") {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "최상위 풀은 삭제할 수 없습니다."})
+		return
+	}
+	if err := destroyZFSDataset(name); err != nil {
+		writeJSON(w, http.StatusConflict, map[string]string{"error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"success": true})
+}
+
 func (h *handlers) images(w http.ResponseWriter, r *http.Request) {
 	imgs, err := h.pc.ListImages()
 	if err != nil {
