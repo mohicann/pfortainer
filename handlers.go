@@ -277,6 +277,63 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
+type systemStatsResponse struct {
+	CPUUser     int    `json:"cpuUser"`
+	CPUSystem   int    `json:"cpuSystem"`
+	CPUIdle     int    `json:"cpuIdle"`
+	MemTotal    string `json:"memTotal"`
+	MemUsed     string `json:"memUsed"`
+	MemFree     string `json:"memFree"`
+	MemUsedPct  int    `json:"memUsedPct"`
+	HasSwap     bool   `json:"hasSwap"`
+	SwapTotal   string `json:"swapTotal"`
+	SwapUsed    string `json:"swapUsed"`
+	SwapFree    string `json:"swapFree"`
+	SwapUsedPct int    `json:"swapUsedPct"`
+}
+
+func (h *handlers) systemStats(w http.ResponseWriter, r *http.Request) {
+	info, err := h.pc.GetSystemInfo()
+	if err != nil {
+		writeJSON(w, http.StatusBadGateway, map[string]string{"error": err.Error()})
+		return
+	}
+	host := info.Host
+	capPct := func(n int) int {
+		if n > 100 {
+			return 100
+		}
+		if n < 0 {
+			return 0
+		}
+		return n
+	}
+	memUsed := host.MemTotal - host.MemFree
+	memPct := 0
+	if host.MemTotal > 0 {
+		memPct = capPct(int(math.Round(float64(memUsed) / float64(host.MemTotal) * 100)))
+	}
+	swapUsed := host.SwapTotal - host.SwapFree
+	swapPct := 0
+	if host.SwapTotal > 0 {
+		swapPct = capPct(int(math.Round(float64(swapUsed) / float64(host.SwapTotal) * 100)))
+	}
+	writeJSON(w, http.StatusOK, systemStatsResponse{
+		CPUUser:     capPct(int(math.Round(host.CPUUtilization.UserPercent))),
+		CPUSystem:   capPct(int(math.Round(host.CPUUtilization.SystemPercent))),
+		CPUIdle:     capPct(int(math.Round(host.CPUUtilization.IdlePercent))),
+		MemTotal:    fmtBytes(host.MemTotal),
+		MemUsed:     fmtBytes(memUsed),
+		MemFree:     fmtBytes(host.MemFree),
+		MemUsedPct:  memPct,
+		HasSwap:     host.SwapTotal > 0,
+		SwapTotal:   fmtBytes(host.SwapTotal),
+		SwapUsed:    fmtBytes(swapUsed),
+		SwapFree:    fmtBytes(host.SwapFree),
+		SwapUsedPct: swapPct,
+	})
+}
+
 func (h *handlers) systemInfo(w http.ResponseWriter, r *http.Request) {
 	info, err := h.pc.GetSystemInfo()
 	if err != nil {

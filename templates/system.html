@@ -64,21 +64,21 @@
       </table>
       <div class="px-3 pt-2 pb-3">
         <div class="mb-2">
-          <div class="pbar-label"><span>사용자(user)</span><span>{{.S.CPUUser}}%</span></div>
+          <div class="pbar-label"><span>사용자(user)</span><span id="cpu-user-val">{{.S.CPUUser}}%</span></div>
           <div class="progress" style="height:7px">
-            <div class="progress-bar bg-primary" style="width:{{.S.CPUUser}}%"></div>
+            <div id="cpu-user-bar" class="progress-bar bg-primary" style="width:{{.S.CPUUser}}%"></div>
           </div>
         </div>
         <div class="mb-2">
-          <div class="pbar-label"><span>시스템(sys)</span><span>{{.S.CPUSystem}}%</span></div>
+          <div class="pbar-label"><span>시스템(sys)</span><span id="cpu-sys-val">{{.S.CPUSystem}}%</span></div>
           <div class="progress" style="height:7px">
-            <div class="progress-bar bg-warning" style="width:{{.S.CPUSystem}}%"></div>
+            <div id="cpu-sys-bar" class="progress-bar bg-warning" style="width:{{.S.CPUSystem}}%"></div>
           </div>
         </div>
         <div>
-          <div class="pbar-label"><span>유휴(idle)</span><span>{{.S.CPUIdle}}%</span></div>
+          <div class="pbar-label"><span>유휴(idle)</span><span id="cpu-idle-val">{{.S.CPUIdle}}%</span></div>
           <div class="progress" style="height:7px">
-            <div class="progress-bar bg-success" style="width:{{.S.CPUIdle}}%"></div>
+            <div id="cpu-idle-bar" class="progress-bar bg-success" style="width:{{.S.CPUIdle}}%"></div>
           </div>
         </div>
       </div>
@@ -91,18 +91,18 @@
       <div class="info-card-header"><i class="bi bi-memory me-2"></i>메모리</div>
       <div class="px-3 pt-2 pb-1">
         <div class="pbar-label">
-          <span>사용 {{.S.MemUsed}} / {{.S.MemTotal}}</span>
-          <span>{{.S.MemUsedPct}}%</span>
+          <span id="mem-label">사용 {{.S.MemUsed}} / {{.S.MemTotal}}</span>
+          <span id="mem-pct">{{.S.MemUsedPct}}%</span>
         </div>
         <div class="progress mb-3" style="height:10px">
-          <div class="progress-bar {{if gt .S.MemUsedPct 85}}bg-danger{{else if gt .S.MemUsedPct 70}}bg-warning{{else}}bg-info{{end}}"
+          <div id="mem-bar" class="progress-bar {{if gt .S.MemUsedPct 85}}bg-danger{{else if gt .S.MemUsedPct 70}}bg-warning{{else}}bg-info{{end}}"
                style="width:{{.S.MemUsedPct}}%"></div>
         </div>
       </div>
       <table class="info-table">
         <tr><th>전체</th><td>{{.S.MemTotal}}</td></tr>
-        <tr><th>사용</th><td>{{.S.MemUsed}}</td></tr>
-        <tr><th>여유</th><td>{{.S.MemFree}}</td></tr>
+        <tr><th>사용</th><td id="mem-used">{{.S.MemUsed}}</td></tr>
+        <tr><th>여유</th><td id="mem-free">{{.S.MemFree}}</td></tr>
       </table>
     </div>
   </div>
@@ -114,17 +114,17 @@
       {{if .S.HasSwap}}
       <div class="px-3 pt-2 pb-1">
         <div class="pbar-label">
-          <span>사용 {{.S.SwapUsed}} / {{.S.SwapTotal}}</span>
-          <span>{{.S.SwapUsedPct}}%</span>
+          <span id="swap-label">사용 {{.S.SwapUsed}} / {{.S.SwapTotal}}</span>
+          <span id="swap-pct">{{.S.SwapUsedPct}}%</span>
         </div>
         <div class="progress mb-3" style="height:10px">
-          <div class="progress-bar bg-secondary" style="width:{{.S.SwapUsedPct}}%"></div>
+          <div id="swap-bar" class="progress-bar bg-secondary" style="width:{{.S.SwapUsedPct}}%"></div>
         </div>
       </div>
       <table class="info-table">
         <tr><th>전체</th><td>{{.S.SwapTotal}}</td></tr>
-        <tr><th>사용</th><td>{{.S.SwapUsed}}</td></tr>
-        <tr><th>여유</th><td>{{.S.SwapFree}}</td></tr>
+        <tr><th>사용</th><td id="swap-used">{{.S.SwapUsed}}</td></tr>
+        <tr><th>여유</th><td id="swap-free">{{.S.SwapFree}}</td></tr>
       </table>
       {{else}}
       <div class="d-flex align-items-center justify-content-center text-muted"
@@ -178,4 +178,46 @@
   </div>
 
 </div>
+
+<script>
+function setBar(barId, valId, pct) {
+  document.getElementById(barId).style.width = pct + '%';
+  document.getElementById(valId).textContent = pct + '%';
+}
+
+function memBarClass(pct) {
+  if (pct > 85) return 'progress-bar bg-danger';
+  if (pct > 70) return 'progress-bar bg-warning';
+  return 'progress-bar bg-info';
+}
+
+function pollStats() {
+  fetch('/api/system/stats')
+    .then(function(r) { return r.json(); })
+    .then(function(s) {
+      setBar('cpu-user-bar',  'cpu-user-val',  s.cpuUser);
+      setBar('cpu-sys-bar',   'cpu-sys-val',   s.cpuSystem);
+      setBar('cpu-idle-bar',  'cpu-idle-val',  s.cpuIdle);
+
+      var memBar = document.getElementById('mem-bar');
+      memBar.style.width = s.memUsedPct + '%';
+      memBar.className = memBarClass(s.memUsedPct);
+      document.getElementById('mem-label').textContent = '사용 ' + s.memUsed + ' / ' + s.memTotal;
+      document.getElementById('mem-pct').textContent   = s.memUsedPct + '%';
+      document.getElementById('mem-used').textContent  = s.memUsed;
+      document.getElementById('mem-free').textContent  = s.memFree;
+
+      if (s.hasSwap) {
+        document.getElementById('swap-bar').style.width         = s.swapUsedPct + '%';
+        document.getElementById('swap-label').textContent       = '사용 ' + s.swapUsed + ' / ' + s.swapTotal;
+        document.getElementById('swap-pct').textContent         = s.swapUsedPct + '%';
+        document.getElementById('swap-used').textContent        = s.swapUsed;
+        document.getElementById('swap-free').textContent        = s.swapFree;
+      }
+    })
+    .catch(function() {});
+}
+
+setInterval(pollStats, 3000);
+</script>
 {{end}}
