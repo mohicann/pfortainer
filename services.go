@@ -31,12 +31,21 @@ type ServicesVM struct {
 
 // ── Data collection ───────────────────────────────────────────────────────────
 
-// containerHostPorts returns hostPort → containerName for running containers.
-func (h *handlers) containerHostPorts() map[int]string {
-	m := make(map[int]string)
+type containerPort struct {
+	Name  string
+	Proto string // "TCP" | "UDP"
+}
+
+// containerPubPorts returns "port:PROTO" → containerPort for running containers.
+// Using proto in the key correctly handles containers that publish the same port
+// number on both tcp and udp (e.g. DNS: -p 53:53/tcp -p 53:53/udp).
+func (h *handlers) containerPubPorts() (map[string]containerPort, []ServiceEntry) {
+	byKey := make(map[string]containerPort)
+	var direct []ServiceEntry // entries to inject directly (not via sockstat)
+
 	cs, err := h.pc.ListContainers()
 	if err != nil {
-		return m
+		return byKey, direct
 	}
 	for _, c := range cs {
 		if strings.ToLower(c.State) != "running" {
@@ -47,12 +56,29 @@ func (h *handlers) containerHostPorts() map[int]string {
 			name = strings.TrimPrefix(c.Names[0], "/")
 		}
 		for _, p := range c.Ports {
-			if p.HostPort > 0 {
-				m[int(p.HostPort)] = name
+			if p.HostPort == 0 {
+				continue
 			}
+			proto := strings.ToUpper(p.Protocol)
+			if proto == "" {
+				proto = "TCP"
+			}
+			key := strconv.Itoa(int(p.HostPort)) + ":" + proto
+			byKey[key] = containerPort{Name: name, Proto: proto}
+
+			// Pre-build a direct entry; we'll deduplicate against sockstat later.
+			direct = append(direct, ServiceEntry{
+				Port:    int(p.HostPort),
+				Proto:   proto,
+				Addr:    "0.0.0.0",
+				Type:    "container",
+				Name:    name,
+				Command: "—",
+				User:    "—",
+			})
 		}
 	}
-	return m
+	return byKey, direct
 }
 
 // jailNames returns jid → jail name via `jls jid name`.
@@ -174,42 +200,54 @@ func listeningSockets() ([]ServiceEntry, error) {
 func (h *handlers) servicesInfo(w http.ResponseWriter, r *http.Request) {
 	vm := ServicesVM{ActivePage: "services"}
 
-	entries, err := listeningSockets()
-	if err != nil {
-		vm.FetchError = "sockstat 실행 실패: " + err.Error()
-		render(w, "services", vm)
-		return
-	}
-
-	// Lookup tables
-	cPorts := h.containerHostPorts()
+	// Gather all data sources.
+	sockEntries, sockErr := listeningSockets()
+	cByKey, cDirect := h.containerPubPorts() // from Podman API
 	pidJID := pidJIDs()
 	jails := jailNames()
 
-	for i := range entries {
-		e := &entries[i]
+	if sockErr != nil {
+		vm.FetchError = "sockstat 실행 실패: " + sockErr.Error()
+	}
 
-		// 1. Container: port matches a published container host port
-		if name, ok := cPorts[e.Port]; ok {
+	// Step 1: classify sockstat entries.
+	// "port:PROTO" keys that were already matched to a container.
+	coveredByContainer := make(map[string]bool)
+
+	var entries []ServiceEntry
+	for i := range sockEntries {
+		e := sockEntries[i]
+		key := strconv.Itoa(e.Port) + ":" + e.Proto
+
+		// 1. Container: port+proto matches a Podman published port
+		if cp, ok := cByKey[key]; ok {
 			e.Type = "container"
-			e.Name = name
-			continue
-		}
-
-		// 2. Jail: process has a non-zero JID
-		if jid := pidJID[e.PID]; jid > 0 {
+			e.Name = cp.Name
+			coveredByContainer[key] = true
+		} else if jid := pidJID[e.PID]; jid > 0 {
+			// 2. Jail: process runs inside a FreeBSD jail
 			e.Type = "jail"
-			if name, ok := jails[jid]; ok {
-				e.Name = name
+			if jname, ok := jails[jid]; ok {
+				e.Name = jname
 			} else {
 				e.Name = "JID:" + strconv.Itoa(jid)
 			}
-			continue
+		} else {
+			// 3. Native
+			e.Type = "native"
+			e.Name = e.Command
 		}
+		entries = append(entries, e)
+	}
 
-		// 3. Native
-		e.Type = "native"
-		e.Name = e.Command
+	// Step 2: add container ports that sockstat didn't expose.
+	// On FreeBSD, Podman may forward ports via pf(4) rules rather than binding
+	// a user-space socket, so those ports never appear in sockstat output.
+	for _, ce := range cDirect {
+		key := strconv.Itoa(ce.Port) + ":" + ce.Proto
+		if !coveredByContainer[key] {
+			entries = append(entries, ce)
+		}
 	}
 
 	sort.Slice(entries, func(i, j int) bool {
