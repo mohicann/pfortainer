@@ -1,0 +1,166 @@
+{{template "base" .}}
+{{define "title"}}서비스 — pfortainer{{end}}
+{{define "pagetitle"}}서비스{{end}}
+{{define "content"}}
+<style>
+  .type-badge-container { background:#28a745!important; }
+  .type-badge-jail      { background:#0dcaf0!important; color:#000!important; }
+  .type-badge-native    { background:#6c757d!important; }
+
+  .port-num {
+    font-family:'SF Mono','Fira Code',monospace;
+    font-size:.95rem; font-weight:700; color:#1a73e8;
+  }
+  .svc-name { font-weight:500; }
+  .proc-info { font-size:.78rem; color:#8a9ab0; font-family:'SF Mono','Fira Code',monospace; }
+
+  /* 필터 탭 */
+  .filter-tabs .btn { font-size:.82rem; }
+  .filter-tabs .btn.active { background:#1a2332; color:#fff; border-color:#1a2332; }
+</style>
+
+{{/* ── 에러 ─────────────────────────────────────── */}}
+{{if .FetchError}}
+<div class="alert alert-warning">
+  <i class="bi bi-exclamation-triangle-fill me-2"></i>{{.FetchError}}
+</div>
+{{end}}
+
+{{/* ── 요약 카드 ──────────────────────────────── */}}
+{{if .Services}}
+<div class="row g-3 mb-3">
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="num">{{len .Services}}</div>
+      <div class="lbl">전체 포트</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="num" id="cnt-container" style="color:#28a745">—</div>
+      <div class="lbl" style="color:#28a745">컨테이너</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="num" id="cnt-jail" style="color:#0dcaf0">—</div>
+      <div class="lbl" style="color:#0dcaf0">Jail</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="num" id="cnt-native" style="color:#6c757d">—</div>
+      <div class="lbl" style="color:#6c757d">네이티브</div>
+    </div>
+  </div>
+</div>
+{{end}}
+
+{{/* ── 테이블 ──────────────────────────────────── */}}
+<div class="card-table">
+  <div class="ct-header">
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+      <span style="font-weight:600">
+        리스닝 서비스
+        <span class="badge bg-secondary ms-1">{{len .Services}}</span>
+      </span>
+      <div class="filter-tabs d-flex gap-1" id="filterTabs">
+        <button class="btn btn-sm btn-outline-secondary active" data-filter="all"
+                onclick="setFilter('all', this)">전체</button>
+        <button class="btn btn-sm btn-outline-secondary" data-filter="container"
+                onclick="setFilter('container', this)">
+          <i class="bi bi-box-seam me-1"></i>컨테이너
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" data-filter="jail"
+                onclick="setFilter('jail', this)">
+          <i class="bi bi-building me-1"></i>Jail
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" data-filter="native"
+                onclick="setFilter('native', this)">
+          <i class="bi bi-pc-display me-1"></i>네이티브
+        </button>
+      </div>
+    </div>
+    <button class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+      <i class="bi bi-arrow-clockwise"></i>
+    </button>
+  </div>
+
+  {{if .Services}}
+  <table class="table mb-0" id="svcTable" style="font-size:.875rem">
+    <thead>
+      <tr>
+        <th style="width:80px">포트</th>
+        <th style="width:70px">프로토콜</th>
+        <th>서비스</th>
+        <th>주소</th>
+        <th style="width:110px">유형</th>
+        <th>프로세스</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Services}}
+      <tr data-type="{{.Type}}">
+        <td><span class="port-num">{{.Port}}</span></td>
+        <td>
+          <span class="badge bg-light text-dark border" style="font-size:.76rem;font-family:monospace">
+            {{.Proto}}
+          </span>
+        </td>
+        <td>
+          <span class="svc-name">
+            {{if eq .Type "container"}}<i class="bi bi-box-seam me-1 text-success"></i>
+            {{else if eq .Type "jail"}}<i class="bi bi-building me-1 text-info"></i>
+            {{else}}<i class="bi bi-pc-display me-1 text-secondary"></i>
+            {{end}}
+            {{.Name}}
+          </span>
+        </td>
+        <td class="mono" style="font-size:.82rem;color:#5a6a7e">{{.Addr}}</td>
+        <td>
+          {{if eq .Type "container"}}
+          <span class="badge type-badge-container">컨테이너</span>
+          {{else if eq .Type "jail"}}
+          <span class="badge type-badge-jail">Jail</span>
+          {{else}}
+          <span class="badge type-badge-native">네이티브</span>
+          {{end}}
+        </td>
+        <td class="proc-info">{{.Command}} / {{.User}} / PID {{.PID}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  {{else if not .FetchError}}
+  <div class="text-muted text-center py-5" style="font-size:.88rem">
+    <i class="bi bi-inbox fs-4 d-block mb-2"></i>리스닝 중인 서비스가 없습니다.
+  </div>
+  {{end}}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 요약 카운터 계산
+  var rows = document.querySelectorAll('#svcTable tbody tr');
+  var counts = {container: 0, jail: 0, native: 0};
+  rows.forEach(function(r) { counts[r.dataset.type]++; });
+  var cEl = document.getElementById('cnt-container');
+  var jEl = document.getElementById('cnt-jail');
+  var nEl = document.getElementById('cnt-native');
+  if (cEl) cEl.textContent = counts.container;
+  if (jEl) jEl.textContent = counts.jail;
+  if (nEl) nEl.textContent = counts.native;
+});
+
+function setFilter(type, btn) {
+  document.querySelectorAll('#filterTabs .btn').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  btn.classList.add('active');
+
+  document.querySelectorAll('#svcTable tbody tr').forEach(function(r) {
+    r.style.display = (type === 'all' || r.dataset.type === type) ? '' : 'none';
+  });
+}
+</script>
+{{end}}

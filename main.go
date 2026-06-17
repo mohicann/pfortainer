@@ -53,6 +53,8 @@ func main() {
 	mux.Handle("POST /api/files/clip", auth(h.fileClip))
 	mux.Handle("POST /api/files/paste", auth(h.filePaste))
 
+	mux.Handle("GET /services", auth(h.servicesInfo))
+
 	addr := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
 	srv := &http.Server{
 		Addr:         addr,
