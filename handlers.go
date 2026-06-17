@@ -107,6 +107,40 @@ type ImageVM struct {
 	Created string
 }
 
+type SystemInfoVM struct {
+	Hostname  string
+	OS        string
+	Kernel    string
+	Arch      string
+	Uptime    string
+	CPUs      int
+	CPUUser   int
+	CPUSystem int
+	CPUIdle   int
+	MemTotal   string
+	MemUsed    string
+	MemFree    string
+	MemUsedPct int
+	HasSwap     bool
+	SwapTotal   string
+	SwapUsed    string
+	SwapFree    string
+	SwapUsedPct int
+	PodmanVersion string
+	PodmanAPI     string
+	GoVersion     string
+	OsArch        string
+	ContainerTotal   int
+	ContainerRunning int
+	ContainerStopped int
+	ContainerPaused  int
+	ImageCount       int
+	GraphDriver string
+	GraphRoot   string
+	RunRoot     string
+	VolumePath  string
+}
+
 func (h *handlers) dashboard(w http.ResponseWriter, r *http.Request) {
 	cs, err := h.pc.ListContainers()
 	if err != nil {
@@ -160,6 +194,19 @@ func (h *handlers) containerDetail(w http.ResponseWriter, r *http.Request) {
 		if pe, ok := err.(*PodmanError); ok && pe.StatusCode == http.StatusNotFound {
 			http.Error(w, "컨테이너를 찾을 수 없습니다.", http.StatusNotFound)
 			return
+		}
+		// Podman inspect panics on certain containers on FreeBSD (server-side nil pointer bug).
+		// Fall back to list data so the page is still usable.
+		if pe, ok := err.(*PodmanError); ok && pe.StatusCode >= 500 {
+			lc, lerr := h.pc.GetContainerByID(id)
+			if lerr == nil {
+				render(w, "container-detail", map[string]any{
+					"ActivePage":    "containers",
+					"C":             toContainerDetailVMFromList(lc),
+					"InspectFailed": true,
+				})
+				return
+			}
 		}
 		renderErr(w, err)
 		return
@@ -228,6 +275,88 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(v)
+}
+
+func (h *handlers) systemInfo(w http.ResponseWriter, r *http.Request) {
+	info, err := h.pc.GetSystemInfo()
+	if err != nil {
+		log.Printf("podman error: %v", err)
+		renderErr(w, err)
+		return
+	}
+
+	host := info.Host
+	store := info.Store
+	ver := info.Version
+
+	capPct := func(n int) int {
+		if n > 100 {
+			return 100
+		}
+		if n < 0 {
+			return 0
+		}
+		return n
+	}
+
+	memUsed := host.MemTotal - host.MemFree
+	memPct := 0
+	if host.MemTotal > 0 {
+		memPct = capPct(int(math.Round(float64(memUsed) / float64(host.MemTotal) * 100)))
+	}
+
+	swapUsed := host.SwapTotal - host.SwapFree
+	swapPct := 0
+	if host.SwapTotal > 0 {
+		swapPct = capPct(int(math.Round(float64(swapUsed) / float64(host.SwapTotal) * 100)))
+	}
+
+	osLabel := host.OS
+	if host.Distribution.Distribution != "" {
+		osLabel = host.Distribution.Distribution
+		if host.Distribution.Version != "" {
+			osLabel += " " + host.Distribution.Version
+		}
+	}
+
+	vm := SystemInfoVM{
+		Hostname:         host.Hostname,
+		OS:               osLabel,
+		Kernel:           host.Kernel,
+		Arch:             host.Arch,
+		Uptime:           host.Uptime,
+		CPUs:             host.CPUs,
+		CPUUser:          capPct(int(math.Round(host.CPUUtilization.UserPercent))),
+		CPUSystem:        capPct(int(math.Round(host.CPUUtilization.SystemPercent))),
+		CPUIdle:          capPct(int(math.Round(host.CPUUtilization.IdlePercent))),
+		MemTotal:         fmtBytes(host.MemTotal),
+		MemUsed:          fmtBytes(memUsed),
+		MemFree:          fmtBytes(host.MemFree),
+		MemUsedPct:       memPct,
+		HasSwap:          host.SwapTotal > 0,
+		SwapTotal:        fmtBytes(host.SwapTotal),
+		SwapUsed:         fmtBytes(swapUsed),
+		SwapFree:         fmtBytes(host.SwapFree),
+		SwapUsedPct:      swapPct,
+		PodmanVersion:    ver.Version,
+		PodmanAPI:        ver.APIVersion,
+		GoVersion:        ver.GoVersion,
+		OsArch:           ver.OsArch,
+		ContainerTotal:   store.ContainerStore.Number,
+		ContainerRunning: store.ContainerStore.Running,
+		ContainerStopped: store.ContainerStore.Stopped,
+		ContainerPaused:  store.ContainerStore.Paused,
+		ImageCount:       store.ImageStore.Number,
+		GraphDriver:      store.GraphDriverName,
+		GraphRoot:        store.GraphRoot,
+		RunRoot:          store.RunRoot,
+		VolumePath:       store.VolumePath,
+	}
+
+	render(w, "system", map[string]any{
+		"ActivePage": "system",
+		"S":          vm,
+	})
 }
 
 func (h *handlers) images(w http.ResponseWriter, r *http.Request) {
@@ -327,7 +456,12 @@ func toImageVMs(imgs []APIImage) []ImageVM {
 }
 
 func toContainerDetailVM(c *APIContainerDetail) ContainerDetailVM {
-	command := strings.Join(append(append([]string{}, c.Config.Entrypoint...), c.Config.Cmd...), " ")
+	parts := []string{}
+	if c.Config.Entrypoint != "" {
+		parts = append(parts, string(c.Config.Entrypoint))
+	}
+	parts = append(parts, c.Config.Cmd...)
+	command := strings.Join(parts, " ")
 
 	ports := []string{}
 	for port, bindings := range c.NetworkSettings.Ports {
@@ -389,6 +523,43 @@ func toContainerDetailVM(c *APIContainerDetail) ContainerDetailVM {
 		Mounts:        mounts,
 		Env:           c.Config.Env,
 		Labels:        c.Config.Labels,
+	}
+}
+
+func toContainerDetailVMFromList(c *APIContainer) ContainerDetailVM {
+	name := "unnamed"
+	if len(c.Names) > 0 {
+		name = strings.TrimPrefix(c.Names[0], "/")
+	}
+	state := strings.ToLower(c.State)
+
+	mounts := make([]MountVM, 0, len(c.Mounts))
+	for _, m := range c.Mounts {
+		mounts = append(mounts, MountVM{Destination: m, RW: true})
+	}
+
+	networks := make([]NetworkVM, 0, len(c.Networks))
+	for _, n := range c.Networks {
+		networks = append(networks, NetworkVM{Name: n})
+	}
+	sort.Slice(networks, func(i, j int) bool { return networks[i].Name < networks[j].Name })
+
+	return ContainerDetailVM{
+		ID:           c.ID,
+		ShortID:      shortID(c.ID),
+		Name:         name,
+		Image:        c.Image,
+		Command:      strings.Join(c.Command, " "),
+		State:        state,
+		Status:       containerStatusText(*c),
+		Running:      state == "running",
+		Pid:          c.Pid,
+		RestartCount: c.Restarts,
+		Ports:        fmtPorts(c.Ports),
+		Created:      fmtTSStr(c.Created),
+		Labels:       c.Labels,
+		Mounts:       mounts,
+		Networks:     networks,
 	}
 }
 

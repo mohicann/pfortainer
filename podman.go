@@ -7,8 +7,26 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 )
+
+// entrypointField handles Podman returning Entrypoint as either a string or []string.
+type entrypointField string
+
+func (e *entrypointField) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err == nil {
+		*e = entrypointField(s)
+		return nil
+	}
+	var arr []string
+	if err := json.Unmarshal(data, &arr); err == nil {
+		*e = entrypointField(strings.Join(arr, " "))
+		return nil
+	}
+	return fmt.Errorf("cannot unmarshal Entrypoint")
+}
 
 type PodmanClient struct {
 	hc *http.Client
@@ -28,15 +46,21 @@ func newPodmanClient(socketPath string) *PodmanClient {
 }
 
 type APIContainer struct {
-	ID        string    `json:"Id"`
-	Names     []string  `json:"Names"`
-	Image     string    `json:"Image"`
-	State     string    `json:"State"`
-	Created   string    `json:"Created"`
-	StartedAt int64     `json:"StartedAt"`
-	ExitedAt  int64     `json:"ExitedAt"`
-	ExitCode  int       `json:"ExitCode"`
-	Ports     []APIPort `json:"Ports"`
+	ID        string            `json:"Id"`
+	Names     []string          `json:"Names"`
+	Image     string            `json:"Image"`
+	State     string            `json:"State"`
+	Created   string            `json:"Created"`
+	StartedAt int64             `json:"StartedAt"`
+	ExitedAt  int64             `json:"ExitedAt"`
+	ExitCode  int               `json:"ExitCode"`
+	Ports     []APIPort         `json:"Ports"`
+	Command   []string          `json:"Command"`
+	Labels    map[string]string `json:"Labels"`
+	Mounts    []string          `json:"Mounts"`
+	Networks  []string          `json:"Networks"`
+	Pid       int               `json:"Pid"`
+	Restarts  int               `json:"Restarts"`
 }
 
 type APIPort struct {
@@ -54,6 +78,8 @@ type APIImage struct {
 	Size     int64    `json:"Size"`
 }
 
+// APIContainerDetail mirrors the libpod /containers/{id}/json response.
+// Notable difference from Docker-compat: Config.Entrypoint is a string, not []string.
 type APIContainerDetail struct {
 	ID      string   `json:"Id"`
 	Name    string   `json:"Name"`
@@ -89,7 +115,7 @@ type APIContainerDetail struct {
 		Hostname   string            `json:"Hostname"`
 		Env        []string          `json:"Env"`
 		Cmd        []string          `json:"Cmd"`
-		Entrypoint []string          `json:"Entrypoint"`
+		Entrypoint entrypointField   `json:"Entrypoint"`
 		WorkingDir string            `json:"WorkingDir"`
 		Labels     map[string]string `json:"Labels"`
 	} `json:"Config"`
@@ -188,6 +214,19 @@ func (c *PodmanClient) ListContainers() ([]APIContainer, error) {
 	return result, c.get("/v5.0.0/libpod/containers/json?all=true", &result)
 }
 
+func (c *PodmanClient) GetContainerByID(id string) (*APIContainer, error) {
+	cs, err := c.ListContainers()
+	if err != nil {
+		return nil, err
+	}
+	for i := range cs {
+		if cs[i].ID == id {
+			return &cs[i], nil
+		}
+	}
+	return nil, &PodmanError{StatusCode: http.StatusNotFound, Message: "컨테이너를 찾을 수 없습니다."}
+}
+
 func (c *PodmanClient) ListImages() ([]APIImage, error) {
 	var result []APIImage
 	return result, c.get("/images/json", &result)
@@ -195,7 +234,8 @@ func (c *PodmanClient) ListImages() ([]APIImage, error) {
 
 func (c *PodmanClient) InspectContainer(id string) (*APIContainerDetail, error) {
 	var result APIContainerDetail
-	if err := c.get("/containers/"+id+"/json", &result); err != nil {
+	// Use native libpod endpoint — Docker-compat /containers/{id}/json panics on Podman 5.8.1/FreeBSD.
+	if err := c.get("/v5.0.0/libpod/containers/"+id+"/json", &result); err != nil {
 		return nil, err
 	}
 	return &result, nil
@@ -235,4 +275,55 @@ func (c *PodmanClient) UnpauseContainer(id string) error {
 
 func (c *PodmanClient) RemoveContainer(id string) error {
 	return c.do(http.MethodDelete, "/containers/"+id)
+}
+
+type APISystemInfo struct {
+	Host struct {
+		Arch           string `json:"arch"`
+		CPUs           int    `json:"cpus"`
+		CPUUtilization struct {
+			IdlePercent   float64 `json:"idlePercent"`
+			SystemPercent float64 `json:"systemPercent"`
+			UserPercent   float64 `json:"userPercent"`
+		} `json:"cpuUtilization"`
+		Distribution struct {
+			Distribution string `json:"distribution"`
+			Version      string `json:"version"`
+		} `json:"distribution"`
+		Hostname  string `json:"hostname"`
+		Kernel    string `json:"kernel"`
+		MemFree   int64  `json:"memFree"`
+		MemTotal  int64  `json:"memTotal"`
+		OS        string `json:"os"`
+		SwapFree  int64  `json:"swapFree"`
+		SwapTotal int64  `json:"swapTotal"`
+		Uptime    string `json:"uptime"`
+	} `json:"host"`
+	Store struct {
+		ContainerStore struct {
+			Number  int `json:"number"`
+			Paused  int `json:"paused"`
+			Running int `json:"running"`
+			Stopped int `json:"stopped"`
+		} `json:"containerStore"`
+		GraphDriverName string `json:"graphDriverName"`
+		GraphRoot       string `json:"graphRoot"`
+		ImageStore      struct {
+			Number int `json:"number"`
+		} `json:"imageStore"`
+		RunRoot    string `json:"runRoot"`
+		VolumePath string `json:"volumePath"`
+	} `json:"store"`
+	Version struct {
+		APIVersion string `json:"APIVersion"`
+		GoVersion  string `json:"GoVersion"`
+		Os         string `json:"Os"`
+		OsArch     string `json:"OsArch"`
+		Version    string `json:"Version"`
+	} `json:"version"`
+}
+
+func (c *PodmanClient) GetSystemInfo() (*APISystemInfo, error) {
+	var info APISystemInfo
+	return &info, c.get("/v5.0.0/libpod/info", &info)
 }

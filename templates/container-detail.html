@@ -6,6 +6,12 @@
     <i class="bi bi-arrow-left"></i> 컨테이너 목록으로
   </a>
 </div>
+{{if .InspectFailed}}
+<div class="alert alert-warning py-2 mb-3" style="font-size:.85rem">
+  <i class="bi bi-exclamation-triangle"></i>
+  Podman inspect API 오류로 일부 정보(환경 변수, 마운트, 네트워크 상세 등)를 불러올 수 없습니다.
+</div>
+{{end}}
 
 <div class="card-table mb-3">
   <div class="ct-header">

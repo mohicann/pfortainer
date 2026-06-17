@@ -1,0 +1,181 @@
+{{template "base" .}}
+{{define "title"}}시스템 정보 — pfortainer{{end}}
+{{define "pagetitle"}}시스템 정보{{end}}
+{{define "content"}}
+<style>
+  .info-card {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.08);
+    overflow: hidden;
+    height: 100%;
+  }
+  .info-card-header {
+    padding: .6rem 1rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    font-size: .72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: #495057;
+  }
+  .info-table { width: 100%; font-size: .875rem; border-collapse: collapse; }
+  .info-table tr { border-bottom: 1px solid #f0f2f5; }
+  .info-table tr:last-child { border-bottom: none; }
+  .info-table th {
+    padding: .48rem 1rem;
+    width: 8rem;
+    color: #6c757d;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .info-table td { padding: .48rem 1rem; }
+  .pbar-label {
+    display: flex; justify-content: space-between;
+    font-size: .79rem; margin-bottom: 3px;
+  }
+  .pbar-label span:first-child { color: #6c757d; }
+  .pbar-label span:last-child  { font-weight: 600; }
+</style>
+
+<div class="row g-3">
+
+  {{/* 호스트 */}}
+  <div class="col-md-6">
+    <div class="info-card">
+      <div class="info-card-header"><i class="bi bi-hdd-network me-2"></i>호스트</div>
+      <table class="info-table">
+        <tr><th>호스트명</th><td>{{.S.Hostname}}</td></tr>
+        <tr><th>운영체제</th><td>{{.S.OS}}</td></tr>
+        <tr><th>커널</th><td>{{.S.Kernel}}</td></tr>
+        <tr><th>아키텍처</th><td>{{.S.Arch}}</td></tr>
+        <tr><th>업타임</th><td>{{.S.Uptime}}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  {{/* CPU */}}
+  <div class="col-md-6">
+    <div class="info-card">
+      <div class="info-card-header"><i class="bi bi-cpu me-2"></i>CPU</div>
+      <table class="info-table">
+        <tr><th>코어 수</th><td>{{.S.CPUs}}개</td></tr>
+      </table>
+      <div class="px-3 pt-2 pb-3">
+        <div class="mb-2">
+          <div class="pbar-label"><span>사용자(user)</span><span>{{.S.CPUUser}}%</span></div>
+          <div class="progress" style="height:7px">
+            <div class="progress-bar bg-primary" style="width:{{.S.CPUUser}}%"></div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <div class="pbar-label"><span>시스템(sys)</span><span>{{.S.CPUSystem}}%</span></div>
+          <div class="progress" style="height:7px">
+            <div class="progress-bar bg-warning" style="width:{{.S.CPUSystem}}%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="pbar-label"><span>유휴(idle)</span><span>{{.S.CPUIdle}}%</span></div>
+          <div class="progress" style="height:7px">
+            <div class="progress-bar bg-success" style="width:{{.S.CPUIdle}}%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{/* 메모리 */}}
+  <div class="col-md-6">
+    <div class="info-card">
+      <div class="info-card-header"><i class="bi bi-memory me-2"></i>메모리</div>
+      <div class="px-3 pt-2 pb-1">
+        <div class="pbar-label">
+          <span>사용 {{.S.MemUsed}} / {{.S.MemTotal}}</span>
+          <span>{{.S.MemUsedPct}}%</span>
+        </div>
+        <div class="progress mb-3" style="height:10px">
+          <div class="progress-bar {{if gt .S.MemUsedPct 85}}bg-danger{{else if gt .S.MemUsedPct 70}}bg-warning{{else}}bg-info{{end}}"
+               style="width:{{.S.MemUsedPct}}%"></div>
+        </div>
+      </div>
+      <table class="info-table">
+        <tr><th>전체</th><td>{{.S.MemTotal}}</td></tr>
+        <tr><th>사용</th><td>{{.S.MemUsed}}</td></tr>
+        <tr><th>여유</th><td>{{.S.MemFree}}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  {{/* 스왑 */}}
+  <div class="col-md-6">
+    <div class="info-card">
+      <div class="info-card-header"><i class="bi bi-arrow-left-right me-2"></i>스왑</div>
+      {{if .S.HasSwap}}
+      <div class="px-3 pt-2 pb-1">
+        <div class="pbar-label">
+          <span>사용 {{.S.SwapUsed}} / {{.S.SwapTotal}}</span>
+          <span>{{.S.SwapUsedPct}}%</span>
+        </div>
+        <div class="progress mb-3" style="height:10px">
+          <div class="progress-bar bg-secondary" style="width:{{.S.SwapUsedPct}}%"></div>
+        </div>
+      </div>
+      <table class="info-table">
+        <tr><th>전체</th><td>{{.S.SwapTotal}}</td></tr>
+        <tr><th>사용</th><td>{{.S.SwapUsed}}</td></tr>
+        <tr><th>여유</th><td>{{.S.SwapFree}}</td></tr>
+      </table>
+      {{else}}
+      <div class="d-flex align-items-center justify-content-center text-muted"
+           style="height:120px;font-size:.87rem">
+        <i class="bi bi-dash-circle me-2"></i>스왑 없음
+      </div>
+      {{end}}
+    </div>
+  </div>
+
+  {{/* Podman */}}
+  <div class="col-md-6">
+    <div class="info-card">
+      <div class="info-card-header"><i class="bi bi-box-seam me-2"></i>Podman</div>
+      <table class="info-table">
+        <tr><th>버전</th><td>{{.S.PodmanVersion}}</td></tr>
+        <tr><th>API 버전</th><td>{{.S.PodmanAPI}}</td></tr>
+        <tr><th>Go 버전</th><td>{{.S.GoVersion}}</td></tr>
+        <tr><th>플랫폼</th><td>{{.S.OsArch}}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  {{/* 컨테이너 & 이미지 */}}
+  <div class="col-md-6">
+    <div class="info-card">
+      <div class="info-card-header"><i class="bi bi-boxes me-2"></i>컨테이너 &amp; 이미지</div>
+      <table class="info-table">
+        <tr><th>전체</th><td>{{.S.ContainerTotal}}개</td></tr>
+        <tr><th>실행 중</th><td><span class="badge badge-running">{{.S.ContainerRunning}}</span></td></tr>
+        <tr><th>정지</th><td><span class="badge badge-stopped">{{.S.ContainerStopped}}</span></td></tr>
+        {{if .S.ContainerPaused}}
+        <tr><th>일시정지</th><td><span class="badge badge-paused">{{.S.ContainerPaused}}</span></td></tr>
+        {{end}}
+        <tr><th>이미지</th><td>{{.S.ImageCount}}개</td></tr>
+      </table>
+    </div>
+  </div>
+
+  {{/* 스토리지 */}}
+  <div class="col-12">
+    <div class="info-card">
+      <div class="info-card-header"><i class="bi bi-device-hdd me-2"></i>스토리지</div>
+      <table class="info-table">
+        <tr><th>드라이버</th><td class="mono">{{.S.GraphDriver}}</td></tr>
+        <tr><th>그래프 루트</th><td class="mono">{{.S.GraphRoot}}</td></tr>
+        <tr><th>런 루트</th><td class="mono">{{.S.RunRoot}}</td></tr>
+        <tr><th>볼륨 경로</th><td class="mono">{{.S.VolumePath}}</td></tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+{{end}}
