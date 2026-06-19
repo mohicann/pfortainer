@@ -84,6 +84,7 @@ Netdata 불필요 — pfortainer가 FreeBSD sysctls에서 직접 수집합니다
 | `HOST` | `0.0.0.0` | 바인드 호스트 |
 | `PORT` | `11000` | 바인드 포트 |
 | `METRICS_DB` | `./metrics.db` | 메트릭 SQLite DB 파일 경로 |
+| `METRICS_RETENTION_DAYS` | `10` | 메트릭 보존 기간 (일) |
 
 ## 로컬 실행
 

@@ -59,11 +59,10 @@ type MetricSample struct {
 	PoolZboot [3]float64
 }
 
-const retentionDays = 10
-
 type MetricsCollector struct {
-	db         *sql.DB
-	insertStmt *sql.Stmt
+	db            *sql.DB
+	insertStmt    *sql.Stmt
+	retentionDays int
 
 	mu    sync.RWMutex
 	ring  [maxSamples]MetricSample
@@ -77,8 +76,11 @@ type MetricsCollector struct {
 	prevTime      time.Time
 }
 
-func newMetricsCollector(dbPath string) *MetricsCollector {
-	mc := &MetricsCollector{prevNetBytes: make(map[string][2]uint64)}
+func newMetricsCollector(dbPath string, retentionDays int) *MetricsCollector {
+	mc := &MetricsCollector{
+		prevNetBytes:  make(map[string][2]uint64),
+		retentionDays: retentionDays,
+	}
 
 	if err := mc.setupDB(dbPath); err != nil {
 		log.Printf("metrics: SQLite 초기화 실패 (%v), 메모리 전용으로 동작", err)
@@ -202,7 +204,7 @@ func (mc *MetricsCollector) cleanup() {
 	if mc.db == nil {
 		return
 	}
-	cutoff := time.Now().Unix() - int64(retentionDays*24*60*60)
+	cutoff := time.Now().Unix() - int64(mc.retentionDays*24*60*60)
 	res, err := mc.db.Exec("DELETE FROM metrics WHERE time < ?", cutoff)
 	if err == nil {
 		if n, _ := res.RowsAffected(); n > 0 {
