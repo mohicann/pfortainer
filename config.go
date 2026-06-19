@@ -11,6 +11,7 @@ type Config struct {
 	SessionSecret string
 	Host          string
 	Port          string
+	NetdataURL    string
 }
 
 func loadConfig() *Config {
@@ -21,6 +22,7 @@ func loadConfig() *Config {
 		SessionSecret: getEnv("SESSION_SECRET", "change-this-secret-in-production-xx"),
 		Host:          getEnv("HOST", "0.0.0.0"),
 		Port:          getEnv("PORT", "11000"),
+		NetdataURL:    getEnv("NETDATA_URL", "http://localhost:19999"),
 	}
 }
 
