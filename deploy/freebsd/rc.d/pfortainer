@@ -40,11 +40,16 @@ pfortainer_start() {
         return 1
     fi
     # Podman API 소켓 확인 및 시작
+    # 참고: daemon(8)이 podman 데몬화와 충돌하므로 셸 백그라운드(&)로 직접 기동.
+    # 기동된 podman 프로세스는 pfortainer와 독립적으로 살아있으며,
+    # /var/run/podman_api.pid 로 별도 관리(kill/재시작) 가능.
     if [ ! -S "${pfortainer_podman_sock}" ]; then
         echo "Starting Podman API socket..."
         mkdir -p "$(dirname "${pfortainer_podman_sock}")"
-        /usr/sbin/daemon -o /var/log/podman-api.log \
-            podman system service --time=0 "unix://${pfortainer_podman_sock}"
+        /usr/local/bin/podman system service --time=0 "unix://${pfortainer_podman_sock}" \
+            >> /var/log/podman-api.log 2>&1 &
+        disown
+        echo $! > /var/run/podman_api.pid
         sleep 1
     fi
     echo "Starting ${name} on port ${pfortainer_port}."

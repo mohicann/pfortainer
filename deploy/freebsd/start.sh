@@ -11,8 +11,10 @@ PODMAN_SOCK="/run/podman/podman.sock"
 if [ ! -S "${PODMAN_SOCK}" ]; then
     echo "Podman API 소켓 시작 중..."
     mkdir -p /run/podman
-    /usr/sbin/daemon -o /var/log/podman-api.log \
-        podman system service --time=0 "unix://${PODMAN_SOCK}"
+    /usr/local/bin/podman system service --time=0 "unix://${PODMAN_SOCK}" \
+        >> /var/log/podman-api.log 2>&1 &
+    disown
+    echo $! > /var/run/podman_api.pid
     sleep 1
 fi
 
