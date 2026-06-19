@@ -53,13 +53,24 @@ Podman REST API(유닉스 소켓)에 직접 연결해 컨테이너/이미지를 
 
 ## 메트릭
 
-`/metrics` 경로에서 Netdata가 수집한 시스템 메트릭을 실시간으로 확인합니다.  
-Netdata가 설치·실행 중이어야 하며, `NETDATA_URL`로 주소를 지정합니다.
+`/metrics` 경로에서 시스템 메트릭을 실시간으로 확인합니다.  
+Netdata 불필요 — pfortainer가 FreeBSD sysctls에서 직접 수집합니다.
 
 | 구성 | 갱신 주기 | 내용 |
 |------|-----------|------|
 | 도넛 게이지 | **5초** | CPU 사용률, 메모리 사용률, zdata/zboot 풀 사용량 |
 | 시계열 차트 | **30초** | 네트워크(igc0)·디스크I/O·CPU히스토리·ZFS ARC 크기·Load Average·ZFS ARC 히트율·Tailscale·TCP 활성 연결 |
+
+수집 데이터는 SQLite(`./metrics.db`)에 저장됩니다.
+
+| 항목 | 내용 |
+|------|------|
+| 수집 간격 | 5초 |
+| 보존 기간 | 10일 (자동 삭제) |
+| 예상 용량 | 약 50~60 MB |
+| 30분 이내 조회 | 메모리 ring buffer (빠름) |
+| 30분 초과 조회 | SQLite bucket 평균 쿼리 |
+| 재기동 시 | DB에서 최근 30분 자동 복원 |
 
 ## 설정
 
@@ -72,7 +83,7 @@ Netdata가 설치·실행 중이어야 하며, `NETDATA_URL`로 주소를 지정
 | `SESSION_SECRET` | (필수) | 세션 쿠키 서명용 시크릿 |
 | `HOST` | `0.0.0.0` | 바인드 호스트 |
 | `PORT` | `11000` | 바인드 포트 |
-| `NETDATA_URL` | `http://localhost:19999` | Netdata API 주소 |
+| `METRICS_DB` | `./metrics.db` | 메트릭 SQLite DB 파일 경로 |
 
 ## 로컬 실행
 
