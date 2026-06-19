@@ -3,9 +3,11 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"database/sql"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os/exec"
 	"strconv"
@@ -14,6 +16,7 @@ import (
 	"time"
 
 	"golang.org/x/sys/unix"
+	_ "modernc.org/sqlite"
 )
 
 const (
@@ -56,44 +59,194 @@ type MetricSample struct {
 	PoolZboot [3]float64
 }
 
+const retentionDays = 10
+
 type MetricsCollector struct {
+	db         *sql.DB
+	insertStmt *sql.Stmt
+
 	mu    sync.RWMutex
 	ring  [maxSamples]MetricSample
 	head  int
 	count int
 
-	prevCPU      [5]uint64
-	prevNetBytes map[string][2]uint64
+	prevCPU       [5]uint64
+	prevNetBytes  map[string][2]uint64
 	prevDiskBytes [2]uint64
-	prevARCHits  [2]uint64 // [hits, misses]
-	prevTime     time.Time
+	prevARCHits   [2]uint64
+	prevTime      time.Time
 }
 
-func newMetricsCollector() *MetricsCollector {
-	mc := &MetricsCollector{
-		prevNetBytes: make(map[string][2]uint64),
+func newMetricsCollector(dbPath string) *MetricsCollector {
+	mc := &MetricsCollector{prevNetBytes: make(map[string][2]uint64)}
+
+	if err := mc.setupDB(dbPath); err != nil {
+		log.Printf("metrics: SQLite 초기화 실패 (%v), 메모리 전용으로 동작", err)
+	} else {
+		mc.populateRing()
+		mc.cleanup()
 	}
+
 	mc.prevCPU, _ = mc.readCPUTicks()
 	mc.prevNetBytes = mc.readNetBytes()
 	mc.prevDiskBytes = mc.readDiskBytes()
 	mc.prevARCHits = mc.readARCHits()
 	mc.prevTime = time.Now()
+
 	go mc.run()
 	return mc
 }
 
-func (mc *MetricsCollector) run() {
-	ticker := time.NewTicker(collectInterval)
-	for range ticker.C {
-		s := mc.collect()
-		mc.mu.Lock()
+const createSchema = `
+CREATE TABLE IF NOT EXISTS metrics (
+	time             INTEGER PRIMARY KEY NOT NULL,
+	cpu_user         REAL NOT NULL DEFAULT 0,
+	cpu_nice         REAL NOT NULL DEFAULT 0,
+	cpu_sys          REAL NOT NULL DEFAULT 0,
+	cpu_intr         REAL NOT NULL DEFAULT 0,
+	mem_free         REAL NOT NULL DEFAULT 0,
+	mem_active       REAL NOT NULL DEFAULT 0,
+	mem_inactive     REAL NOT NULL DEFAULT 0,
+	mem_wired        REAL NOT NULL DEFAULT 0,
+	load1            REAL NOT NULL DEFAULT 0,
+	load5            REAL NOT NULL DEFAULT 0,
+	load15           REAL NOT NULL DEFAULT 0,
+	net_igc0_rx      REAL NOT NULL DEFAULT 0,
+	net_igc0_tx      REAL NOT NULL DEFAULT 0,
+	net_ts_rx        REAL NOT NULL DEFAULT 0,
+	net_ts_tx        REAL NOT NULL DEFAULT 0,
+	disk_read        REAL NOT NULL DEFAULT 0,
+	disk_write       REAL NOT NULL DEFAULT 0,
+	arc_size         REAL NOT NULL DEFAULT 0,
+	arc_hit          REAL NOT NULL DEFAULT 0,
+	arc_miss         REAL NOT NULL DEFAULT 0,
+	tcp_estab        REAL NOT NULL DEFAULT 0,
+	pool_zdata_pct   REAL NOT NULL DEFAULT 0,
+	pool_zdata_used  REAL NOT NULL DEFAULT 0,
+	pool_zdata_total REAL NOT NULL DEFAULT 0,
+	pool_zboot_pct   REAL NOT NULL DEFAULT 0,
+	pool_zboot_used  REAL NOT NULL DEFAULT 0,
+	pool_zboot_total REAL NOT NULL DEFAULT 0
+);`
+
+const insertSQL = `INSERT OR REPLACE INTO metrics VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+
+func (mc *MetricsCollector) setupDB(path string) error {
+	db, err := sql.Open("sqlite", path+"?_journal=WAL&_timeout=5000&_synchronous=NORMAL")
+	if err != nil {
+		return err
+	}
+	db.SetMaxOpenConns(1)
+	if _, err = db.Exec(createSchema); err != nil {
+		db.Close()
+		return err
+	}
+	stmt, err := db.Prepare(insertSQL)
+	if err != nil {
+		db.Close()
+		return err
+	}
+	mc.db = db
+	mc.insertStmt = stmt
+	return nil
+}
+
+// populateRing loads the most recent maxSamples rows from SQLite into the ring buffer.
+func (mc *MetricsCollector) populateRing() {
+	if mc.db == nil {
+		return
+	}
+	rows, err := mc.db.Query(`
+		SELECT time,cpu_user,cpu_nice,cpu_sys,cpu_intr,
+		       mem_free,mem_active,mem_inactive,mem_wired,
+		       load1,load5,load15,
+		       net_igc0_rx,net_igc0_tx,net_ts_rx,net_ts_tx,
+		       disk_read,disk_write,
+		       arc_size,arc_hit,arc_miss,tcp_estab,
+		       pool_zdata_pct,pool_zdata_used,pool_zdata_total,
+		       pool_zboot_pct,pool_zboot_used,pool_zboot_total
+		FROM metrics ORDER BY time DESC LIMIT ?`, maxSamples)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	var loaded []MetricSample
+	for rows.Next() {
+		var s MetricSample
+		rows.Scan(&s.Time,
+			&s.CPU[0], &s.CPU[1], &s.CPU[2], &s.CPU[3],
+			&s.Mem[0], &s.Mem[1], &s.Mem[2], &s.Mem[3],
+			&s.Load[0], &s.Load[1], &s.Load[2],
+			&s.NetIgc0[0], &s.NetIgc0[1], &s.NetTs[0], &s.NetTs[1],
+			&s.Disk[0], &s.Disk[1],
+			&s.ARCSize, &s.ARCHit, &s.ARCMiss, &s.TCPEstab,
+			&s.PoolZdata[0], &s.PoolZdata[1], &s.PoolZdata[2],
+			&s.PoolZboot[0], &s.PoolZboot[1], &s.PoolZboot[2])
+		loaded = append(loaded, s)
+	}
+	// loaded is newest-first; insert oldest-first into ring
+	mc.mu.Lock()
+	for i := len(loaded) - 1; i >= 0; i-- {
 		mc.head = (mc.head + 1) % maxSamples
-		mc.ring[mc.head] = s
+		mc.ring[mc.head] = loaded[i]
 		if mc.count < maxSamples {
 			mc.count++
 		}
-		mc.mu.Unlock()
 	}
+	mc.mu.Unlock()
+	log.Printf("metrics: DB에서 %d개 샘플 복원", len(loaded))
+}
+
+func (mc *MetricsCollector) cleanup() {
+	if mc.db == nil {
+		return
+	}
+	cutoff := time.Now().Unix() - int64(retentionDays*24*60*60)
+	res, err := mc.db.Exec("DELETE FROM metrics WHERE time < ?", cutoff)
+	if err == nil {
+		if n, _ := res.RowsAffected(); n > 0 {
+			log.Printf("metrics: 오래된 데이터 %d rows 삭제", n)
+		}
+	}
+}
+
+func (mc *MetricsCollector) run() {
+	cleanTicker := time.NewTicker(time.Hour)
+	collectTicker := time.NewTicker(collectInterval)
+	for {
+		select {
+		case <-collectTicker.C:
+			s := mc.collect()
+			mc.mu.Lock()
+			mc.head = (mc.head + 1) % maxSamples
+			mc.ring[mc.head] = s
+			if mc.count < maxSamples {
+				mc.count++
+			}
+			mc.mu.Unlock()
+			mc.writeToDB(s)
+		case <-cleanTicker.C:
+			mc.cleanup()
+		}
+	}
+}
+
+func (mc *MetricsCollector) writeToDB(s MetricSample) {
+	if mc.insertStmt == nil {
+		return
+	}
+	mc.insertStmt.Exec(
+		s.Time,
+		s.CPU[0], s.CPU[1], s.CPU[2], s.CPU[3],
+		s.Mem[0], s.Mem[1], s.Mem[2], s.Mem[3],
+		s.Load[0], s.Load[1], s.Load[2],
+		s.NetIgc0[0], s.NetIgc0[1], s.NetTs[0], s.NetTs[1],
+		s.Disk[0], s.Disk[1],
+		s.ARCSize, s.ARCHit, s.ARCMiss, s.TCPEstab,
+		s.PoolZdata[0], s.PoolZdata[1], s.PoolZdata[2],
+		s.PoolZboot[0], s.PoolZboot[1], s.PoolZboot[2],
+	)
 }
 
 func (mc *MetricsCollector) collect() MetricSample {
@@ -439,14 +592,25 @@ func (mc *MetricsCollector) query(chart string, afterSecs, maxPoints int) (ndRes
 		return ndResponse{}, fmt.Errorf("unknown chart: %s", chart)
 	}
 
+	ringWindow := -maxSamples * int(collectInterval.Seconds()) // -1800s
+
+	// 30분 이내: ring buffer에서 반환
+	if afterSecs >= ringWindow {
+		return mc.queryRing(chart, labels, afterSecs, maxPoints), nil
+	}
+
+	// 30분 초과: SQLite에서 조회 (bucket 평균으로 다운샘플)
+	if mc.db != nil {
+		return mc.queryDB(chart, labels, afterSecs, maxPoints)
+	}
+	return ndResponse{Labels: labels, Data: [][]float64{}}, nil
+}
+
+func (mc *MetricsCollector) queryRing(chart string, labels []string, afterSecs, maxPoints int) ndResponse {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
 
-	if mc.count == 0 {
-		return ndResponse{Labels: labels, Data: [][]float64{}}, nil
-	}
-
-	cutoff := time.Now().Unix() + int64(afterSecs) // afterSecs is negative
+	cutoff := time.Now().Unix() + int64(afterSecs)
 	var rows [][]float64
 	for i := 0; i < mc.count; i++ {
 		idx := (mc.head - i + maxSamples) % maxSamples
@@ -456,8 +620,6 @@ func (mc *MetricsCollector) query(chart string, afterSecs, maxPoints int) (ndRes
 		}
 		rows = append(rows, mc.sampleRow(chart, s))
 	}
-
-	// Downsample if we have more points than requested
 	if maxPoints > 0 && len(rows) > maxPoints {
 		step := float64(len(rows)) / float64(maxPoints)
 		sampled := make([][]float64, maxPoints)
@@ -466,8 +628,67 @@ func (mc *MetricsCollector) query(chart string, afterSecs, maxPoints int) (ndRes
 		}
 		rows = sampled
 	}
+	return ndResponse{Labels: labels, Data: rows}
+}
 
-	return ndResponse{Labels: labels, Data: rows}, nil
+// chartCols maps chart names to their SQL column expressions
+var chartCols = map[string]string{
+	"system.cpu":     "cpu_user,cpu_nice,cpu_sys,cpu_intr",
+	"system.ram":     "mem_free,mem_active,mem_inactive,mem_wired",
+	"system.load":    "load1,load5,load15",
+	"net.igc0":       "net_igc0_rx,net_igc0_tx",
+	"net.tailscale0": "net_ts_rx,net_ts_tx",
+	"system.io":      "disk_read,disk_write",
+	"zfs.arc_size":   "arc_size",
+	"zfs.hits":       "arc_hit,arc_miss",
+	"ipv4.tcpsock":   "tcp_estab",
+	"zfspool.zdata":  "pool_zdata_pct,pool_zdata_used,pool_zdata_total",
+	"zfspool.zboot":  "pool_zboot_pct,pool_zboot_used,pool_zboot_total",
+}
+
+func (mc *MetricsCollector) queryDB(chart string, labels []string, afterSecs, maxPoints int) (ndResponse, error) {
+	cols, ok := chartCols[chart]
+	if !ok {
+		return ndResponse{Labels: labels, Data: [][]float64{}}, nil
+	}
+	cutoff := time.Now().Unix() + int64(afterSecs)
+	bucketSec := int64(-afterSecs / maxPoints)
+	if bucketSec < 1 {
+		bucketSec = 1
+	}
+
+	// Build AVG expressions for each column
+	colList := strings.Split(cols, ",")
+	avgExprs := make([]string, len(colList))
+	for i, c := range colList {
+		avgExprs[i] = "AVG(" + c + ")"
+	}
+	q := fmt.Sprintf(`
+		SELECT (time / %d) * %d AS t, %s
+		FROM metrics WHERE time >= %d
+		GROUP BY t ORDER BY t DESC LIMIT %d`,
+		bucketSec, bucketSec, strings.Join(avgExprs, ","), cutoff, maxPoints)
+
+	sqlRows, err := mc.db.Query(q)
+	if err != nil {
+		return ndResponse{Labels: labels, Data: [][]float64{}}, err
+	}
+	defer sqlRows.Close()
+
+	nCols := len(colList) + 1 // +1 for time
+	var result [][]float64
+	for sqlRows.Next() {
+		vals := make([]float64, nCols)
+		ptrs := make([]any, nCols)
+		for i := range vals {
+			ptrs[i] = &vals[i]
+		}
+		if err := sqlRows.Scan(ptrs...); err != nil {
+			continue
+		}
+		result = append(result, vals)
+	}
+	return ndResponse{Labels: labels, Data: result}, nil
 }
 
 func (mc *MetricsCollector) serveHTTP(w http.ResponseWriter, r *http.Request) {

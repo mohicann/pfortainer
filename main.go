@@ -10,7 +10,7 @@ import (
 func main() {
 	cfg := loadConfig()
 	pc := newPodmanClient(cfg.PodmanSocket)
-	mc := newMetricsCollector()
+	mc := newMetricsCollector(cfg.MetricsDB)
 	h := newHandlers(cfg, pc, mc)
 
 	mux := http.NewServeMux()
