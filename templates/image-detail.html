@@ -1,0 +1,174 @@
+{{define "title"}}{{if .I.Tags}}{{index .I.Tags 0}}{{else}}{{.I.ShortID}}{{end}} — pfortainer{{end}}
+{{define "pagetitle"}}{{if .I.Tags}}{{index .I.Tags 0}}{{else}}{{.I.ShortID}}{{end}}{{end}}
+{{define "content"}}
+<div class="mb-3">
+  <a href="/images" class="text-decoration-none text-muted" style="font-size:.85rem">
+    <i class="bi bi-arrow-left"></i> 이미지 목록으로
+  </a>
+</div>
+
+<div class="card-table mb-3">
+  <div class="ct-header">
+    <span class="fw-semibold" style="font-size:.95rem">
+      {{if .I.Tags}}{{index .I.Tags 0}}{{else}}<span class="text-muted fst-italic">untagged</span>{{end}}
+    </span>
+    <div class="btn-group btn-group-sm" role="group">
+      <button type="button" class="btn btn-outline-danger" id="removeBtn" data-id="{{.I.ID}}">
+        <i class="bi bi-trash"></i> 삭제
+      </button>
+      <button type="button" class="btn btn-outline-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false"></button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="#" data-force="false">삭제</a></li>
+        <li><a class="dropdown-item text-danger" href="#" data-force="true">강제 삭제 (Force Remove)</a></li>
+      </ul>
+    </div>
+  </div>
+  <table class="table mb-0">
+    <tbody>
+      <tr><th style="width:160px">ID</th><td><span class="mono" style="font-size:.85rem">{{.I.ID}}</span></td></tr>
+      {{if .I.Digest}}
+      <tr><th>Digest</th><td><span class="mono" style="font-size:.82rem">{{.I.Digest}}</span></td></tr>
+      {{end}}
+      <tr>
+        <th>태그</th>
+        <td>
+          {{if .I.Tags}}
+            {{range .I.Tags}}<span class="badge bg-secondary me-1 font-monospace">{{.}}</span>{{end}}
+          {{else}}
+            <span class="text-muted fst-italic">없음</span>
+          {{end}}
+        </td>
+      </tr>
+      <tr><th>생성일</th><td>{{.I.Created}}</td></tr>
+      <tr><th>크기</th><td>{{.I.Size}}{{if .I.VirtualSize}} <span class="text-muted" style="font-size:.85rem">(가상 {{.I.VirtualSize}})</span>{{end}}</td></tr>
+      <tr><th>OS / 아키텍처</th><td>{{.I.Os}} / {{.I.Architecture}}</td></tr>
+      {{if .I.Author}}<tr><th>작성자</th><td>{{.I.Author}}</td></tr>{{end}}
+      {{if .I.Comment}}<tr><th>코멘트</th><td>{{.I.Comment}}</td></tr>{{end}}
+      <tr><th>레이어 수</th><td>{{.I.LayerCount}}</td></tr>
+      {{if .I.WorkingDir}}<tr><th>작업 디렉토리</th><td><span class="mono">{{.I.WorkingDir}}</span></td></tr>{{end}}
+      {{if .I.User}}<tr><th>실행 사용자</th><td><span class="mono">{{.I.User}}</span></td></tr>{{end}}
+      {{if .I.Entrypoint}}<tr><th>Entrypoint</th><td><span class="mono">{{.I.Entrypoint}}</span></td></tr>{{end}}
+      {{if .I.Cmd}}<tr><th>CMD</th><td><span class="mono">{{.I.Cmd}}</span></td></tr>{{end}}
+    </tbody>
+  </table>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card-table h-100">
+      <div class="ct-header"><span class="fw-semibold" style="font-size:.88rem">노출 포트</span></div>
+      <div class="p-3">
+        {{if .I.ExposedPorts}}
+          {{range .I.ExposedPorts}}<span class="ptag">{{.}}</span>{{end}}
+        {{else}}
+          <span class="text-muted" style="font-size:.85rem">없음</span>
+        {{end}}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card-table h-100">
+      <div class="ct-header"><span class="fw-semibold" style="font-size:.88rem">볼륨</span></div>
+      <div class="p-3">
+        {{if .I.Volumes}}
+          {{range .I.Volumes}}<div class="mono" style="font-size:.85rem">{{.}}</div>{{end}}
+        {{else}}
+          <span class="text-muted" style="font-size:.85rem">없음</span>
+        {{end}}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card-table">
+      <div class="ct-header"><span class="fw-semibold" style="font-size:.88rem">환경 변수</span></div>
+      <div class="p-3" style="max-height:220px; overflow:auto">
+        {{if .I.Env}}
+          {{range .I.Env}}<div class="mono" style="font-size:.8rem">{{.}}</div>{{end}}
+        {{else}}
+          <span class="text-muted" style="font-size:.85rem">없음</span>
+        {{end}}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card-table">
+      <div class="ct-header"><span class="fw-semibold" style="font-size:.88rem">레이블</span></div>
+      <div class="p-3" style="max-height:200px; overflow:auto">
+        {{if .I.Labels}}
+          {{range $k, $v := .I.Labels}}<div class="mono" style="font-size:.8rem">{{$k}}={{$v}}</div>{{end}}
+        {{else}}
+          <span class="text-muted" style="font-size:.85rem">없음</span>
+        {{end}}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card-table">
+      <div class="ct-header"><span class="fw-semibold" style="font-size:.88rem">레이어 <span class="badge bg-secondary ms-1">{{.I.LayerCount}}</span></span></div>
+      <div class="p-3" style="max-height:200px; overflow:auto">
+        {{range .I.Layers}}
+          <div class="mono text-muted" style="font-size:.78rem">{{.}}</div>
+        {{end}}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card-table">
+      <div class="ct-header"><span class="fw-semibold" style="font-size:.88rem">이 이미지를 사용 중인 컨테이너</span></div>
+      <div class="p-3">
+        {{if .I.Containers}}
+          {{range .I.Containers}}
+            <a href="/containers/{{.}}" class="badge bg-primary text-decoration-none me-1">{{.}}</a>
+          {{end}}
+        {{else}}
+          <span class="text-muted" style="font-size:.85rem">없음</span>
+        {{end}}
+      </div>
+    </div>
+  </div>
+
+  {{if .I.RepoDigests}}
+  <div class="col-12">
+    <div class="card-table">
+      <div class="ct-header"><span class="fw-semibold" style="font-size:.88rem">Repo Digests</span></div>
+      <div class="p-3">
+        {{range .I.RepoDigests}}<div class="mono text-muted" style="font-size:.8rem">{{.}}</div>{{end}}
+      </div>
+    </div>
+  </div>
+  {{end}}
+</div>
+
+<script>
+(function () {
+  const removeBtn = document.getElementById('removeBtn');
+  const id = removeBtn.dataset.id;
+
+  async function remove(force) {
+    const verb = force ? '강제 삭제' : '삭제';
+    if (!confirm(`이 이미지를 ${verb}하시겠습니까?`)) return;
+    try {
+      const res = await fetch(`/images/${id}/remove?force=${force}`, { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { alert(data.error || '삭제에 실패했습니다.'); return; }
+      location.href = '/images';
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  removeBtn.addEventListener('click', () => remove(false));
+  document.querySelectorAll('.dropdown-item').forEach((item) => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      remove(item.dataset.force === 'true');
+    });
+  });
+})();
+</script>
+{{end}}

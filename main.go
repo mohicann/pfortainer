@@ -34,6 +34,7 @@ func main() {
 	mux.Handle("GET /containers/{id}", auth(h.containerDetail))
 	mux.Handle("POST /containers/{id}/{action}", auth(h.containerAction))
 	mux.Handle("GET /images", auth(h.images))
+	mux.Handle("GET /images/{id}", auth(h.imageDetail))
 	mux.Handle("POST /images/{id}/{action}", auth(h.imageAction))
 	mux.Handle("GET /system", auth(h.systemInfo))
 	mux.Handle("GET /api/system/stats", auth(h.systemStats))

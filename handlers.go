@@ -108,6 +108,35 @@ type ImageVM struct {
 	Created string
 }
 
+type ImageDetailVM struct {
+	ID           string
+	ShortID      string
+	Digest       string
+	Tags         []string
+	RepoDigests  []string
+	Created      string
+	Author       string
+	Architecture string
+	Os           string
+	Size         string
+	VirtualSize  string
+	Comment      string
+	NamesHistory []string
+
+	Env          []string
+	Cmd          string
+	Entrypoint   string
+	ExposedPorts []string
+	Labels       map[string]string
+	WorkingDir   string
+	User         string
+	Volumes      []string
+	Layers       []string
+	LayerCount   int
+
+	Containers []string // 이 이미지를 사용 중인 컨테이너 이름 목록
+}
+
 type SystemInfoVM struct {
 	Hostname  string
 	OS        string
@@ -499,6 +528,20 @@ func (h *handlers) images(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *handlers) imageDetail(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	detail, err := h.pc.InspectImage(id)
+	if err != nil {
+		renderErr(w, err)
+		return
+	}
+	containers, _ := h.pc.ListContainers()
+	render(w, "image-detail", map[string]any{
+		"ActivePage": "images",
+		"I":          toImageDetailVM(detail, containers),
+	})
+}
+
 // ── Image actions ─────────────────────────────────────────────────────────────
 
 func (h *handlers) imageAction(w http.ResponseWriter, r *http.Request) {
@@ -581,6 +624,82 @@ func toImageVMs(imgs []APIImage) []ImageVM {
 		})
 	}
 	return out
+}
+
+func toImageDetailVM(d *APIImageDetail, containers []APIContainer) ImageDetailVM {
+	id := strings.TrimPrefix(d.ID, "sha256:")
+
+	tags := make([]string, 0, len(d.RepoTags))
+	for _, t := range d.RepoTags {
+		if t != "<none>:<none>" {
+			tags = append(tags, t)
+		}
+	}
+
+	ports := make([]string, 0, len(d.Config.ExposedPorts))
+	for p := range d.Config.ExposedPorts {
+		ports = append(ports, p)
+	}
+	sort.Strings(ports)
+
+	volumes := make([]string, 0, len(d.Config.Volumes))
+	for v := range d.Config.Volumes {
+		volumes = append(volumes, v)
+	}
+	sort.Strings(volumes)
+
+	// 이미지를 사용 중인 컨테이너
+	var usingContainers []string
+	for _, c := range containers {
+		cImgID := strings.TrimPrefix(c.ImageID, "sha256:")
+		if strings.HasPrefix(cImgID, id) || strings.HasPrefix(id, cImgID) {
+			name := c.ID
+			if len(c.Names) > 0 {
+				name = strings.TrimPrefix(c.Names[0], "/")
+			}
+			usingContainers = append(usingContainers, name)
+		}
+	}
+
+	created := d.Created
+	if t, err := time.Parse(time.RFC3339Nano, d.Created); err == nil {
+		created = t.Format("2006-01-02 15:04:05")
+	}
+
+	digest := d.Digest
+	if digest == "" && len(d.RepoDigests) > 0 {
+		parts := strings.SplitN(d.RepoDigests[0], "@", 2)
+		if len(parts) == 2 {
+			digest = parts[1]
+		}
+	}
+
+	return ImageDetailVM{
+		ID:           id,
+		ShortID:      shortID(id),
+		Digest:       digest,
+		Tags:         tags,
+		RepoDigests:  d.RepoDigests,
+		Created:      created,
+		Author:       d.Author,
+		Architecture: d.Architecture,
+		Os:           d.Os,
+		Size:         fmtBytes(d.Size),
+		VirtualSize:  fmtBytes(d.VirtualSize),
+		Comment:      d.Comment,
+		NamesHistory: d.NamesHistory,
+		Env:          d.Config.Env,
+		Cmd:          strings.Join(d.Config.Cmd, " "),
+		Entrypoint:   strings.Join(d.Config.Entrypoint, " "),
+		ExposedPorts: ports,
+		Labels:       d.Config.Labels,
+		WorkingDir:   d.Config.WorkingDir,
+		User:         d.Config.User,
+		Volumes:      volumes,
+		Layers:       d.RootFS.Layers,
+		LayerCount:   len(d.RootFS.Layers),
+		Containers:   usingContainers,
+	}
 }
 
 func toContainerDetailVM(c *APIContainerDetail) ContainerDetailVM {

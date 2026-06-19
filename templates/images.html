@@ -30,13 +30,15 @@
       <tr class="image-row">
         <td><input type="checkbox" class="form-check-input row-check" value="{{.ID}}"></td>
         <td>
-          {{if .Tags}}
-            {{range .Tags}}<div class="fw-semibold" style="font-size:.875rem">{{.}}</div>{{end}}
-          {{else}}
-            <span class="text-muted fst-italic" style="font-size:.85rem">untagged</span>
-          {{end}}
+          <a href="/images/{{.ID}}" class="text-decoration-none text-body">
+            {{if .Tags}}
+              {{range .Tags}}<div class="fw-semibold" style="font-size:.875rem">{{.}}</div>{{end}}
+            {{else}}
+              <span class="text-muted fst-italic" style="font-size:.85rem">untagged</span>
+            {{end}}
+          </a>
         </td>
-        <td><span class="mono">{{.ShortID}}</span></td>
+        <td><a href="/images/{{.ID}}" class="text-decoration-none"><span class="mono">{{.ShortID}}</span></a></td>
         <td><small>{{.Size}}</small></td>
         <td><small class="text-muted">{{.Created}}</small></td>
       </tr>

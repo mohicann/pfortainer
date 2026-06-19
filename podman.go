@@ -49,6 +49,7 @@ type APIContainer struct {
 	ID        string            `json:"Id"`
 	Names     []string          `json:"Names"`
 	Image     string            `json:"Image"`
+	ImageID   string            `json:"ImageID"`
 	State     string            `json:"State"`
 	Created   string            `json:"Created"`
 	StartedAt int64             `json:"StartedAt"`
@@ -76,6 +77,39 @@ type APIImage struct {
 	RepoTags []string `json:"RepoTags"`
 	Created  int64    `json:"Created"`
 	Size     int64    `json:"Size"`
+}
+
+type APIImageDetail struct {
+	ID           string   `json:"Id"`
+	Digest       string   `json:"Digest"`
+	RepoTags     []string `json:"RepoTags"`
+	RepoDigests  []string `json:"RepoDigests"`
+	Parent       string   `json:"Parent"`
+	Comment      string   `json:"Comment"`
+	Created      string   `json:"Created"`
+	Author       string   `json:"Author"`
+	Architecture string   `json:"Architecture"`
+	Os           string   `json:"Os"`
+	Size         int64    `json:"Size"`
+	VirtualSize  int64    `json:"VirtualSize"`
+
+	Config struct {
+		Env          []string            `json:"Env"`
+		Cmd          []string            `json:"Cmd"`
+		Entrypoint   []string            `json:"Entrypoint"`
+		ExposedPorts map[string]struct{} `json:"ExposedPorts"`
+		Labels       map[string]string   `json:"Labels"`
+		WorkingDir   string              `json:"WorkingDir"`
+		User         string              `json:"User"`
+		Volumes      map[string]struct{} `json:"Volumes"`
+	} `json:"Config"`
+
+	RootFS struct {
+		Type   string   `json:"Type"`
+		Layers []string `json:"Layers"`
+	} `json:"RootFS"`
+
+	NamesHistory []string `json:"NamesHistory"`
 }
 
 // APIContainerDetail mirrors the libpod /containers/{id}/json response.
@@ -236,6 +270,14 @@ func (c *PodmanClient) InspectContainer(id string) (*APIContainerDetail, error) 
 	var result APIContainerDetail
 	// Use native libpod endpoint — Docker-compat /containers/{id}/json panics on Podman 5.8.1/FreeBSD.
 	if err := c.get("/v5.0.0/libpod/containers/"+id+"/json", &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func (c *PodmanClient) InspectImage(id string) (*APIImageDetail, error) {
+	var result APIImageDetail
+	if err := c.get("/v5.0.0/libpod/images/"+id+"/json", &result); err != nil {
 		return nil, err
 	}
 	return &result, nil
