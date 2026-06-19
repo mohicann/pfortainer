@@ -66,7 +66,7 @@ Netdata 불필요 — pfortainer가 FreeBSD sysctls에서 직접 수집합니다
 | 항목 | 내용 |
 |------|------|
 | 수집 간격 | 5초 |
-| 보존 기간 | 10일 (자동 삭제) |
+| 보존 기간 | 기본 10일, `METRICS_RETENTION_DAYS`로 변경 가능 |
 | 예상 용량 | 약 50~60 MB |
 | 30분 이내 조회 | 메모리 ring buffer (빠름) |
 | 30분 초과 조회 | SQLite bucket 평균 쿼리 |
