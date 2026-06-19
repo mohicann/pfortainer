@@ -156,12 +156,11 @@ function setUpd(id) {
   if (el) el.textContent = new Date().toLocaleTimeString('ko-KR');
 }
 async function fetchND(chart, after, points) {
-  const r = await fetch(`/api/netdata/data?chart=${chart}&after=${after}&points=${points}`);
+  const r = await fetch(`/api/metrics/data?chart=${chart}&after=${after}&points=${points}`);
   if (!r.ok) throw new Error(r.status);
   return r.json();
 }
 function latestRow(data) {
-  // data 배열은 최신→과거 순이므로 index 0이 가장 최근
   return data[0] ?? null;
 }
 
@@ -229,28 +228,17 @@ async function refreshGaugeRAM() {
   } catch(e) { console.error('gauge ram', e); }
 }
 
+// chart returns [ts, utilization%, usedMiB, totalMiB]
 async function refreshGaugePool(chart, gObj, valId, subId) {
   try {
     const d = await fetchND(chart, -5, 2);
     const row = latestRow(d.data);
     if (!row) return;
-    // zfspool space_utilization 차트: data[1] = 사용률 %
-    const pct = Math.abs(row[1]);
+    const pct = row[1];
     updateGauge(gObj, pct);
     document.getElementById(valId).textContent = pct.toFixed(1) + '%';
-    // space_usage 차트로 used/total 별도 조회
-    const u = await fetchND(chart.replace('utilization','usage'), -5, 2);
-    const urow = latestRow(u.data);
-    if (urow) {
-      const labels = u.labels.slice(1);
-      let avail = 0, usedB = 0;
-      labels.forEach((lbl, i) => {
-        if (lbl === 'avail') avail = Math.abs(urow[i+1]);
-        else usedB += Math.abs(urow[i+1]);
-      });
-      document.getElementById(subId).textContent =
-        fmtBytes(usedB*1024*1024) + ' / ' + fmtBytes((usedB+avail)*1024*1024);
-    }
+    document.getElementById(subId).textContent =
+      fmtBytes(row[2]*1024*1024) + ' / ' + fmtBytes(row[3]*1024*1024);
   } catch(e) { console.error('gauge pool', chart, e); }
 }
 
@@ -258,8 +246,8 @@ async function refreshAllGauges() {
   await Promise.allSettled([
     refreshGaugeCPU(),
     refreshGaugeRAM(),
-    refreshGaugePool('zfspool.zfspool_zdata_space_utilization', gZdata, 'gv-zdata', 'gs-zdata'),
-    refreshGaugePool('zfspool.zfspool_zboot_space_utilization', gZboot, 'gv-zboot', 'gs-zboot'),
+    refreshGaugePool('zfspool.zdata', gZdata, 'gv-zdata', 'gs-zdata'),
+    refreshGaugePool('zfspool.zboot', gZboot, 'gv-zboot', 'gs-zboot'),
   ]);
 }
 
@@ -305,12 +293,12 @@ function applyLineData(chart, d, transform) {
 }
 
 // ── 시계열 차트 인스턴스 ──────────────────────────────────────────────────
-const cNet    = makeLineChart('c-net',    v => (Math.abs(v)/1024).toFixed(1) + ' KB/s');
-const cDisk   = makeLineChart('c-disk',   v => (Math.abs(v)/1024).toFixed(1) + ' KB/s');
-const cZfs    = makeLineChart('c-zfs',    v => (v/1024/1024).toFixed(0) + ' MB');
+const cNet    = makeLineChart('c-net',    v => v.toFixed(1) + ' KB/s');
+const cDisk   = makeLineChart('c-disk',   v => v.toFixed(1) + ' KB/s');
+const cZfs    = makeLineChart('c-zfs',    v => v.toFixed(0) + ' MiB');
 const cLoad   = makeLineChart('c-load',   v => v.toFixed(2));
 const cZfsHits= makeLineChart('c-zfshits',v => v.toFixed(1) + '%');
-const cTs     = makeLineChart('c-ts',     v => (Math.abs(v)/1024).toFixed(1) + ' KB/s');
+const cTs     = makeLineChart('c-ts',     v => v.toFixed(1) + ' KB/s');
 const cTcp    = makeLineChart('c-tcp',    v => v.toFixed(0));
 
 // CPU 히스토리: 여러 컬럼을 합산해 단일 라인으로
@@ -341,7 +329,7 @@ const cCpuLine = makeCpuLineChart('c-cpuline');
 async function refreshNet() {
   try {
     const d = await fetchND('net.igc0', -1800, 60);
-    applyLineData(cNet, d, v => Math.abs(v)/1024);
+    applyLineData(cNet, d, v => v);
     setUpd('upd-net');
   } catch(e) { console.error('net', e); }
 }
@@ -349,7 +337,7 @@ async function refreshNet() {
 async function refreshDisk() {
   try {
     const d = await fetchND('system.io', -1800, 60);
-    applyLineData(cDisk, d, v => Math.abs(v)/1024);
+    applyLineData(cDisk, d, v => v);
     setUpd('upd-disk');
   } catch(e) { console.error('disk', e); }
 }
@@ -369,8 +357,6 @@ async function refreshZfs() {
   try {
     const d = await fetchND('zfs.arc_size', -1800, 60);
     applyLineData(cZfs, d, v => v);
-    // y축 콜백 MB로 재설정
-    cZfs.options.scales.y.ticks.callback = v => (v/1024/1024).toFixed(0)+' MB';
     setUpd('upd-zfs');
   } catch(e) { console.error('zfs', e); }
 }
@@ -386,7 +372,7 @@ async function refreshLoad() {
 async function refreshZfsHits() {
   try {
     const d = await fetchND('zfs.hits', -1800, 60);
-    applyLineData(cZfsHits, d, v => Math.abs(v));
+    applyLineData(cZfsHits, d, v => v);
     setUpd('upd-zfshits');
   } catch(e) { console.error('zfshits', e); }
 }
@@ -394,7 +380,7 @@ async function refreshZfsHits() {
 async function refreshTailscale() {
   try {
     const d = await fetchND('net.tailscale0', -1800, 60);
-    applyLineData(cTs, d, v => Math.abs(v)/1024);
+    applyLineData(cTs, d, v => v);
     setUpd('upd-ts');
   } catch(e) { console.error('tailscale', e); }
 }

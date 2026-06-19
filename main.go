@@ -10,8 +10,8 @@ import (
 func main() {
 	cfg := loadConfig()
 	pc := newPodmanClient(cfg.PodmanSocket)
-	nc := newNetdataClient(cfg.NetdataURL)
-	h := newHandlers(cfg, pc, nc)
+	mc := newMetricsCollector()
+	h := newHandlers(cfg, pc, mc)
 
 	mux := http.NewServeMux()
 
@@ -56,7 +56,7 @@ func main() {
 
 	mux.Handle("GET /services", auth(h.servicesInfo))
 	mux.Handle("GET /metrics", auth(h.metricsPage))
-	mux.Handle("GET /api/netdata/data", auth(h.netdataProxy))
+	mux.Handle("GET /api/metrics/data", auth(h.mc.serveHTTP))
 
 	addr := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
 	srv := &http.Server{

@@ -15,11 +15,11 @@ import (
 type handlers struct {
 	cfg *Config
 	pc  *PodmanClient
-	nc  *NetdataClient
+	mc  *MetricsCollector
 }
 
-func newHandlers(cfg *Config, pc *PodmanClient, nc *NetdataClient) *handlers {
-	return &handlers{cfg: cfg, pc: pc, nc: nc}
+func newHandlers(cfg *Config, pc *PodmanClient, mc *MetricsCollector) *handlers {
+	return &handlers{cfg: cfg, pc: pc, mc: mc}
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
@@ -800,17 +800,4 @@ func humanizeDuration(d time.Duration) string {
 
 func (h *handlers) metricsPage(w http.ResponseWriter, r *http.Request) {
 	render(w, "metrics", map[string]any{"ActivePage": "metrics"})
-}
-
-func (h *handlers) netdataProxy(w http.ResponseWriter, r *http.Request) {
-	chart := r.URL.Query().Get("chart")
-	after := r.URL.Query().Get("after")
-	points := r.URL.Query().Get("points")
-	if after == "" {
-		after = "-300"
-	}
-	if points == "" {
-		points = "60"
-	}
-	h.nc.proxyData(w, chart, after, points)
 }
