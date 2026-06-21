@@ -147,7 +147,13 @@ FreeBSD 호스트
 
 2. Jail 설정 파일 배포:
 
-   `/etc/jail.conf.d/pfortainer.conf`:
+   ```sh
+   sudo mkdir -p /etc/jail.conf.d /etc/fstab.jails
+   sudo cp deploy/freebsd/jail.conf.d/pfortainer.conf /etc/jail.conf.d/
+   sudo cp deploy/freebsd/fstab.jails/pfortainer /etc/fstab.jails/
+   ```
+
+   `/etc/jail.conf.d/pfortainer.conf` 내용:
    ```
    pfortainer {
        path = /zdata/jails/pfortainer;
