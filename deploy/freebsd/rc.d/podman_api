@@ -1,0 +1,78 @@
+#!/bin/sh
+#
+# PROVIDE: podman_api
+# REQUIRE: NETWORKING
+# KEYWORD: shutdown
+#
+# 설치:
+#   sudo cp deploy/freebsd/rc.d/podman_api /usr/local/etc/rc.d/podman_api
+#   sudo chmod +x /usr/local/etc/rc.d/podman_api
+#   sudo sysrc podman_api_enable=YES
+#   sudo service podman_api start
+#
+# 변수 재정의 (rc.conf 또는 rc.conf.d/podman_api):
+#   podman_api_sock="/run/podman/podman.sock"
+
+. /etc/rc.subr
+
+name="podman_api"
+desc="Podman REST API socket service"
+rcvar="podman_api_enable"
+
+: ${podman_api_enable:="NO"}
+: ${podman_api_sock:="/run/podman/podman.sock"}
+
+pidfile="/var/run/${name}.pid"
+logfile="/var/log/podman-api.log"
+
+start_cmd="${name}_start"
+stop_cmd="${name}_stop"
+status_cmd="${name}_status"
+restart_cmd="${name}_restart"
+extra_commands="status restart"
+
+podman_api_start() {
+    if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+        echo "${name} is already running (pid $(cat "${pidfile}"))."
+        return 1
+    fi
+    if [ -S "${podman_api_sock}" ]; then
+        echo "Podman API socket already exists at ${podman_api_sock}."
+        return 0
+    fi
+    mkdir -p "$(dirname "${podman_api_sock}")"
+    echo "Starting Podman API socket at ${podman_api_sock}."
+    # daemon(8)이 podman 데몬화와 충돌하므로 셸 백그라운드(&)로 직접 기동.
+    /usr/local/bin/podman system service --time=0 "unix://${podman_api_sock}" \
+        >> "${logfile}" 2>&1 &
+    disown
+    echo $! > "${pidfile}"
+    echo "${name} started. Log: ${logfile}"
+}
+
+podman_api_stop() {
+    if [ ! -f "${pidfile}" ] || ! kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+        echo "${name} is not running."
+        return 1
+    fi
+    pid=$(cat "${pidfile}")
+    kill "${pid}" && rm -f "${pidfile}" "${podman_api_sock}"
+    echo "${name} stopped."
+}
+
+podman_api_status() {
+    if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+        echo "${name} is running as pid $(cat "${pidfile}")."
+    else
+        echo "${name} is not running."
+    fi
+}
+
+podman_api_restart() {
+    podman_api_stop || true
+    sleep 1
+    podman_api_start
+}
+
+load_rc_config ${name}
+run_rc_command "$1"
