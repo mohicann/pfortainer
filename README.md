@@ -164,7 +164,17 @@ FreeBSD 호스트
 
 5. `.env` 생성: `/zdata/tools/pfortainer-freebsd/.env` (`.env.example` 참고)
 
-6. 서비스 시작:
+6. `pf.conf`에 Tailscale 포트 포워딩 추가:
+   ```sh
+   # /etc/pf.conf (rdr-anchor 위에 추가)
+   ts_if=tailscale0
+   rdr pass on $ts_if proto tcp from any to TAILSCALE_IP port 11000 -> 192.168.10.111 port 11000
+   ```
+   ```sh
+   pfctl -f /etc/pf.conf
+   ```
+
+7. 서비스 시작:
    ```sh
    service podman_api start
    service jail start pfortainer
