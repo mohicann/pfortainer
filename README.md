@@ -205,6 +205,10 @@ ssh fbnas "jls -v"
 
 ## 문제 해결
 
+**부팅 직후 "Podman 소켓에 연결할 수 없습니다" 페이지**
+
+pfortainer는 소켓 없이도 즉시 기동되며, `podman_api` 서비스가 소켓을 생성하면 자동으로 연결됩니다. 페이지의 새로고침 버튼을 누르거나 잠시 후 재접속하면 정상 동작합니다.
+
 **컨테이너 목록/상세에서 nil pointer panic**
 
 Podman 5.8.1/FreeBSD의 Docker 호환 API(`/containers/json`, `/containers/{id}/json`)가 panic을 일으키는 버그가 있다. 이를 피하기 위해 목록·상세 조회는 네이티브 libpod API(`/v5.0.0/libpod/...`)를 사용한다. 상세 조회에서 5xx가 발생하면 목록 데이터로 대체 렌더링하며 페이지 상단에 경고 배너를 표시한다.
