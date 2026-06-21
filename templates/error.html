@@ -1,0 +1,21 @@
+{{template "base" .}}
+{{define "title"}}오류 — pfortainer{{end}}
+{{define "content"}}
+<div class="d-flex align-items-center justify-content-center" style="min-height:60vh">
+  <div class="text-center">
+    {{if .PodmanUnavailable}}
+    <i class="bi bi-plug-fill text-warning" style="font-size:3rem"></i>
+    <h4 class="mt-3">Podman 소켓에 연결할 수 없습니다</h4>
+    <p class="text-muted">podman_api 서비스가 아직 시작 중이거나 소켓 경로가 올바르지 않습니다.<br>잠시 후 새로고침 해주세요.</p>
+    <button class="btn btn-primary mt-2" onclick="location.reload()">
+      <i class="bi bi-arrow-clockwise"></i> 새로고침
+    </button>
+    {{else}}
+    <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size:3rem"></i>
+    <h4 class="mt-3">오류가 발생했습니다</h4>
+    <p class="text-muted">{{.Error}}</p>
+    <a href="/" class="btn btn-secondary mt-2">대시보드로 이동</a>
+    {{end}}
+  </div>
+</div>
+{{end}}

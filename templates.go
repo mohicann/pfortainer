@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"strings"
 )
 
 //go:embed templates/*
@@ -39,5 +40,25 @@ func render(w http.ResponseWriter, page string, data any) {
 }
 
 func renderErr(w http.ResponseWriter, err error) {
-	http.Error(w, "Podman 연결 실패: "+err.Error(), http.StatusServiceUnavailable)
+	isPodmanUnavailable := isSocketError(err)
+	status := http.StatusServiceUnavailable
+	if !isPodmanUnavailable {
+		status = http.StatusInternalServerError
+	}
+	w.WriteHeader(status)
+	render(w, "error", map[string]any{
+		"ActivePage":         "",
+		"PodmanUnavailable":  isPodmanUnavailable,
+		"Error":              err.Error(),
+	})
+}
+
+func isSocketError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "no such file") ||
+		strings.Contains(msg, "connection refused") ||
+		strings.Contains(msg, "connect: no such file or directory")
 }
