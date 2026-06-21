@@ -199,13 +199,14 @@ FreeBSD 호스트
    ```
    `jail.conf.d/pfortainer.conf`에 `exec.poststart`로 `zfs jail`을 추가해야 재부팅 후에도 유지됩니다 (아래 설정 파일 참고). 새 ZFS 풀 추가 시 `zfs allow`와 `exec.poststart` 줄을 동일하게 추가하세요.
 
-4. 호스트 rc 서비스 설치:
+4. 호스트 rc 서비스 설치 및 rc.conf 설정:
    ```sh
    cp deploy/freebsd/rc.d/podman_api /usr/local/etc/rc.d/
    chmod +x /usr/local/etc/rc.d/podman_api
    sysrc podman_api_enable=YES
    sysrc jail_enable=YES
    sysrc jail_list=pfortainer
+   sysrc pfortainer_enable=NO   # 호스트 직접 실행 비활성화 (Jail에서 실행)
    ```
 
 5. Jail 내부 rc 서비스 설치:
