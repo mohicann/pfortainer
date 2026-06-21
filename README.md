@@ -113,14 +113,23 @@ pfortainer는 FreeBSD Jail(`zdata/jails/pfortainer`) 안에서 실행됩니다.
 
 ```
 FreeBSD 호스트
-├── /run/podman/podman.sock     ← podman_api rc 서비스가 관리
-├── /zdata/tools/pfortainer-freebsd/  ← 바이너리 및 설정
+├── /run/podman/podman.sock          ← podman_api rc 서비스가 관리
+├── /zdata/tools/pfortainer-freebsd/ ← 바이너리 및 설정
+│   ├── pfortainer                   ← 실행 바이너리 (배포 대상)
+│   ├── rc.d/pfortainer              ← Jail 내부 rc.d 원본
+│   ├── metrics.db                   ← 메트릭 SQLite DB (영구 보존)
+│   └── .env                         ← 환경변수 설정
 │
 └── Jail: pfortainer (192.168.10.111)
-    ├── /app        → nullfs ro mount (pfortainer-freebsd/)
+    ├── /app        → nullfs ro mount (/zdata/tools/pfortainer-freebsd/)
+    │   └── 바이너리, rc.d, metrics.db, .env 접근
     ├── /run/podman → nullfs rw mount (호스트 Podman 소켓)
+    │   └── podman.sock (Podman API 통신)
+    ├── /var/log/pfortainer.log      ← Jail 내부 로그 (ZFS에 영구 보존)
     └── :11000 서비스
 ```
+
+**데이터 보존:** Jail을 중지해도 ZFS 데이터셋(`zdata/jails/pfortainer`)과 호스트의 `metrics.db`는 그대로 유지됩니다.
 
 **rc 서비스 의존 순서:** `podman_api` → `pfortainer (Jail 내부)`
 
