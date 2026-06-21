@@ -146,9 +146,39 @@ FreeBSD 호스트
    ```
 
 2. Jail 설정 파일 배포:
-   - `/etc/jail.conf.d/pfortainer.conf`
-   - `/etc/fstab.jails/pfortainer`
-   - 마운트 포인트:
+
+   `/etc/jail.conf.d/pfortainer.conf`:
+   ```
+   pfortainer {
+       path = /zdata/jails/pfortainer;
+       host.hostname = pfortainer;
+
+       ip4.addr = igc3|192.168.10.111/24;
+       ip4.addr += lo0|127.0.0.2/8;
+
+       exec.start = "/bin/sh /etc/rc";
+       exec.stop  = "/bin/sh /etc/rc.shutdown";
+       exec.poststart += "zfs jail pfortainer zdata";
+       exec.poststart += "zfs jail pfortainer zboot";
+       exec.clean;
+       mount.devfs;
+       mount.fstab = /etc/fstab.jails/pfortainer;
+
+       allow.mount;
+       allow.mount.zfs;
+       enforce_statfs = 1;
+   }
+   ```
+
+   `/etc/fstab.jails/pfortainer`:
+   ```
+   /run/podman                      /zdata/jails/pfortainer/run/podman  nullfs  rw,late  0  0
+   /zdata/tools/pfortainer-freebsd  /zdata/jails/pfortainer/app         nullfs  ro,late  0  0
+   /zdata                           /zdata/jails/pfortainer/zdata        nullfs  rw,late  0  0
+   /zboot                           /zdata/jails/pfortainer/zboot        nullfs  ro,late  0  0
+   ```
+
+   마운트 포인트 생성:
    ```sh
    mkdir -p /zdata/jails/pfortainer/run/podman \
             /zdata/jails/pfortainer/app \
@@ -156,14 +186,12 @@ FreeBSD 호스트
             /zdata/jails/pfortainer/zboot
    ```
 
-3. ZFS 데이터셋을 Jail에 위임 (파일시스템/파일매니저에서 ZFS 조회 가능):
+3. ZFS 권한 위임 (파일시스템/파일매니저에서 ZFS 조회 가능):
    ```sh
-   zfs jail pfortainer zdata
-   zfs jail pfortainer zboot
    zfs allow -u root mount,create,destroy,snapshot,rollback zdata
    zfs allow -u root mount,create,destroy,snapshot,rollback zboot
    ```
-   > `zfs jail`은 데이터셋에 영구 기록되므로 재부팅 후에도 유지됩니다. 새 ZFS 풀 추가 시 동일하게 실행하세요.
+   `jail.conf.d/pfortainer.conf`에 `exec.poststart`로 `zfs jail`을 추가해야 재부팅 후에도 유지됩니다 (아래 설정 파일 참고). 새 ZFS 풀 추가 시 `zfs allow`와 `exec.poststart` 줄을 동일하게 추가하세요.
 
 4. 호스트 rc 서비스 설치:
    ```sh
