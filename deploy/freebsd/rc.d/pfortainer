@@ -13,6 +13,7 @@
 # 변수 재정의 (rc.conf 또는 rc.conf.d/pfortainer):
 #   pfortainer_dir="/zdata/tools/pfortainer-freebsd"
 #   pfortainer_port="11000"
+#   pfortainer_logfile="/var/log/pfortainer.log"  # dir이 읽기전용일 때 사용
 
 . /etc/rc.subr
 
@@ -24,9 +25,7 @@ rcvar="pfortainer_enable"
 : ${pfortainer_dir:="/zdata/tools/pfortainer-freebsd"}
 : ${pfortainer_port:="11000"}
 : ${pfortainer_podman_sock:="/run/podman/podman.sock"}
-
 pidfile="/var/run/${name}.pid"
-logfile="${pfortainer_dir}/pfortainer.log"
 
 start_cmd="${name}_start"
 stop_cmd="${name}_stop"
@@ -70,4 +69,8 @@ pfortainer_restart() {
 }
 
 load_rc_config ${name}
+
+: ${pfortainer_logfile:="${pfortainer_dir}/pfortainer.log"}
+logfile="${pfortainer_logfile}"
+
 run_rc_command "$1"
