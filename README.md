@@ -107,22 +107,91 @@ GOOS=freebsd GOARCH=amd64 go build -o pfortainer-freebsd .
 
 배포 위치: `/zdata/tools/pfortainer-freebsd/`
 
-**초기 설치:**
-1. `deploy/freebsd/rc.d/pfortainer`를 `/usr/local/etc/rc.d/pfortainer`에 복사
-2. `sysrc pfortainer_enable=YES`
-3. `/zdata/tools/pfortainer-freebsd/.env` 생성 (`.env.example` 참고)
-4. `service pfortainer start`
+### 운영 구조 (Jail)
 
-**바이너리 업데이트:**
-```sh
-sudo service pfortainer stop
-# pfortainer-freebsd 전송 후 배포 경로에 교체
-sudo service pfortainer start
+pfortainer는 FreeBSD Jail(`zdata/jails/pfortainer`) 안에서 실행됩니다.
+
+```
+FreeBSD 호스트
+├── /run/podman/podman.sock     ← podman_api rc 서비스가 관리
+├── /zdata/tools/pfortainer-freebsd/  ← 바이너리 및 설정
+│
+└── Jail: pfortainer (192.168.10.111)
+    ├── /app        → nullfs ro mount (pfortainer-freebsd/)
+    ├── /run/podman → nullfs rw mount (호스트 Podman 소켓)
+    └── :11000 서비스
 ```
 
-> 실행 중인 바이너리를 바로 덮어쓰면 "Text file busy" 오류가 발생하므로 반드시 stop 후 교체.
+**rc 서비스 의존 순서:** `podman_api` → `pfortainer (Jail 내부)`
 
-rc.d 스크립트는 시작 시 Podman API 소켓(`/run/podman/podman.sock`)이 없으면 자동으로 `podman system service`를 백그라운드로 띄운다. 소켓 자체는 별도 rc 서비스(`podman_api`)로도 관리 가능.
+### 초기 설치
+
+1. Jail 생성:
+   ```sh
+   zfs create zdata/jails
+   zfs create zdata/jails/pfortainer
+   fetch https://download.freebsd.org/releases/amd64/15.1-RELEASE/base.txz -o /tmp/base.txz
+   tar -xf /tmp/base.txz -C /zdata/jails/pfortainer
+   cp /etc/resolv.conf /zdata/jails/pfortainer/etc/
+   chroot /zdata/jails/pfortainer /bin/sh -c 'ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime'
+   ```
+
+2. Jail 설정 파일 배포:
+   - `/etc/jail.conf.d/pfortainer.conf`
+   - `/etc/fstab.jails/pfortainer`
+   - 마운트 포인트: `mkdir -p /zdata/jails/pfortainer/run/podman /zdata/jails/pfortainer/app`
+
+3. 호스트 rc 서비스 설치:
+   ```sh
+   cp deploy/freebsd/rc.d/podman_api /usr/local/etc/rc.d/
+   chmod +x /usr/local/etc/rc.d/podman_api
+   sysrc podman_api_enable=YES
+   sysrc jail_enable=YES
+   sysrc jail_list=pfortainer
+   ```
+
+4. Jail 내부 rc 서비스 설치:
+   ```sh
+   cp deploy/freebsd/rc.d/pfortainer /zdata/jails/pfortainer/usr/local/etc/rc.d/
+   chmod +x /zdata/jails/pfortainer/usr/local/etc/rc.d/pfortainer
+   ```
+   Jail 내부 `/etc/rc.conf`:
+   ```sh
+   pfortainer_enable="YES"
+   pfortainer_dir="/app"
+   pfortainer_logfile="/var/log/pfortainer.log"
+   ```
+
+5. `.env` 생성: `/zdata/tools/pfortainer-freebsd/.env` (`.env.example` 참고)
+
+6. 서비스 시작:
+   ```sh
+   service podman_api start
+   service jail start pfortainer
+   ```
+
+### 바이너리 업데이트
+
+```sh
+# 로컬에서 빌드 후 전송
+GOOS=freebsd GOARCH=amd64 go build -o pfortainer-freebsd .
+scp pfortainer-freebsd fbnas:/zdata/tools/pfortainer-freebsd/pfortainer
+
+# fbnas에서 Jail 재시작
+ssh -t fbnas "sudo service jail onerestart pfortainer"
+```
+
+> `/app`이 nullfs ro 마운트이므로 Jail 재시작만으로 새 바이너리가 반영됩니다. "Text file busy" 오류가 발생하면 `jexec pfortainer service pfortainer stop` 후 전송하세요.
+
+### 로그 확인
+
+```sh
+# Jail 내부 pfortainer 로그
+ssh fbnas "sudo jexec pfortainer tail -f /var/log/pfortainer.log"
+
+# Jail 상태
+ssh fbnas "jls -v"
+```
 
 ## 문제 해결
 
