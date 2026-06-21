@@ -183,15 +183,18 @@ FreeBSD 호스트
 ### 바이너리 업데이트
 
 ```sh
-# 로컬에서 빌드 후 전송
+# 1. 로컬에서 크로스 컴파일
 GOOS=freebsd GOARCH=amd64 go build -o pfortainer-freebsd .
+
+# 2. Jail 내부 pfortainer 중지 (실행 중 바이너리 덮어쓰기 방지)
+ssh -t fbnas "sudo jexec pfortainer service pfortainer stop"
+
+# 3. 바이너리 전송
 scp pfortainer-freebsd fbnas:/zdata/tools/pfortainer-freebsd/pfortainer
 
-# fbnas에서 Jail 재시작
-ssh -t fbnas "sudo service jail onerestart pfortainer"
+# 4. pfortainer 재시작
+ssh -t fbnas "sudo jexec pfortainer service pfortainer start"
 ```
-
-> `/app`이 nullfs ro 마운트이므로 Jail 재시작만으로 새 바이너리가 반영됩니다. "Text file busy" 오류가 발생하면 `jexec pfortainer service pfortainer stop` 후 전송하세요.
 
 ### 로그 확인
 
