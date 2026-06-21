@@ -42,11 +42,8 @@ podman_api_start() {
     fi
     mkdir -p "$(dirname "${podman_api_sock}")"
     echo "Starting Podman API socket at ${podman_api_sock}."
-    # daemon(8)이 podman 데몬화와 충돌하므로 셸 백그라운드(&)로 직접 기동.
-    /usr/local/bin/podman system service --time=0 "unix://${podman_api_sock}" \
-        >> "${logfile}" 2>&1 &
-    disown
-    echo $! > "${pidfile}"
+    /usr/sbin/daemon -P "${pidfile}" -o "${logfile}" -f \
+        /usr/local/bin/podman system service --time=0 "unix://${podman_api_sock}"
     echo "${name} started. Log: ${logfile}"
 }
 
