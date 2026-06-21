@@ -148,9 +148,24 @@ FreeBSD 호스트
 2. Jail 설정 파일 배포:
    - `/etc/jail.conf.d/pfortainer.conf`
    - `/etc/fstab.jails/pfortainer`
-   - 마운트 포인트: `mkdir -p /zdata/jails/pfortainer/run/podman /zdata/jails/pfortainer/app`
+   - 마운트 포인트:
+   ```sh
+   mkdir -p /zdata/jails/pfortainer/run/podman \
+            /zdata/jails/pfortainer/app \
+            /zdata/jails/pfortainer/zdata \
+            /zdata/jails/pfortainer/zboot
+   ```
 
-3. 호스트 rc 서비스 설치:
+3. ZFS 데이터셋을 Jail에 위임 (파일시스템/파일매니저에서 ZFS 조회 가능):
+   ```sh
+   zfs jail pfortainer zdata
+   zfs jail pfortainer zboot
+   zfs allow -u root mount,create,destroy,snapshot,rollback zdata
+   zfs allow -u root mount,create,destroy,snapshot,rollback zboot
+   ```
+   > `zfs jail`은 데이터셋에 영구 기록되므로 재부팅 후에도 유지됩니다. 새 ZFS 풀 추가 시 동일하게 실행하세요.
+
+4. 호스트 rc 서비스 설치:
    ```sh
    cp deploy/freebsd/rc.d/podman_api /usr/local/etc/rc.d/
    chmod +x /usr/local/etc/rc.d/podman_api
@@ -159,8 +174,9 @@ FreeBSD 호스트
    sysrc jail_list=pfortainer
    ```
 
-4. Jail 내부 rc 서비스 설치:
+5. Jail 내부 rc 서비스 설치:
    ```sh
+   mkdir -p /zdata/jails/pfortainer/usr/local/etc/rc.d
    cp deploy/freebsd/rc.d/pfortainer /zdata/jails/pfortainer/usr/local/etc/rc.d/
    chmod +x /zdata/jails/pfortainer/usr/local/etc/rc.d/pfortainer
    ```
@@ -171,9 +187,9 @@ FreeBSD 호스트
    pfortainer_logfile="/var/log/pfortainer.log"
    ```
 
-5. `.env` 생성: `/zdata/tools/pfortainer-freebsd/.env` (`.env.example` 참고)
+6. `.env` 생성: `/zdata/tools/pfortainer-freebsd/.env` (`.env.example` 참고)
 
-6. `pf.conf`에 Tailscale 포트 포워딩 추가:
+7. `pf.conf`에 Tailscale 포트 포워딩 추가:
    ```sh
    # /etc/pf.conf (rdr-anchor 위에 추가)
    ts_if=tailscale0
@@ -183,7 +199,7 @@ FreeBSD 호스트
    pfctl -f /etc/pf.conf
    ```
 
-7. 서비스 시작:
+8. 서비스 시작:
    ```sh
    service podman_api start
    service jail start pfortainer
