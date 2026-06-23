@@ -239,10 +239,10 @@ FreeBSD 호스트
    # /etc/pf.conf (rdr-anchor 위에 추가)
    ts_if=tailscale0
    ext_if=igc3
-   # Tailscale → Jail
-   rdr pass on $ts_if proto tcp from any to TAILSCALE_IP port 11000 -> 192.168.10.111 port 11000
-   # 호스트 LAN IP → Jail (192.168.10.110:11000 으로 접속 가능)
-   rdr pass on $ext_if proto tcp from any to 192.168.10.110 port 11000 -> 192.168.10.111 port 11000
+   # Tailscale → Jail  ($ts_if 인터페이스 IP를 런타임에 동적 참조)
+   rdr pass on $ts_if proto tcp from any to ($ts_if) port 11000 -> 192.168.10.111 port 11000
+   # 호스트 LAN IP → Jail
+   rdr pass on $ext_if proto tcp from any to ($ext_if) port 11000 -> 192.168.10.111 port 11000
    ```
    ```sh
    pfctl -f /etc/pf.conf
@@ -292,7 +292,7 @@ ssh -L 11000:192.168.10.111:11000 fbnas
 
 그 후 브라우저에서 `http://localhost:11000` 접속.
 
-> 호스트 IP(`192.168.10.110`)로 포워딩하면 ERR_CONNECTION_RESET 발생.
+> 호스트 IP(`$ext_if` 주소)로 포워딩하면 ERR_CONNECTION_RESET 발생 — 반드시 Jail IP를 지정할 것.
 
 ### 로그 확인
 
