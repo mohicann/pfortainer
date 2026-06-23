@@ -48,6 +48,7 @@ Podman REST API(유닉스 소켓)에 직접 연결해 컨테이너/이미지를 
 | 포트 목록 | `sockstat -l` 기반으로 리스닝 중인 전체 포트 표시 (tcp4/tcp6 중복 제거) |
 | 유형 분류 | **컨테이너** / **Jail** / **네이티브** 3가지로 자동 분류 |
 | 컨테이너 감지 | FreeBSD Podman은 컨테이너를 VNET Jail로 실행. `jls`로 Jail 목록을 가져와 Podman 컨테이너 ID와 매핑. `ps -J <JID>`로 PID→JID→컨테이너 이름으로 연결 |
+| Jail 실행 시 host agent 사용 | pfortainer가 Jail 안에서 실행되면 `sockstat`/`jls`가 호스트 포트를 볼 수 없음. `pfortainer_hostd` rc 서비스가 호스트에서 Unix 소켓(`/run/pfortainer/host.sock`)을 통해 해당 명령을 대리 실행. 소켓 없으면 직접 exec 폴백(로컬 개발 환경) |
 | 필터 탭 | 전체/컨테이너/Jail/네이티브 탭으로 원클릭 필터링 |
 | 요약 카드 | 유형별 포트 수 요약 |
 
