@@ -187,6 +187,7 @@ FreeBSD 호스트
    마운트 포인트 생성:
    ```sh
    mkdir -p /zdata/jails/pfortainer/run/podman \
+            /zdata/jails/pfortainer/run/pfortainer \
             /zdata/jails/pfortainer/app \
             /zdata/jails/pfortainer/zdata \
             /zdata/jails/pfortainer/zboot
@@ -202,12 +203,17 @@ FreeBSD 호스트
 4. 호스트 rc 서비스 설치 및 rc.conf 설정:
    ```sh
    cp deploy/freebsd/rc.d/podman_api /usr/local/etc/rc.d/
+   cp deploy/freebsd/rc.d/pfortainer_hostd /usr/local/etc/rc.d/
    chmod +x /usr/local/etc/rc.d/podman_api
+   chmod +x /usr/local/etc/rc.d/pfortainer_hostd
    sysrc podman_api_enable=YES
+   sysrc pfortainer_hostd_enable=YES
    sysrc jail_enable=YES
    sysrc jail_list=pfortainer
    sysrc pfortainer_enable=NO   # 호스트 직접 실행 비활성화 (Jail에서 실행)
    ```
+
+   `pfortainer_hostd`는 Jail보다 먼저 기동(`BEFORE: jail`)되어 `/run/pfortainer/host.sock`을 생성합니다. Jail 내부의 pfortainer는 이 소켓을 통해 호스트의 `sockstat`/`jls` 결과를 조회해 서비스 목록을 표시합니다.
 
 5. Jail 내부 rc 서비스 설치:
    ```sh
@@ -237,6 +243,7 @@ FreeBSD 호스트
 8. 서비스 시작:
    ```sh
    service podman_api start
+   service pfortainer_hostd start
    service jail start pfortainer
    ```
 
@@ -255,6 +262,18 @@ scp pfortainer-freebsd fbnas:/zdata/tools/pfortainer-freebsd/pfortainer
 # 4. pfortainer 재시작
 ssh -t fbnas "sudo jexec pfortainer service pfortainer start"
 ```
+
+### 로컬에서 접속 (SSH 포트 포워딩)
+
+pfortainer는 Jail(`192.168.10.111`)에서 실행되므로, 로컬 Mac에서 접속할 때는 Jail IP를 지정해야 합니다:
+
+```sh
+ssh -L 11000:192.168.10.111:11000 fbnas
+```
+
+그 후 브라우저에서 `http://localhost:11000` 접속.
+
+> 호스트 IP(`192.168.10.110`)로 포워딩하면 ERR_CONNECTION_RESET 발생.
 
 ### 로그 확인
 

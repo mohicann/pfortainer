@@ -1,4 +1,5 @@
-/run/podman                      /zdata/jails/pfortainer/run/podman  nullfs  rw,late  0  0
+/run/podman                      /zdata/jails/pfortainer/run/podman     nullfs  rw,late  0  0
+/run/pfortainer                  /zdata/jails/pfortainer/run/pfortainer nullfs  ro,late  0  0
 /zdata/tools/pfortainer-freebsd  /zdata/jails/pfortainer/app         nullfs  ro,late  0  0
 /zdata                           /zdata/jails/pfortainer/zdata        nullfs  rw,late  0  0
 /zboot                           /zdata/jails/pfortainer/zboot        nullfs  ro,late  0  0

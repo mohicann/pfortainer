@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"fmt"
+	"io"
 	"net/http"
 	"os/exec"
 	"sort"
@@ -31,11 +33,29 @@ type ServicesVM struct {
 
 // ── Data collection ───────────────────────────────────────────────────────────
 
+// hostGet fetches a path from the host agent socket, or falls back to running
+// cmd directly when the socket is not available (local dev / host execution).
+func hostGet(path string, cmd []string) ([]byte, error) {
+	if hc := hostdClient(); hc != nil {
+		resp, err := hc.Get("http://hostd" + path)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			return nil, fmt.Errorf("hostd %s: %s", path, string(b))
+		}
+		return io.ReadAll(resp.Body)
+	}
+	return exec.Command(cmd[0], cmd[1:]...).Output()
+}
+
 // jailNames returns jid → jail name via `jls jid name`.
 // On FreeBSD+Podman the jail name is the full container ID.
 func jailNames() map[int]string {
 	m := make(map[int]string)
-	out, err := exec.Command("jls", "jid", "name").Output()
+	out, err := hostGet("/jls", []string{"jls", "jid", "name"})
 	if err != nil {
 		return m
 	}
@@ -55,13 +75,24 @@ func jailNames() map[int]string {
 }
 
 // pidJIDsFromJails builds PID → JID by running `ps -J <JID>` for each jail.
-// This is more reliable than `ps -ax -o jid=` which fails on some FreeBSD configs.
 func pidJIDsFromJails(jailMap map[int]string) map[int]int {
 	m := make(map[int]int)
+	hc := hostdClient()
 	for jid := range jailMap {
-		out, err := exec.Command("ps", "-J", strconv.Itoa(jid), "-o", "pid=").Output()
-		if err != nil {
-			continue
+		var out []byte
+		var err error
+		if hc != nil {
+			resp, e := hc.Get(fmt.Sprintf("http://hostd/ps?jid=%d", jid))
+			if e != nil {
+				continue
+			}
+			out, _ = io.ReadAll(resp.Body)
+			resp.Body.Close()
+		} else {
+			out, err = exec.Command("ps", "-J", strconv.Itoa(jid), "-o", "pid=").Output()
+			if err != nil {
+				continue
+			}
 		}
 		s := bufio.NewScanner(bytes.NewReader(out))
 		for s.Scan() {
@@ -114,7 +145,7 @@ func (h *handlers) jidContainerNames(jailMap map[int]string) map[int]string {
 // listeningSockets parses `sockstat -l` and returns deduplicated entries.
 // Dedup key: command + port + protoFamily — collapses tcp4/tcp6 duplicates.
 func listeningSockets() ([]ServiceEntry, error) {
-	out, err := exec.Command("sockstat", "-l").Output()
+	out, err := hostGet("/sockstat", []string{"sockstat", "-l"})
 	if err != nil {
 		return nil, err
 	}

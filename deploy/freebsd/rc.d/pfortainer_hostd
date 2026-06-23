@@ -1,0 +1,72 @@
+#!/bin/sh
+#
+# PROVIDE: pfortainer_hostd
+# REQUIRE: NETWORKING
+# BEFORE: jail
+# KEYWORD: shutdown
+#
+# 설치:
+#   sudo cp deploy/freebsd/rc.d/pfortainer_hostd /usr/local/etc/rc.d/
+#   sudo chmod +x /usr/local/etc/rc.d/pfortainer_hostd
+#   sudo sysrc pfortainer_hostd_enable=YES
+#   sudo service pfortainer_hostd start
+#
+# 역할: 호스트에서 sockstat/jls/ps를 실행해 Unix 소켓으로 제공.
+#       Jail 내부의 pfortainer가 이 소켓을 통해 호스트 서비스 목록을 조회.
+
+. /etc/rc.subr
+
+name="pfortainer_hostd"
+desc="pfortainer host agent (sockstat/jls proxy)"
+rcvar="pfortainer_hostd_enable"
+
+: ${pfortainer_hostd_enable:="NO"}
+: ${pfortainer_hostd_bin:="/zdata/tools/pfortainer-freebsd/pfortainer"}
+
+pidfile="/var/run/${name}.pid"
+logfile="/var/log/${name}.log"
+
+start_cmd="${name}_start"
+stop_cmd="${name}_stop"
+status_cmd="${name}_status"
+restart_cmd="${name}_restart"
+extra_commands="status restart"
+
+pfortainer_hostd_start() {
+    if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+        echo "${name} is already running (pid $(cat "${pidfile}"))."
+        return 1
+    fi
+    mkdir -p /run/pfortainer
+    echo "Starting ${name}."
+    /usr/sbin/daemon -P "${pidfile}" -o "${logfile}" -f \
+        "${pfortainer_hostd_bin}" -hostd
+    echo "${name} started. Log: ${logfile}"
+}
+
+pfortainer_hostd_stop() {
+    if [ ! -f "${pidfile}" ] || ! kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+        echo "${name} is not running."
+        return 1
+    fi
+    pid=$(cat "${pidfile}")
+    kill "${pid}" && rm -f "${pidfile}" /run/pfortainer/host.sock
+    echo "${name} stopped."
+}
+
+pfortainer_hostd_status() {
+    if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+        echo "${name} is running as pid $(cat "${pidfile}")."
+    else
+        echo "${name} is not running."
+    fi
+}
+
+pfortainer_hostd_restart() {
+    pfortainer_hostd_stop || true
+    sleep 1
+    pfortainer_hostd_start
+}
+
+load_rc_config ${name}
+run_rc_command "$1"

@@ -4,10 +4,16 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "-hostd" {
+		runHostd()
+		return
+	}
+
 	cfg := loadConfig()
 	pc := newPodmanClient(cfg.PodmanSocket)
 	mc := newMetricsCollector(cfg.MetricsDB, cfg.MetricsRetainDays)
