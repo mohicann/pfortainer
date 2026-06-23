@@ -231,11 +231,18 @@ FreeBSD 호스트
 
 6. `.env` 생성: `/zdata/tools/pfortainer-freebsd/.env` (`.env.example` 참고)
 
-7. `pf.conf`에 Tailscale 포트 포워딩 추가:
+7. `pf.conf`에 포트 포워딩 추가:
+
+   pfortainer는 Jail(`192.168.10.111`)에서 실행되므로, 호스트 IP 및 Tailscale IP로 접근하려면 pf 포워딩이 필요합니다.
+
    ```sh
    # /etc/pf.conf (rdr-anchor 위에 추가)
    ts_if=tailscale0
+   ext_if=igc3
+   # Tailscale → Jail
    rdr pass on $ts_if proto tcp from any to TAILSCALE_IP port 11000 -> 192.168.10.111 port 11000
+   # 호스트 LAN IP → Jail (192.168.10.110:11000 으로 접속 가능)
+   rdr pass on $ext_if proto tcp from any to 192.168.10.110 port 11000 -> 192.168.10.111 port 11000
    ```
    ```sh
    pfctl -f /etc/pf.conf
