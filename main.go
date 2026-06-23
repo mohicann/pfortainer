@@ -37,8 +37,11 @@ func main() {
 
 	mux.Handle("GET /{$}", auth(h.dashboard))
 	mux.Handle("GET /containers", auth(h.containers))
+	mux.Handle("GET /containers/new", auth(h.containerNewPage))
 	mux.Handle("GET /containers/{id}", auth(h.containerDetail))
 	mux.Handle("POST /containers/{id}/{action}", auth(h.containerAction))
+	mux.Handle("POST /api/containers/build", auth(h.containerBuild))
+	mux.Handle("POST /api/compose/up", auth(h.composeUp))
 	mux.Handle("GET /images", auth(h.images))
 	mux.Handle("GET /images/{id}", auth(h.imageDetail))
 	mux.Handle("POST /images/{id}/{action}", auth(h.imageAction))
@@ -49,6 +52,7 @@ func main() {
 	mux.Handle("POST /api/filesystem/delete", auth(h.filesystemDelete))
 
 	mux.Handle("GET /files", auth(h.fileList))
+	mux.Handle("GET /api/files/list", auth(h.fileListJSON))
 	mux.Handle("GET /files/edit", auth(h.fileEdit))
 	mux.Handle("GET /api/files/download", auth(h.fileDownload))
 	mux.Handle("POST /api/files/upload", auth(h.fileUpload))
@@ -67,10 +71,10 @@ func main() {
 
 	addr := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
 	srv := &http.Server{
-		Addr:         addr,
-		Handler:      mux,
-		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 15 * time.Second,
+		Addr:        addr,
+		Handler:     mux,
+		ReadTimeout: 15 * time.Second,
+		// WriteTimeout 없음: 빌드/compose 스트리밍이 수 분 걸릴 수 있음
 	}
 
 	log.Printf("pfortainer listening on http://%s", addr)

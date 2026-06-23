@@ -7,7 +7,7 @@ Podman REST API(유닉스 소켓)에 직접 연결해 컨테이너/이미지를 
 
 **pfortainer 메뉴**
 - **Dashboard**: 전체/실행 중/정지 컨테이너 수, 이미지 수, 실행 중인 컨테이너 목록
-- **Containers**: 목록 조회·검색, 상세 보기, 다중 선택 작업(시작/정지/Kill/재시작/일시정지/재개/삭제)
+- **Containers**: 목록 조회·검색, 상세 보기, 다중 선택 작업(시작/정지/Kill/재시작/일시정지/재개/삭제), Dockerfile 빌드, docker-compose.yml 스택 실행 (파일 브라우저로 서버 파일 불러오기/저장 지원)
 - **Images**: 목록 조회·검색, 다중 선택 삭제/강제 삭제
 
 **시스템 메뉴**
@@ -261,15 +261,26 @@ FreeBSD 호스트
 # 1. 로컬에서 크로스 컴파일
 GOOS=freebsd GOARCH=amd64 go build -o pfortainer-freebsd .
 
-# 2. Jail 내부 pfortainer 중지 (실행 중 바이너리 덮어쓰기 방지)
-ssh -t fbnas "sudo jexec pfortainer service pfortainer stop"
+# 2. /tmp에 먼저 복사 (직접 덮어쓰기는 권한 오류)
+scp pfortainer-freebsd fbnas:/tmp/pfortainer
 
-# 3. 바이너리 전송
-scp pfortainer-freebsd fbnas:/zdata/tools/pfortainer-freebsd/pfortainer
-
-# 4. pfortainer 재시작
-ssh -t fbnas "sudo jexec pfortainer service pfortainer start"
+# 3. 서비스 중지 → 프로세스 소멸 확인 → 복사 → 재시작 (한 번에)
+ssh fbnas "
+  sudo jexec pfortainer service pfortainer stop &&
+  sudo service pfortainer_hostd onestop &&
+  while pgrep -x pfortainer > /dev/null; do sleep 0.5; done &&
+  sudo rm /zdata/tools/pfortainer-freebsd/pfortainer &&
+  sudo cp /tmp/pfortainer /zdata/tools/pfortainer-freebsd/pfortainer &&
+  sudo chmod +x /zdata/tools/pfortainer-freebsd/pfortainer &&
+  sudo service pfortainer_hostd onestart &&
+  sudo jexec pfortainer service pfortainer start
+"
 ```
+
+> **주의사항**
+> - `pfortainer_hostd`도 같은 바이너리(`pfortainer -hostd`)를 사용하므로 함께 중지해야 한다.
+> - `cp`로 직접 덮어쓰면 "Text file busy" 오류 → `rm` 후 `cp`로 교체.
+> - 중지~복사~시작을 하나의 ssh 명령으로 묶어야 타이밍 문제를 방지할 수 있다.
 
 ### 로컬에서 접속 (SSH 포트 포워딩)
 

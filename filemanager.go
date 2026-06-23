@@ -260,6 +260,63 @@ func (h *handlers) fileList(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// fileListJSON returns directory contents as JSON for the file-browser modal.
+func (h *handlers) fileListJSON(w http.ResponseWriter, r *http.Request) {
+	rawPath := r.URL.Query().Get("path")
+	if rawPath == "" {
+		rawPath = "/"
+	}
+	cwd, ok := safePath(rawPath)
+	if !ok {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "잘못된 경로입니다."})
+		return
+	}
+
+	f, err := os.Open(cwd)
+	if err != nil {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
+		return
+	}
+	defer f.Close()
+
+	infos, err := f.Readdir(-1)
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+
+	type entry struct {
+		Name  string `json:"name"`
+		Path  string `json:"path"`
+		IsDir bool   `json:"isDir"`
+	}
+	var dirs, files []entry
+	for _, info := range infos {
+		if strings.HasPrefix(info.Name(), ".") {
+			continue
+		}
+		e := entry{
+			Name:  info.Name(),
+			Path:  filepath.Join(cwd, info.Name()),
+			IsDir: info.IsDir(),
+		}
+		if e.IsDir {
+			dirs = append(dirs, e)
+		} else {
+			files = append(files, e)
+		}
+	}
+	sort.Slice(dirs, func(i, j int) bool { return dirs[i].Name < dirs[j].Name })
+	sort.Slice(files, func(i, j int) bool { return files[i].Name < files[j].Name })
+
+	parent := parentDir(cwd)
+	writeJSON(w, http.StatusOK, map[string]any{
+		"cwd":     cwd,
+		"parent":  parent,
+		"entries": append(dirs, files...),
+	})
+}
+
 func (h *handlers) fileEdit(w http.ResponseWriter, r *http.Request) {
 	rawPath := r.URL.Query().Get("path")
 	fpath, ok := safePath(rawPath)

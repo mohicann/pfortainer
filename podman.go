@@ -1,12 +1,15 @@
 package main
 
 import (
+	"archive/tar"
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -363,6 +366,89 @@ type APISystemInfo struct {
 		OsArch     string `json:"OsArch"`
 		Version    string `json:"Version"`
 	} `json:"version"`
+}
+
+// BuildImage builds a Docker image from the given Dockerfile text, streaming
+// log lines via emit(type, line). type is "log" or "error".
+// Uses a no-timeout HTTP client since builds may take arbitrary time.
+func (c *PodmanClient) BuildImage(tag, dockerfile string, emit func(ltype, line string)) error {
+	var buf bytes.Buffer
+	tw := tar.NewWriter(&buf)
+	content := []byte(dockerfile)
+	if err := tw.WriteHeader(&tar.Header{
+		Name:    "Dockerfile",
+		Mode:    0644,
+		Size:    int64(len(content)),
+		ModTime: time.Now(),
+	}); err != nil {
+		return err
+	}
+	if _, err := tw.Write(content); err != nil {
+		return err
+	}
+	tw.Close()
+
+	path := "/build"
+	if tag != "" {
+		path += "?t=" + url.QueryEscape(tag)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, "http://podman"+path, &buf)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/x-tar")
+
+	hc := &http.Client{Transport: c.hc.Transport}
+	resp, err := hc.Do(req)
+	if err != nil {
+		return fmt.Errorf("podman build: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("podman build 실패 (HTTP %d): %s", resp.StatusCode, strings.TrimSpace(string(body)))
+	}
+
+	dec := json.NewDecoder(resp.Body)
+	var buildErr error
+	for {
+		var msg struct {
+			Stream   string `json:"stream"`
+			Error    string `json:"error"`
+			Status   string `json:"status"`
+			Progress string `json:"progress"`
+			ID       string `json:"id"`
+		}
+		if err := dec.Decode(&msg); err != nil {
+			if err == io.EOF {
+				break
+			}
+			return fmt.Errorf("podman build 스트림 오류: %w", err)
+		}
+		switch {
+		case msg.Error != "":
+			line := strings.TrimRight(msg.Error, "\n")
+			emit("error", line)
+			buildErr = fmt.Errorf("%s", line)
+		case msg.Stream != "":
+			line := strings.TrimRight(msg.Stream, "\n")
+			if line != "" {
+				emit("log", line)
+			}
+		case msg.Status != "":
+			line := msg.Status
+			if msg.Progress != "" {
+				line += " " + msg.Progress
+			}
+			if msg.ID != "" {
+				line = msg.ID + ": " + line
+			}
+			emit("log", line)
+		}
+	}
+	return buildErr
 }
 
 func (c *PodmanClient) GetSystemInfo() (*APISystemInfo, error) {

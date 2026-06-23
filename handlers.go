@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"log"
 	"math"
 	"net/http"
+	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -919,4 +922,97 @@ func humanizeDuration(d time.Duration) string {
 
 func (h *handlers) metricsPage(w http.ResponseWriter, r *http.Request) {
 	render(w, "metrics", map[string]any{"ActivePage": "metrics"})
+}
+
+// ── Container Create ──────────────────────────────────────────────────────────
+
+func (h *handlers) containerNewPage(w http.ResponseWriter, r *http.Request) {
+	render(w, "container-new", map[string]any{"ActivePage": "containers"})
+}
+
+// containerBuild handles POST /api/containers/build.
+// It streams Podman build log lines as NDJSON to the client.
+func (h *handlers) containerBuild(w http.ResponseWriter, r *http.Request) {
+	tag := strings.TrimSpace(r.FormValue("tag"))
+	dockerfile := r.FormValue("dockerfile")
+	if strings.TrimSpace(dockerfile) == "" {
+		http.Error(w, "Dockerfile 내용이 없습니다", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/x-ndjson")
+	w.Header().Set("X-Accel-Buffering", "no")
+	flusher, _ := w.(http.Flusher)
+	enc := json.NewEncoder(w)
+	emit := func(ltype, line string) {
+		enc.Encode(map[string]string{"type": ltype, "line": line})
+		if flusher != nil {
+			flusher.Flush()
+		}
+	}
+
+	if err := h.pc.BuildImage(tag, dockerfile, emit); err != nil {
+		emit("error", err.Error())
+		emit("done", "1")
+		return
+	}
+	emit("done", "0")
+}
+
+// composeUp handles POST /api/compose/up.
+// It saves the compose file to a temp dir, runs podman-compose up -d via hostd
+// (or directly), and streams log lines as NDJSON.
+func (h *handlers) composeUp(w http.ResponseWriter, r *http.Request) {
+	content := r.FormValue("compose")
+	if strings.TrimSpace(content) == "" {
+		http.Error(w, "docker-compose.yml 내용이 없습니다", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/x-ndjson")
+	w.Header().Set("X-Accel-Buffering", "no")
+	flusher, _ := w.(http.Flusher)
+	enc := json.NewEncoder(w)
+	emit := func(ltype, line string) {
+		enc.Encode(map[string]string{"type": ltype, "line": line})
+		if flusher != nil {
+			flusher.Flush()
+		}
+	}
+
+	if hc := hostdClient(); hc != nil {
+		resp, err := hc.Post("http://hostd/compose-up", "text/plain", strings.NewReader(content))
+		if err != nil {
+			emit("error", "hostd 연결 실패: "+err.Error())
+			emit("done", "1")
+			return
+		}
+		defer resp.Body.Close()
+		scanner := bufio.NewScanner(resp.Body)
+		for scanner.Scan() {
+			w.Write(append(scanner.Bytes(), '\n'))
+			if flusher != nil {
+				flusher.Flush()
+			}
+		}
+		return
+	}
+
+	// direct exec (host mode, no jail)
+	dir, err := os.MkdirTemp("", "pfortainer-compose-*")
+	if err != nil {
+		emit("error", err.Error())
+		emit("done", "1")
+		return
+	}
+	defer os.RemoveAll(dir)
+
+	composePath := filepath.Join(dir, "docker-compose.yml")
+	if err := os.WriteFile(composePath, []byte(content), 0644); err != nil {
+		emit("error", err.Error())
+		emit("done", "1")
+		return
+	}
+
+	streamComposeUp(composePath, emit)
 }

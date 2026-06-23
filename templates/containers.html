@@ -3,9 +3,14 @@
 {{define "content"}}
 <div class="card-table">
   <div class="ct-header">
-    <span class="fw-semibold" style="font-size:.88rem">
-      컨테이너 <span class="badge bg-secondary ms-1">{{len .Containers}}</span>
-    </span>
+    <div class="d-flex align-items-center gap-2">
+      <span class="fw-semibold" style="font-size:.88rem">
+        컨테이너 <span class="badge bg-secondary ms-1">{{len .Containers}}</span>
+      </span>
+      <a href="/containers/new" class="btn btn-sm btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>만들기
+      </a>
+    </div>
     <div class="d-flex align-items-center gap-3">
       <input type="search" id="containerSearch" class="form-control form-control-sm" placeholder="컨테이너 검색..." style="width: 200px">
       <span class="text-muted" style="font-size:.8rem">
