@@ -1,0 +1,114 @@
+{{define "title"}}스토리지 상태 — pfortainer{{end}}
+{{define "pagetitle"}}스토리지 상태{{end}}
+{{define "content"}}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <span class="text-muted" style="font-size:.82rem">ZFS 풀 health 및 디스크 SMART 상태</span>
+  {{if eq .AgentMode "host-socket"}}
+    <span class="badge bg-success"><i class="bi bi-hdd-network me-1"></i>host agent</span>
+  {{else}}
+    <span class="badge bg-secondary"><i class="bi bi-terminal me-1"></i>local exec</span>
+  {{end}}
+</div>
+
+{{/* ── ZFS 풀 ─────────────────────────────────────────────── */}}
+<h6 class="text-uppercase text-muted mb-2" style="font-size:.72rem;letter-spacing:.06em">ZFS 풀</h6>
+
+{{if .PoolError}}
+<div class="alert alert-warning py-2"><i class="bi bi-exclamation-triangle me-1"></i>풀 상태를 읽을 수 없습니다: {{.PoolError}}</div>
+{{end}}
+
+{{range .Pools}}
+<div class="card-table mb-3">
+  <div class="ct-header">
+    <span class="fw-semibold" style="font-size:.88rem">
+      <i class="bi bi-hdd-stack me-1"></i>{{.Name}}
+    </span>
+    {{if .Healthy}}
+      <span class="badge badge-running">{{.State}}</span>
+    {{else}}
+      <span class="badge bg-danger">{{.State}}</span>
+    {{end}}
+  </div>
+
+  {{if or .Status .Action}}
+  <div class="px-3 pt-2" style="font-size:.82rem">
+    {{if .Status}}<div class="text-danger"><strong>status:</strong> {{.Status}}</div>{{end}}
+    {{if .Action}}<div class="text-muted"><strong>action:</strong> {{.Action}}</div>{{end}}
+  </div>
+  {{end}}
+
+  <table class="table table-hover mb-0">
+    <thead><tr><th>NAME</th><th>STATE</th><th class="text-end">READ</th><th class="text-end">WRITE</th><th class="text-end">CKSUM</th></tr></thead>
+    <tbody>
+      {{range .Vdevs}}
+      <tr>
+        <td><span class="mono" style="padding-left:{{.IndentPx}}px">{{.Name}}</span></td>
+        <td>
+          {{if .Healthy}}<span class="text-success">{{.State}}</span>
+          {{else}}<span class="text-danger fw-semibold">{{.State}}</span>{{end}}
+        </td>
+        <td class="text-end mono">{{.Read}}</td>
+        <td class="text-end mono">{{.Write}}</td>
+        <td class="text-end mono">{{.Cksum}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+
+  <div class="px-3 py-2 text-muted" style="font-size:.78rem">
+    {{if .Scan}}<div><i class="bi bi-arrow-repeat me-1"></i>{{.Scan}}</div>{{end}}
+    {{if .Errors}}<div><i class="bi bi-shield-check me-1"></i>errors: {{.Errors}}</div>{{end}}
+  </div>
+</div>
+{{else}}
+  {{if not .PoolError}}<div class="text-muted mb-3">풀이 없습니다.</div>{{end}}
+{{end}}
+
+{{/* ── 디스크 SMART ───────────────────────────────────────── */}}
+<h6 class="text-uppercase text-muted mb-2 mt-4" style="font-size:.72rem;letter-spacing:.06em">디스크 SMART</h6>
+
+{{if .DiskError}}
+<div class="alert alert-warning py-2"><i class="bi bi-exclamation-triangle me-1"></i>SMART 정보를 읽을 수 없습니다: {{.DiskError}}</div>
+{{end}}
+
+<div class="card-table">
+  <table class="table table-hover mb-0">
+    <thead>
+      <tr>
+        <th>장치</th><th>모델</th><th>용량</th><th>health</th>
+        <th class="text-end">온도</th><th class="text-end">가동시간</th>
+        <th class="text-end">전원횟수</th><th class="text-end">재할당섹터</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Disks}}
+      <tr>
+        <td class="mono">{{.Device}}</td>
+        <td>
+          <span style="font-size:.85rem">{{if .Model}}{{.Model}}{{else}}<span class="text-muted">—</span>{{end}}</span>
+          {{if .Serial}}<div class="mono text-muted" style="font-size:.72rem">{{.Serial}}</div>{{end}}
+        </td>
+        <td class="mono">{{if .Capacity}}{{.Capacity}}{{else}}—{{end}}</td>
+        <td>
+          {{if .Healthy}}<span class="badge badge-running">{{.Health}}</span>
+          {{else if eq .Health "unknown"}}<span class="badge bg-secondary">unknown</span>
+          {{else}}<span class="badge bg-danger">{{.Health}}</span>{{end}}
+        </td>
+        <td class="text-end mono">{{if .TempC}}{{.TempC}}°C{{else}}—{{end}}</td>
+        <td class="text-end mono">{{if .PowerOnHours}}{{.PowerOnHours}}h{{else}}—{{end}}</td>
+        <td class="text-end mono">{{if .PowerCycles}}{{.PowerCycles}}{{else}}—{{end}}</td>
+        <td class="text-end mono">
+          {{if .Reallocated}}
+            {{if eq .Reallocated "0"}}<span class="text-success">0</span>{{else}}<span class="text-danger fw-semibold">{{.Reallocated}}</span>{{end}}
+          {{else}}—{{end}}
+        </td>
+      </tr>
+      {{else}}
+      <tr><td colspan="8" class="text-center text-muted py-4">SMART 정보가 있는 디스크 없음</td></tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+
+{{end}}

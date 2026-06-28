@@ -13,6 +13,7 @@ type Config struct {
 	Host              string
 	Port              string
 	MetricsDB         string
+	ConfigDB          string
 	MetricsRetainDays int
 }
 
@@ -31,6 +32,7 @@ func loadConfig() *Config {
 		Host:              getEnv("HOST", "0.0.0.0"),
 		Port:              getEnv("PORT", "11000"),
 		MetricsDB:         getEnv("METRICS_DB", "./metrics.db"),
+		ConfigDB:          getEnv("CONFIG_DB", "./config.db"),
 		MetricsRetainDays: retainDays,
 	}
 }

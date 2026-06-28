@@ -105,12 +105,23 @@
     <div class="sidebar-section">시스템</div>
     <ul class="nav flex-column mb-0 px-0">
       <li><a href="/system"      class="nav-link {{if eq .ActivePage "system"     }}active{{end}}"><i class="bi bi-pc-display"></i> 시스템 정보</a></li>
+      <li><a href="/storage"    class="nav-link {{if eq .ActivePage "storage"   }}active{{end}}"><i class="bi bi-hdd-network"></i> 스토리지 상태</a></li>
       <li><a href="/filesystem" class="nav-link {{if eq .ActivePage "filesystem"}}active{{end}}"><i class="bi bi-hdd-stack"></i> 파일시스템</a></li>
       <li><a href="/files"      class="nav-link {{if eq .ActivePage "filemanager"}}active{{end}}"><i class="bi bi-folder2-open"></i> 파일매니저</a></li>
       <li><a href="/services"  class="nav-link {{if eq .ActivePage "services"   }}active{{end}}"><i class="bi bi-diagram-3"></i> 서비스</a></li>
       <li><a href="/metrics"  class="nav-link {{if eq .ActivePage "metrics"    }}active{{end}}"><i class="bi bi-activity"></i> 메트릭</a></li>
     </ul>
+    <div class="sidebar-section">관리자</div>
+    <ul class="nav flex-column mb-0 px-0">
+      <li><a href="/admin/users" class="nav-link {{if eq .ActivePage "admin-users"}}active{{end}}"><i class="bi bi-people"></i> 사용자 관리</a></li>
+    </ul>
     <div class="sidebar-footer">
+      {{if .CurrentUser.Username}}
+      <div style="font-size:.75rem;color:rgba(255,255,255,.45);margin-bottom:.4rem;padding:0 .85rem">
+        <i class="bi bi-person-circle me-1"></i>{{.CurrentUser.Username}}
+        <span class="badge bg-secondary ms-1" style="font-size:.65rem">{{.CurrentUser.Role}}</span>
+      </div>
+      {{end}}
       <a href="/logout" class="nav-link text-muted px-0" style="margin:0">
         <i class="bi bi-box-arrow-right"></i><span style="font-size:.8rem">로그아웃</span>
       </a>

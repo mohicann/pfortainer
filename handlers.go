@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -19,10 +18,11 @@ type handlers struct {
 	cfg *Config
 	pc  *PodmanClient
 	mc  *MetricsCollector
+	cdb *ConfigDB
 }
 
-func newHandlers(cfg *Config, pc *PodmanClient, mc *MetricsCollector) *handlers {
-	return &handlers{cfg: cfg, pc: pc, mc: mc}
+func newHandlers(cfg *Config, pc *PodmanClient, mc *MetricsCollector, cdb *ConfigDB) *handlers {
+	return &handlers{cfg: cfg, pc: pc, mc: mc, cdb: cdb}
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
@@ -36,14 +36,21 @@ func (h *handlers) login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
+	username := strings.TrimSpace(r.FormValue("username"))
 	pw := r.FormValue("password")
-	if subtle.ConstantTimeCompare([]byte(pw), []byte(h.cfg.AdminPassword)) == 1 {
-		setAuthCookie(w, h.cfg.SessionSecret)
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+	user, err := h.cdb.VerifyPassword(username, pw)
+	if err != nil {
+		log.Printf("login: db error: %v", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusUnauthorized)
-	render(w, "login", map[string]any{"Error": "비밀번호가 올바르지 않습니다."})
+	if user == nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		render(w, "login", map[string]any{"Error": "사용자명 또는 비밀번호가 올바르지 않습니다."})
+		return
+	}
+	setAuthCookie(w, h.cfg.SessionSecret, user.Username, user.Role)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (h *handlers) logout(w http.ResponseWriter, r *http.Request) {
@@ -467,6 +474,23 @@ func (h *handlers) filesystemInfo(w http.ResponseWriter, r *http.Request) {
 		"Pools":      pools,
 		"Datasets":   datasets,
 	})
+}
+
+func (h *handlers) storageHealth(w http.ResponseWriter, r *http.Request) {
+	vm := StorageVM{ActivePage: "storage", AgentMode: agentMode()}
+	if pools, err := poolStatus(); err != nil {
+		log.Printf("storage: zpool status error: %v", err)
+		vm.PoolError = err.Error()
+	} else {
+		vm.Pools = pools
+	}
+	if disks, err := smartSummary(); err != nil {
+		log.Printf("storage: smart error: %v", err)
+		vm.DiskError = err.Error()
+	} else {
+		vm.Disks = disks
+	}
+	render(w, "storage", vm)
 }
 
 func (h *handlers) filesystemCreate(w http.ResponseWriter, r *http.Request) {
@@ -1015,4 +1039,96 @@ func (h *handlers) composeUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	streamComposeUp(composePath, emit)
+}
+
+// ── Admin: User Management ────────────────────────────────────────────────────
+
+type AdminUsersVM struct {
+	ActivePage  string
+	CurrentUser SessionUser
+	Users       []DBUser
+	Error       string
+	Success     string
+}
+
+func (h *handlers) adminUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := h.cdb.ListUsers()
+	vm := AdminUsersVM{
+		ActivePage:  "admin-users",
+		CurrentUser: userFrom(r),
+		Users:       users,
+	}
+	if err != nil {
+		vm.Error = err.Error()
+	}
+	render(w, "admin-users", vm)
+}
+
+func (h *handlers) adminUserCreate(w http.ResponseWriter, r *http.Request) {
+	username := strings.TrimSpace(r.FormValue("username"))
+	password := r.FormValue("password")
+	role := r.FormValue("role")
+	redirect := func(msg, errMsg string) {
+		q := "?success=" + msg
+		if errMsg != "" {
+			q = "?error=" + errMsg
+		}
+		http.Redirect(w, r, "/admin/users"+q, http.StatusSeeOther)
+	}
+	if username == "" || password == "" {
+		redirect("", "사용자명과 비밀번호를 입력하세요.")
+		return
+	}
+	if len(password) < 8 {
+		redirect("", "비밀번호는 8자 이상이어야 합니다.")
+		return
+	}
+	if err := h.cdb.CreateUser(username, password, role); err != nil {
+		redirect("", "생성 실패: "+err.Error())
+		return
+	}
+	redirect(username+" 생성 완료", "")
+}
+
+func (h *handlers) adminUserUpdateRole(w http.ResponseWriter, r *http.Request) {
+	username := r.PathValue("username")
+	role := r.FormValue("role")
+	me := userFrom(r)
+	if username == me.Username && role != RoleAdmin {
+		http.Redirect(w, r, "/admin/users?error=자신의+관리자+권한을+제거할+수+없습니다", http.StatusSeeOther)
+		return
+	}
+	if err := h.cdb.UpdateRole(username, role); err != nil {
+		http.Redirect(w, r, "/admin/users?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/admin/users?success=역할+변경+완료", http.StatusSeeOther)
+}
+
+func (h *handlers) adminUserUpdatePassword(w http.ResponseWriter, r *http.Request) {
+	username := r.PathValue("username")
+	pw := r.FormValue("password")
+	if len(pw) < 8 {
+		http.Redirect(w, r, "/admin/users?error=비밀번호는+8자+이상이어야+합니다", http.StatusSeeOther)
+		return
+	}
+	if err := h.cdb.UpdatePassword(username, pw); err != nil {
+		http.Redirect(w, r, "/admin/users?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/admin/users?success=비밀번호+변경+완료", http.StatusSeeOther)
+}
+
+func (h *handlers) adminUserDelete(w http.ResponseWriter, r *http.Request) {
+	username := r.PathValue("username")
+	me := userFrom(r)
+	if username == me.Username {
+		http.Redirect(w, r, "/admin/users?error=자신의+계정을+삭제할+수+없습니다", http.StatusSeeOther)
+		return
+	}
+	if err := h.cdb.DeleteUser(username); err != nil {
+		http.Redirect(w, r, "/admin/users?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/admin/users?success="+username+"+삭제+완료", http.StatusSeeOther)
 }

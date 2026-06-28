@@ -1,0 +1,120 @@
+{{define "title"}}사용자 관리 — pfortainer{{end}}
+{{define "pagetitle"}}사용자 관리{{end}}
+{{define "content"}}
+
+{{if .Error}}
+<div class="alert alert-danger py-2 mb-3"><i class="bi bi-exclamation-triangle me-1"></i>{{.Error}}</div>
+{{end}}
+{{if .Success}}
+<div class="alert alert-success py-2 mb-3"><i class="bi bi-check-circle me-1"></i>{{.Success}}</div>
+{{end}}
+
+<div class="row g-3">
+
+  {{/* ── 사용자 목록 ── */}}
+  <div class="col-12 col-xl-8">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-people me-1"></i>사용자 목록</span>
+      </div>
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>사용자명</th>
+            <th>역할</th>
+            <th>생성일</th>
+            <th>역할 변경</th>
+            <th>비밀번호 변경</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Users}}
+          <tr>
+            <td class="fw-semibold">
+              {{.Username}}
+              {{if eq $.CurrentUser.Username .Username}}
+              <span class="badge bg-secondary ms-1" style="font-size:.65rem">나</span>
+              {{end}}
+            </td>
+            <td>
+              {{if eq .Role "admin"}}<span class="badge bg-danger">admin</span>
+              {{else if eq .Role "operator"}}<span class="badge bg-warning text-dark">operator</span>
+              {{else}}<span class="badge bg-secondary">viewer</span>{{end}}
+            </td>
+            <td class="text-muted" style="font-size:.82rem">{{.CreatedAt.Format "2006-01-02"}}</td>
+            <td>
+              <form method="post" action="/admin/users/{{.Username}}/role" class="d-flex gap-1">
+                <select name="role" class="form-select form-select-sm" style="width:auto">
+                  <option value="viewer"   {{if eq .Role "viewer"  }}selected{{end}}>viewer</option>
+                  <option value="operator" {{if eq .Role "operator"}}selected{{end}}>operator</option>
+                  <option value="admin"    {{if eq .Role "admin"   }}selected{{end}}>admin</option>
+                </select>
+                <button class="btn btn-sm btn-outline-secondary">변경</button>
+              </form>
+            </td>
+            <td>
+              <form method="post" action="/admin/users/{{.Username}}/password" class="d-flex gap-1">
+                <input type="password" name="password" class="form-control form-control-sm"
+                       placeholder="새 비밀번호 (8자+)" style="width:160px" required minlength="8">
+                <button class="btn btn-sm btn-outline-secondary">변경</button>
+              </form>
+            </td>
+            <td class="text-end">
+              {{if ne $.CurrentUser.Username .Username}}
+              <form method="post" action="/admin/users/{{.Username}}/delete"
+                    onsubmit="return confirm('{{.Username}} 계정을 삭제하시겠습니까?')">
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+              {{end}}
+            </td>
+          </tr>
+          {{else}}
+          <tr><td colspan="6" class="text-center text-muted py-4">사용자 없음</td></tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {{/* ── 사용자 추가 ── */}}
+  <div class="col-12 col-xl-4">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-person-plus me-1"></i>사용자 추가</span>
+      </div>
+      <div class="p-3">
+        <form method="post" action="/admin/users">
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">사용자명</label>
+            <input type="text" name="username" class="form-control form-control-sm" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">비밀번호 (8자 이상)</label>
+            <input type="password" name="password" class="form-control form-control-sm" required minlength="8">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-muted mb-1">역할</label>
+            <select name="role" class="form-select form-select-sm">
+              <option value="viewer">viewer — 읽기 전용</option>
+              <option value="operator">operator — 컨테이너·파일 제어</option>
+              <option value="admin">admin — 전체 관리</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm w-100">추가</button>
+        </form>
+        <hr class="my-3">
+        <div class="text-muted" style="font-size:.78rem">
+          <strong>역할 안내</strong>
+          <ul class="mb-0 ps-3 mt-1">
+            <li><strong>viewer</strong>: 모든 페이지 조회</li>
+            <li><strong>operator</strong>: 컨테이너/이미지 제어, 파일 쓰기, ZFS 데이터셋 생성/삭제</li>
+            <li><strong>admin</strong>: 사용자 관리 포함 전체 권한</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{{end}}
