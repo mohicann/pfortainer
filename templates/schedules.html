@@ -47,6 +47,8 @@
                 <span class="badge bg-primary bg-opacity-75"><i class="bi bi-camera me-1"></i>스냅샷</span>
               {{else if eq .Type "scrub"}}
                 <span class="badge bg-warning text-dark"><i class="bi bi-search me-1"></i>스크럽</span>
+              {{else if eq .Type "smart_test"}}
+                <span class="badge bg-info text-dark"><i class="bi bi-hdd me-1"></i>SMART</span>
               {{else}}
                 <span class="badge bg-secondary">{{.Type}}</span>
               {{end}}
@@ -117,6 +119,7 @@
                     onchange="onTypeChange()">
               <option value="snapshot">스냅샷 자동 생성</option>
               <option value="scrub">풀 스크럽</option>
+              <option value="smart_test">SMART 테스트</option>
             </select>
           </div>
 
@@ -131,6 +134,20 @@
             <label class="form-label small fw-semibold text-muted mb-1">풀</label>
             <select name="target" id="scrubTarget" class="form-select form-select-sm" disabled>
               {{range .Pools}}<option value="{{.Name}}">{{.Name}}</option>{{end}}
+            </select>
+          </div>
+
+          <div class="mb-2 d-none" id="targetSmart">
+            <label class="form-label small fw-semibold text-muted mb-1">장치</label>
+            <select name="target" id="smartTarget" class="form-select form-select-sm" disabled>
+              {{range .Disks}}<option value="{{.Device}}">{{.Device}}{{if .Model}} — {{.Model}}{{end}}</option>{{end}}
+            </select>
+          </div>
+          <div class="mb-2 d-none" id="smartTypeWrap">
+            <label class="form-label small fw-semibold text-muted mb-1">테스트 종류</label>
+            <select name="prefix" id="smartType" class="form-select form-select-sm" disabled>
+              <option value="short">단기 (short, ~2분)</option>
+              <option value="long">장기 (long, ~수십 분)</option>
             </select>
           </div>
 
@@ -184,40 +201,49 @@
 <script>
 function onTypeChange() {
   var type = document.getElementById('schedType').value;
-  var snapSection  = document.getElementById('targetSnap');
-  var scrubSection = document.getElementById('targetScrub');
-  var snapOpts     = document.getElementById('snapOptions');
-  var retWrap      = document.getElementById('retentionWrap');
-  var snapSel      = document.getElementById('snapTarget');
-  var scrubSel     = document.getElementById('scrubTarget');
+  var sections = {
+    snap:  { el: document.getElementById('targetSnap'),   sel: document.getElementById('snapTarget')  },
+    scrub: { el: document.getElementById('targetScrub'),  sel: document.getElementById('scrubTarget') },
+    smart: { el: document.getElementById('targetSmart'),  sel: document.getElementById('smartTarget') },
+  };
+  var snapOpts      = document.getElementById('snapOptions');
+  var retWrap       = document.getElementById('retentionWrap');
+  var smartTypeWrap = document.getElementById('smartTypeWrap');
+  var smartTypeSel  = document.getElementById('smartType');
+
+  // Hide all target sections, disable all selects
+  Object.values(sections).forEach(function(s) {
+    s.el.classList.add('d-none');
+    s.sel.disabled = true;
+  });
+  snapOpts.classList.add('d-none');
+  retWrap.classList.add('d-none');
+  smartTypeWrap.classList.add('d-none');
+  smartTypeSel.disabled = true;
 
   if (type === 'snapshot') {
-    snapSection.classList.remove('d-none');
-    scrubSection.classList.add('d-none');
+    sections.snap.el.classList.remove('d-none');
+    sections.snap.sel.disabled = false;
     snapOpts.classList.remove('d-none');
     retWrap.classList.remove('d-none');
-    snapSel.disabled  = false;
-    scrubSel.disabled = true;
-  } else {
-    snapSection.classList.add('d-none');
-    scrubSection.classList.remove('d-none');
-    snapOpts.classList.add('d-none');
-    retWrap.classList.add('d-none');
-    snapSel.disabled  = true;
-    scrubSel.disabled = false;
+  } else if (type === 'scrub') {
+    sections.scrub.el.classList.remove('d-none');
+    sections.scrub.sel.disabled = false;
+  } else if (type === 'smart_test') {
+    sections.smart.el.classList.remove('d-none');
+    sections.smart.sel.disabled = false;
+    smartTypeWrap.classList.remove('d-none');
+    smartTypeSel.disabled = false;
   }
 }
 
 // Sync the correct <select> name="target" before submit
 document.getElementById('schedForm').addEventListener('submit', function() {
   var type = document.getElementById('schedType').value;
-  if (type === 'scrub') {
-    document.getElementById('snapTarget').name  = '';
-    document.getElementById('scrubTarget').name = 'target';
-  } else {
-    document.getElementById('snapTarget').name  = 'target';
-    document.getElementById('scrubTarget').name = '';
-  }
+  document.getElementById('snapTarget').name  = (type === 'snapshot')  ? 'target' : '';
+  document.getElementById('scrubTarget').name = (type === 'scrub')     ? 'target' : '';
+  document.getElementById('smartTarget').name = (type === 'smart_test')? 'target' : '';
+  document.getElementById('smartType').name   = (type === 'smart_test')? 'prefix' : '';
 });
 </script>
 {{end}}

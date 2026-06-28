@@ -5,20 +5,67 @@ Podman REST API(유닉스 소켓)에 직접 연결해 컨테이너/이미지를 
 
 ## 주요 기능
 
-**pfortainer 메뉴**
+### 인증 / 보안
+- **RBAC 다중 사용자**: viewer / operator / admin 3단계 역할. 관리자 UI(`/admin/users`)에서 사용자 추가·역할 변경·비밀번호 변경·삭제
+- **2FA TOTP**: Google Authenticator 등 TOTP 앱으로 2단계 인증. `/profile`에서 QR 코드로 활성화·비활성화. 로그인 시 비밀번호 → `/login/totp` 코드 입력 2단계 진행
+- **세션**: HMAC-SHA256 서명 쿠키(`pfsession`), 8시간 유지
+
+### 컨테이너
 - **Dashboard**: 전체/실행 중/정지 컨테이너 수, 이미지 수, 실행 중인 컨테이너 목록
-- **Containers**: 목록 조회·검색, 상세 보기, 다중 선택 작업(시작/정지/Kill/재시작/일시정지/재개/삭제), Dockerfile 빌드, docker-compose.yml 스택 실행 (파일 브라우저로 서버 파일 불러오기/저장 지원)
-- **Images**: 목록 조회·검색, 다중 선택 삭제/강제 삭제
+- **Containers**: 목록·검색, 상세 보기, 다중 선택 작업(시작/정지/Kill/재시작/일시정지/재개/삭제), Dockerfile 빌드, docker-compose.yml 스택 실행
+- **Images**: 목록·검색, 다중 선택 삭제/강제 삭제
+- **앱 카탈로그**: FileBrowser·MinIO·Syncthing·Jellyfin·Vaultwarden·Uptime Kuma·Gitea 원클릭 배포. `pf-<id>` 이름으로 컨테이너 생성, 포트·볼륨·환경변수 입력 모달
 
-**시스템 메뉴**
-- **시스템 정보**: Podman `/libpod/info` API로 호스트 정보(hostname·OS·커널·아키텍처·업타임), CPU 사용률, 메모리/스왑, Podman 버전, 컨테이너·이미지 수, 스토리지 경로 표시
-- **파일시스템**: ZFS 풀/데이터셋 조회, 데이터셋 생성·삭제, 트리 접기/펼치기
-- **파일매니저**: 서버 파일시스템 탐색 및 관리 (아래 참고)
-- **서비스**: 리스닝 중인 포트 목록 + container/jail/네이티브 분류 (아래 참고)
-- **메트릭**: Netdata REST API 연동 실시간 모니터링 (아래 참고)
+### 스토리지 / ZFS
+- **스토리지 상태** (`/storage`): ZFS 풀 health (vdev 트리), 디스크 SMART 상태·단기/장기 테스트 실행
+- **ZFS 데이터셋** (`/filesystem`): ZFS 풀/데이터셋 조회, 데이터셋 생성·삭제, 사용량 트리 보기 (접기/펼치기)
+- **스케줄 / 스냅샷** (`/snapshots`): 자동 스케줄 관리(상단), ZFS 스냅샷 생성·삭제·롤백·클론. 스냅샷 목록은 데이터셋별 최신 5개만 표시, "더 보기"로 전체 확인. Podman 컨테이너 레이어 스냅샷은 자동 필터링
+- **자동 스케줄**: 스냅샷/스크럽/SMART 자동 실행. 매시간·매일·매주·매월, 보존 개수 설정
+- **ZFS 복제** (`/replications`): `zfs send | zfs receive` 파이프라인. 로컬 or SSH 원격 대상, 증분/전체 자동 판단. 스케줄 설정 (수동/매시간/매일/매주)
 
-**공통**
-- 단일 관리자 비밀번호 + HMAC-SHA256 서명된 세션 쿠키 (8시간 유지)
+### 파일 공유
+- **SMB 공유**: `/usr/local/etc/smb4.conf.d/` drop-in 방식. 공유 추가·삭제, samba 재시작/상태 조회
+- **NFS export**: `/etc/exports.d/` drop-in 방식. export 추가·삭제, mountd 리로드
+- **로컬 사용자/그룹**: FreeBSD OS 사용자 생성·삭제, 그룹 관리, SMB 비밀번호 설정 (pw + smbpasswd via host agent)
+
+### 시스템 / 모니터링
+- **시스템 정보** (`/system`): 호스트 CPU·메모리·업타임, Podman 버전·스토리지 경로 실시간 표시
+- **주요 메트릭** (`/metrics`): 자체 수집 시계열 차트 (CPU·메모리·네트워크·디스크I/O·ZFS ARC·Load Average 등). SQLite 저장, 10일 보존
+- **네트워크** (`/network`): 인터페이스 목록 (IP·MAC·상태·미디어), 라우팅 테이블, DNS 서버
+- **서비스** (`/services`): 리스닝 포트 목록 + 컨테이너/Jail/네이티브 자동 분류
+- **진단/로그** (`/diagnostics`): pfortainer.log·messages·security·dmesg 실시간 tail, df/mount/ifconfig/netstat/sockstat/ps/dmesg 명령 실행 (AJAX, 자동 새로고침)
+- **파일매니저** (`/files`): 서버 파일시스템 탐색·편집·업로드·다운로드
+
+### 알림
+- Email(SMTP) + Webhook. ZFS 풀 상태 악화·SMART 오류·디스크 용량·스크럽 오류 감지. 쿨다운 설정, 테스트 발송 버튼
+
+## 사이드바 메뉴 구조
+
+```
+앱
+├── Dashboard
+├── Containers
+├── Images
+└── 앱 카탈로그
+
+시스템
+├── 시스템
+├── 주요 메트릭
+├── 스토리지
+├── ZFS 데이터셋
+├── 스케줄 / 스냅샷
+├── 복제
+├── 파일매니저
+├── 네트워크
+└── 진단/로그
+
+공유
+└── 공유 (SMB·NFS·로컬 사용자)
+
+관리
+├── 알림
+└── 사용자 관리
+```
 
 ## 파일매니저
 
@@ -47,12 +94,11 @@ Podman REST API(유닉스 소켓)에 직접 연결해 컨테이너/이미지를 
 |------|------|
 | 포트 목록 | `sockstat -l` 기반으로 리스닝 중인 전체 포트 표시 (tcp4/tcp6 중복 제거) |
 | 유형 분류 | **컨테이너** / **Jail** / **네이티브** 3가지로 자동 분류 |
-| 컨테이너 감지 | FreeBSD Podman은 컨테이너를 VNET Jail로 실행. `jls`로 Jail 목록을 가져와 Podman 컨테이너 ID와 매핑. `ps -J <JID>`로 PID→JID→컨테이너 이름으로 연결 |
+| 컨테이너 감지 | FreeBSD Podman은 컨테이너를 VNET Jail로 실행. `jls`로 Jail 목록을 가져와 Podman 컨테이너 ID와 매핑 |
 | Jail 실행 시 host agent 사용 | pfortainer가 Jail 안에서 실행되면 `sockstat`/`jls`가 호스트 포트를 볼 수 없음. `pfortainer_hostd` rc 서비스가 호스트에서 Unix 소켓(`/run/pfortainer/host.sock`)을 통해 해당 명령을 대리 실행. 소켓 없으면 직접 exec 폴백(로컬 개발 환경) |
 | 필터 탭 | 전체/컨테이너/Jail/네이티브 탭으로 원클릭 필터링 |
-| 요약 카드 | 유형별 포트 수 요약 |
 
-## 메트릭
+## 주요 메트릭
 
 `/metrics` 경로에서 시스템 메트릭을 실시간으로 확인합니다.  
 Netdata 불필요 — pfortainer가 FreeBSD sysctls에서 직접 수집합니다.
@@ -80,12 +126,18 @@ Netdata 불필요 — pfortainer가 FreeBSD sysctls에서 직접 수집합니다
 | 변수 | 기본값 | 설명 |
 |---|---|---|
 | `PODMAN_SOCKET` | `/run/podman/podman.sock` | Podman API 유닉스 소켓 경로 |
-| `ADMIN_PASSWORD` | (필수) | 로그인 비밀번호 |
-| `SESSION_SECRET` | (필수) | 세션 쿠키 서명용 시크릿 |
+| `SESSION_SECRET` | (필수) | 세션/TOTP pre-auth 쿠키 서명용 시크릿 |
 | `HOST` | `0.0.0.0` | 바인드 호스트 |
 | `PORT` | `11000` | 바인드 포트 |
 | `METRICS_DB` | `./metrics.db` | 메트릭 SQLite DB 파일 경로 |
 | `METRICS_RETENTION_DAYS` | `10` | 메트릭 보존 기간 (일) |
+| `SMTP_HOST` | (선택) | SMTP 서버 (알림 이메일용) |
+| `SMTP_PORT` | `587` | SMTP 포트 |
+| `SMTP_USER` | (선택) | SMTP 인증 사용자 |
+| `SMTP_PASS` | (선택) | SMTP 인증 비밀번호 |
+| `ALERT_FROM` | (선택) | 알림 발신자 이메일 |
+
+> **참고:** `ADMIN_PASSWORD`는 더 이상 사용하지 않습니다. 최초 실행 시 `admin` 계정이 자동 생성됩니다. 비밀번호는 `/admin/users`에서 변경하세요.
 
 ## 로컬 실행
 
@@ -115,24 +167,39 @@ pfortainer는 FreeBSD Jail(`zdata/jails/pfortainer`) 안에서 실행됩니다.
 ```
 FreeBSD 호스트
 ├── /run/podman/podman.sock          ← podman_api rc 서비스가 관리
+├── /run/pfortainer/host.sock        ← pfortainer_hostd rc 서비스가 관리
 ├── /zdata/tools/pfortainer-freebsd/ ← 바이너리 및 설정
-│   ├── pfortainer                   ← 실행 바이너리 (배포 대상)
-│   ├── rc.d/pfortainer              ← Jail 내부 rc.d 원본
+│   ├── pfortainer                   ← 실행 바이너리 (배포 대상, hostd 겸용)
 │   ├── metrics.db                   ← 메트릭 SQLite DB (영구 보존)
 │   └── .env                         ← 환경변수 설정
 │
 └── Jail: pfortainer (192.168.10.111)
     ├── /app        → nullfs ro mount (/zdata/tools/pfortainer-freebsd/)
-    │   └── 바이너리, rc.d, metrics.db, .env 접근
     ├── /run/podman → nullfs rw mount (호스트 Podman 소켓)
-    │   └── podman.sock (Podman API 통신)
     ├── /var/log/pfortainer.log      ← Jail 내부 로그 (ZFS에 영구 보존)
     └── :11000 서비스
 ```
 
 **데이터 보존:** Jail을 중지해도 ZFS 데이터셋(`zdata/jails/pfortainer`)과 호스트의 `metrics.db`는 그대로 유지됩니다.
 
-**rc 서비스 의존 순서:** `podman_api` → `pfortainer (Jail 내부)`
+**rc 서비스 기동 순서:** `podman_api` + `pfortainer_hostd` (호스트) → `jail` → `pfortainer` (Jail 내부)
+
+**host agent 구조:** `pfortainer -hostd` 모드로 실행되는 `pfortainer_hostd` 서비스가 호스트에서 루트 권한으로 동작. Jail 내부의 pfortainer는 `/run/pfortainer/host.sock` 소켓을 통해 `ifconfig`, `sockstat`, `jls`, `zfs`, `zpool`, `smartctl` 등 권한이 필요한 명령을 위임 실행합니다.
+
+### 바이너리 업데이트 (deploy.sh)
+
+```sh
+./deploy.sh          # 빌드 → 전송 → pfortainer_hostd + pfortainer 재시작
+./deploy.sh myhostname  # 다른 호스트 지정
+```
+
+`deploy.sh` 한 번으로 끝납니다. 내부적으로:
+1. FreeBSD amd64 크로스 컴파일
+2. `scp`로 전송 후 `/zdata/tools/pfortainer-freebsd/pfortainer` 교체
+3. 호스트의 `pfortainer_hostd` 재시작
+4. Jail 내부의 `pfortainer` 재시작
+
+> **주의:** `pfortainer_hostd`와 `pfortainer`는 동일한 바이너리를 공유하므로 반드시 함께 재시작해야 새 버전이 반영됩니다.
 
 ### 초기 설치
 
@@ -199,7 +266,7 @@ FreeBSD 호스트
    zfs allow -u root mount,create,destroy,snapshot,rollback zdata
    zfs allow -u root mount,create,destroy,snapshot,rollback zboot
    ```
-   `jail.conf.d/pfortainer.conf`에 `exec.poststart`로 `zfs jail`을 추가해야 재부팅 후에도 유지됩니다 (아래 설정 파일 참고). 새 ZFS 풀 추가 시 `zfs allow`와 `exec.poststart` 줄을 동일하게 추가하세요.
+   `jail.conf.d/pfortainer.conf`에 `exec.poststart`로 `zfs jail`을 추가해야 재부팅 후에도 유지됩니다. 새 ZFS 풀 추가 시 `zfs allow`와 `exec.poststart` 줄을 동일하게 추가하세요.
 
 4. 호스트 rc 서비스 설치 및 rc.conf 설정:
    ```sh
@@ -214,7 +281,7 @@ FreeBSD 호스트
    sysrc pfortainer_enable=NO   # 호스트 직접 실행 비활성화 (Jail에서 실행)
    ```
 
-   `pfortainer_hostd`는 Jail보다 먼저 기동(`BEFORE: jail`)되어 `/run/pfortainer/host.sock`을 생성합니다. Jail 내부의 pfortainer는 이 소켓을 통해 호스트의 `sockstat`/`jls` 결과를 조회해 서비스 목록을 표시합니다.
+   `pfortainer_hostd`는 Jail보다 먼저 기동(`BEFORE: jail`)되어 `/run/pfortainer/host.sock`을 생성합니다. Jail 내부의 pfortainer는 이 소켓을 통해 호스트의 권한 명령을 위임 실행합니다.
 
 5. Jail 내부 rc 서비스 설치:
    ```sh
@@ -255,33 +322,6 @@ FreeBSD 호스트
    service jail start pfortainer
    ```
 
-### 바이너리 업데이트
-
-```sh
-# 1. 로컬에서 크로스 컴파일
-GOOS=freebsd GOARCH=amd64 go build -o pfortainer-freebsd .
-
-# 2. /tmp에 먼저 복사 (직접 덮어쓰기는 권한 오류)
-scp pfortainer-freebsd fbnas:/tmp/pfortainer
-
-# 3. 서비스 중지 → 프로세스 소멸 확인 → 복사 → 재시작 (한 번에)
-ssh fbnas "
-  sudo jexec pfortainer service pfortainer stop &&
-  sudo service pfortainer_hostd onestop &&
-  while pgrep -x pfortainer > /dev/null; do sleep 0.5; done &&
-  sudo rm /zdata/tools/pfortainer-freebsd/pfortainer &&
-  sudo cp /tmp/pfortainer /zdata/tools/pfortainer-freebsd/pfortainer &&
-  sudo chmod +x /zdata/tools/pfortainer-freebsd/pfortainer &&
-  sudo service pfortainer_hostd onestart &&
-  sudo jexec pfortainer service pfortainer start
-"
-```
-
-> **주의사항**
-> - `pfortainer_hostd`도 같은 바이너리(`pfortainer -hostd`)를 사용하므로 함께 중지해야 한다.
-> - `cp`로 직접 덮어쓰면 "Text file busy" 오류 → `rm` 후 `cp`로 교체.
-> - 중지~복사~시작을 하나의 ssh 명령으로 묶어야 타이밍 문제를 방지할 수 있다.
-
 ### 로컬에서 접속 (SSH 포트 포워딩)
 
 pfortainer는 Jail(`192.168.10.111`)에서 실행되므로, 로컬 Mac에서 접속할 때는 Jail IP를 지정해야 합니다:
@@ -300,6 +340,9 @@ ssh -L 11000:192.168.10.111:11000 fbnas
 # Jail 내부 pfortainer 로그
 ssh fbnas "sudo jexec pfortainer tail -f /var/log/pfortainer.log"
 
+# host agent 로그
+ssh fbnas "sudo tail -f /var/log/pfortainer_hostd.log"
+
 # Jail 상태
 ssh fbnas "jls -v"
 ```
@@ -309,6 +352,13 @@ ssh fbnas "jls -v"
 **부팅 직후 "Podman 소켓에 연결할 수 없습니다" 페이지**
 
 pfortainer는 소켓 없이도 즉시 기동되며, `podman_api` 서비스가 소켓을 생성하면 자동으로 연결됩니다. 페이지의 새로고침 버튼을 누르거나 잠시 후 재접속하면 정상 동작합니다.
+
+**네트워크/서비스/스토리지 페이지에서 "404 page not found" 또는 "host agent unavailable"**
+
+`pfortainer_hostd`가 구버전 바이너리로 실행 중이거나 중지된 경우. `deploy.sh`를 다시 실행하면 자동으로 재시작됩니다. 수동으로 재시작하려면:
+```sh
+ssh fbnas "sudo service pfortainer_hostd onerestart"
+```
 
 **컨테이너 목록/상세에서 nil pointer panic**
 

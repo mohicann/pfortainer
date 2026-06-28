@@ -1,0 +1,222 @@
+{{template "base" .}}
+{{define "title"}}알림 설정 — pfortainer{{end}}
+{{define "pagetitle"}}알림 설정{{end}}
+{{define "content"}}
+
+{{if .Error}}
+<div class="alert alert-danger py-2 mb-3"><i class="bi bi-exclamation-triangle me-1"></i>{{.Error}}</div>
+{{end}}
+{{if .Success}}
+<div class="alert alert-success py-2 mb-3"><i class="bi bi-check-circle me-1"></i>{{.Success}}</div>
+{{end}}
+
+<form method="post" action="/alerts" id="alertForm">
+
+<div class="row g-3">
+
+  {{/* ── 이메일 (SMTP) ── */}}
+  <div class="col-12 col-xl-6">
+    <div class="card-table h-100">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-envelope me-1"></i>이메일 (SMTP)</span>
+        <div class="form-check form-switch mb-0">
+          <input class="form-check-input" type="checkbox" name="email_enabled" value="1"
+                 id="emailEnabled" {{if .Settings.EmailEnabled}}checked{{end}}
+                 onchange="toggleSection('emailFields', this.checked)">
+          <label class="form-check-label small" for="emailEnabled">활성화</label>
+        </div>
+      </div>
+      <div class="p-3" id="emailFields" {{if not .Settings.EmailEnabled}}style="opacity:.5;pointer-events:none"{{end}}>
+        <div class="row g-2 mb-2">
+          <div class="col-8">
+            <label class="form-label small fw-semibold text-muted mb-1">SMTP 서버</label>
+            <input type="text" name="smtp_host" class="form-control form-control-sm"
+                   placeholder="smtp.gmail.com" value="{{.Settings.SMTPHost}}">
+          </div>
+          <div class="col-4">
+            <label class="form-label small fw-semibold text-muted mb-1">포트</label>
+            <input type="number" name="smtp_port" class="form-control form-control-sm"
+                   value="{{if .Settings.SMTPPort}}{{.Settings.SMTPPort}}{{else}}587{{end}}">
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label small fw-semibold text-muted mb-1">사용자명</label>
+          <input type="text" name="smtp_user" class="form-control form-control-sm"
+                 placeholder="user@gmail.com" value="{{.Settings.SMTPUser}}"
+                 autocomplete="username">
+        </div>
+        <div class="mb-2">
+          <label class="form-label small fw-semibold text-muted mb-1">
+            비밀번호
+            {{if .Settings.SMTPPass}}<span class="text-success ms-1" style="font-size:.75rem">(설정됨)</span>{{end}}
+          </label>
+          <input type="password" name="smtp_pass" class="form-control form-control-sm"
+                 placeholder="{{if .Settings.SMTPPass}}변경 시에만 입력{{else}}앱 비밀번호{{end}}"
+                 autocomplete="current-password">
+        </div>
+        <div class="mb-2">
+          <label class="form-label small fw-semibold text-muted mb-1">발신 주소 (From)</label>
+          <input type="text" name="smtp_from" class="form-control form-control-sm"
+                 placeholder="pfortainer@yourdomain.com (빈칸=사용자명 사용)"
+                 value="{{.Settings.SMTPFrom}}">
+        </div>
+        <div class="mb-0">
+          <label class="form-label small fw-semibold text-muted mb-1">수신 주소 (To)</label>
+          <input type="text" name="smtp_to" class="form-control form-control-sm"
+                 placeholder="admin@yourdomain.com" value="{{.Settings.SMTPTo}}">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{/* ── 웹훅 ── */}}
+  <div class="col-12 col-xl-6">
+    <div class="card-table h-100">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-lightning me-1"></i>웹훅 (Webhook)</span>
+        <div class="form-check form-switch mb-0">
+          <input class="form-check-input" type="checkbox" name="webhook_enabled" value="1"
+                 id="webhookEnabled" {{if .Settings.WebhookEnabled}}checked{{end}}
+                 onchange="toggleSection('webhookFields', this.checked)">
+          <label class="form-check-label small" for="webhookEnabled">활성화</label>
+        </div>
+      </div>
+      <div class="p-3" id="webhookFields" {{if not .Settings.WebhookEnabled}}style="opacity:.5;pointer-events:none"{{end}}>
+        <div class="mb-2">
+          <label class="form-label small fw-semibold text-muted mb-1">웹훅 URL</label>
+          <input type="url" name="webhook_url" class="form-control form-control-sm"
+                 placeholder="https://hooks.slack.com/... 또는 Discord webhook URL"
+                 value="{{.Settings.WebhookURL}}">
+        </div>
+        <div class="text-muted mt-2" style="font-size:.78rem">
+          <strong>전송 페이로드 (JSON)</strong>
+          <pre class="mt-1 p-2 rounded" style="background:#1e2a3a;color:#b3e5fc;font-size:.76rem;overflow:auto">{
+  "event":     "pool_health",
+  "target":    "zdata",
+  "message":   "[pfortainer] ZFS 풀 경보: zdata (DEGRADED)",
+  "timestamp": "2026-06-28T10:00:00Z",
+  "source":    "pfortainer"
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{/* ── 알림 규칙 ── */}}
+  <div class="col-12 col-xl-8">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-shield-check me-1"></i>알림 규칙</span>
+      </div>
+      <div class="p-3">
+        <div class="row g-3">
+          <div class="col-12 col-sm-6">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="check_pool_health" value="1"
+                     id="chkPool" {{if .Settings.CheckPoolHealth}}checked{{end}}>
+              <label class="form-check-label" for="chkPool">
+                <strong>ZFS 풀 상태 이상</strong>
+                <div class="text-muted" style="font-size:.78rem">ONLINE 외 상태 (DEGRADED, FAULTED 등)</div>
+              </label>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="check_smart" value="1"
+                     id="chkSmart" {{if .Settings.CheckSMART}}checked{{end}}>
+              <label class="form-check-label" for="chkSmart">
+                <strong>SMART 상태 이상</strong>
+                <div class="text-muted" style="font-size:.78rem">SMART health = FAILED</div>
+              </label>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="check_scrub" value="1"
+                     id="chkScrub" {{if .Settings.CheckScrub}}checked{{end}}>
+              <label class="form-check-label" for="chkScrub">
+                <strong>스크럽 오류</strong>
+                <div class="text-muted" style="font-size:.78rem">스크럽 완료 후 복구 불가 오류 발생 시</div>
+              </label>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6">
+            <div class="form-check mb-1">
+              <input class="form-check-input" type="checkbox" name="check_capacity" value="1"
+                     id="chkCap" {{if .Settings.CheckCapacity}}checked{{end}}>
+              <label class="form-check-label" for="chkCap">
+                <strong>풀 용량 임계치</strong>
+              </label>
+            </div>
+            <div class="input-group input-group-sm" style="max-width:180px">
+              <input type="number" name="capacity_pct" class="form-control"
+                     value="{{if .Settings.CapacityPct}}{{.Settings.CapacityPct}}{{else}}85{{end}}"
+                     min="50" max="99">
+              <span class="input-group-text">% 이상 시 알림</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{/* ── 쿨다운 ── */}}
+  <div class="col-12 col-xl-4">
+    <div class="card-table h-100">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-clock me-1"></i>반복 방지 (쿨다운)</span>
+      </div>
+      <div class="p-3">
+        <label class="form-label small fw-semibold text-muted mb-1">알림 재발송 최소 간격</label>
+        <div class="input-group input-group-sm" style="max-width:160px">
+          <input type="number" name="cooldown_hours" class="form-control"
+                 value="{{if .Settings.CooldownHours}}{{.Settings.CooldownHours}}{{else}}4{{end}}"
+                 min="1" max="168">
+          <span class="input-group-text">시간</span>
+        </div>
+        <div class="text-muted mt-2" style="font-size:.78rem">
+          동일한 이벤트/대상에 대해 설정된 시간 내 중복 발송하지 않습니다.
+        </div>
+        <hr class="my-3">
+        <div class="text-muted" style="font-size:.78rem">
+          <strong>체크 주기</strong>: 5분마다 자동 확인<br>
+          <strong>체크 항목</strong>: 풀 상태, SMART, 용량, 스크럽 결과
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{/* ── 저장/테스트 버튼 ── */}}
+  <div class="col-12 d-flex gap-2">
+    <button type="submit" class="btn btn-primary">
+      <i class="bi bi-save me-1"></i>설정 저장
+    </button>
+    <button type="button" class="btn btn-outline-secondary" onclick="sendTest()">
+      <i class="bi bi-send me-1"></i>테스트 발송
+    </button>
+  </div>
+
+</div>
+</form>
+
+<script>
+function toggleSection(id, enabled) {
+  var el = document.getElementById(id);
+  el.style.opacity = enabled ? '1' : '.5';
+  el.style.pointerEvents = enabled ? '' : 'none';
+}
+
+function sendTest() {
+  // Save current settings first, then POST to /alerts/test
+  var form = document.getElementById('alertForm');
+  var data = new FormData(form);
+  fetch('/alerts', { method: 'POST', body: data }).finally(function() {
+    var f = document.createElement('form');
+    f.method = 'post';
+    f.action = '/alerts/test';
+    document.body.appendChild(f);
+    f.submit();
+  });
+}
+</script>
+{{end}}

@@ -78,7 +78,7 @@
       <tr>
         <th>장치</th><th>모델</th><th>용량</th><th>health</th>
         <th class="text-end">온도</th><th class="text-end">가동시간</th>
-        <th class="text-end">전원횟수</th><th class="text-end">재할당섹터</th>
+        <th class="text-end">재할당섹터</th><th class="text-end">테스트</th>
       </tr>
     </thead>
     <tbody>
@@ -97,11 +97,18 @@
         </td>
         <td class="text-end mono">{{if .TempC}}{{.TempC}}°C{{else}}—{{end}}</td>
         <td class="text-end mono">{{if .PowerOnHours}}{{.PowerOnHours}}h{{else}}—{{end}}</td>
-        <td class="text-end mono">{{if .PowerCycles}}{{.PowerCycles}}{{else}}—{{end}}</td>
         <td class="text-end mono">
           {{if .Reallocated}}
             {{if eq .Reallocated "0"}}<span class="text-success">0</span>{{else}}<span class="text-danger fw-semibold">{{.Reallocated}}</span>{{end}}
           {{else}}—{{end}}
+        </td>
+        <td class="text-end">
+          {{if ne .Health "unknown"}}
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary" onclick="smartTest('{{.Device}}','short',this)" title="단기 테스트 (~2분)">단기</button>
+            <button class="btn btn-outline-secondary" onclick="smartTest('{{.Device}}','long',this)"  title="장기 테스트 (~수십 분)">장기</button>
+          </div>
+          {{end}}
         </td>
       </tr>
       {{else}}
@@ -110,5 +117,52 @@
     </tbody>
   </table>
 </div>
+
+<div class="modal fade" id="smartTestModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title mb-0"><i class="bi bi-hdd me-1"></i>SMART 테스트</h6>
+        <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="font-size:.85rem">
+        <div id="smartTestSpinner" class="text-center py-3">
+          <div class="spinner-border spinner-border-sm text-secondary me-2"></div>
+          테스트 시작 중...
+        </div>
+        <pre id="smartTestOutput" class="mb-0 p-2 rounded" style="background:#1e2a3a;color:#b3e5fc;font-size:.76rem;display:none;white-space:pre-wrap"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+function smartTest(device, testType, btn) {
+  var modal = new bootstrap.Modal(document.getElementById('smartTestModal'));
+  document.getElementById('smartTestSpinner').style.display = '';
+  document.getElementById('smartTestOutput').style.display = 'none';
+  modal.show();
+  fetch('/api/smart/test', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({device: device, test_type: testType})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    document.getElementById('smartTestSpinner').style.display = 'none';
+    var out = document.getElementById('smartTestOutput');
+    out.style.display = '';
+    out.textContent = data.output || data.error || '응답 없음';
+  })
+  .catch(function(e) {
+    document.getElementById('smartTestSpinner').style.display = 'none';
+    var out = document.getElementById('smartTestOutput');
+    out.style.display = '';
+    out.style.color = '#ff6b6b';
+    out.textContent = e.toString();
+  });
+}
+</script>
 
 {{end}}

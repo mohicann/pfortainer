@@ -13,7 +13,9 @@ import (
 var templateFS embed.FS
 
 var tmplFuncs = template.FuncMap{
-	"dir": filepath.Dir,
+	"dir":      filepath.Dir,
+	"contains": strings.Contains,
+	"sub":      func(a, b int) int { return a - b },
 }
 
 func render(w http.ResponseWriter, page string, data any) {
@@ -22,9 +24,9 @@ func render(w http.ResponseWriter, page string, data any) {
 		rootName string
 		err      error
 	)
-	if page == "login" {
-		tmpl, err = template.New("login").Funcs(tmplFuncs).ParseFS(templateFS, "templates/login.html")
-		rootName = "login"
+	if page == "login" || page == "login_totp" {
+		tmpl, err = template.New(page).Funcs(tmplFuncs).ParseFS(templateFS, "templates/"+page+".html")
+		rootName = page
 	} else {
 		tmpl, err = template.New("base").Funcs(tmplFuncs).ParseFS(templateFS, "templates/base.html", "templates/"+page+".html")
 		rootName = "base"

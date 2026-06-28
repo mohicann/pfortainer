@@ -1,0 +1,457 @@
+{{template "base" .}}
+{{define "title"}}공유 관리 — pfortainer{{end}}
+{{define "pagetitle"}}파일 공유{{end}}
+{{define "content"}}
+
+{{if .Error}}
+<div class="alert alert-danger py-2 mb-3"><i class="bi bi-exclamation-triangle me-1"></i>{{.Error}}</div>
+{{end}}
+{{if .Success}}
+<div class="alert alert-success py-2 mb-3"><i class="bi bi-check-circle me-1"></i>{{.Success}}</div>
+{{end}}
+
+{{/* ── 탭 ── */}}
+<ul class="nav nav-tabs mb-3">
+  <li class="nav-item">
+    <a class="nav-link {{if eq .Tab "smb"}}active{{end}}" href="/shares?tab=smb">
+      <i class="bi bi-folder-fill me-1"></i>SMB
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {{if eq .Tab "nfs"}}active{{end}}" href="/shares?tab=nfs">
+      <i class="bi bi-hdd-network me-1"></i>NFS
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {{if eq .Tab "users"}}active{{end}}" href="/shares?tab=users">
+      <i class="bi bi-people me-1"></i>로컬 사용자
+    </a>
+  </li>
+</ul>
+
+{{if eq .Tab "smb"}}
+{{/* ════════════════════════════════ SMB 탭 ════════════════════════════════ */}}
+
+{{/* ── SMB 상태 배너 ── */}}
+<div class="d-flex align-items-center gap-2 mb-3">
+  {{if eq .AgentMode "host-socket"}}
+    {{if .SMB.Running}}
+      <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Samba 실행 중</span>
+    {{else}}
+      <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Samba 중지됨</span>
+    {{end}}
+  {{else}}
+    <span class="badge bg-secondary"><i class="bi bi-terminal me-1"></i>local exec</span>
+  {{end}}
+  <form method="post" action="/shares/reload" class="d-inline">
+    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-repeat me-1"></i>Reload</button>
+  </form>
+</div>
+
+{{if not .SMB.SetupOK}}
+<div class="alert alert-warning py-2 mb-3" style="font-size:.85rem">
+  <div class="d-flex align-items-start justify-content-between gap-2">
+    <div>
+      <i class="bi bi-gear me-1"></i>
+      <strong>초기 설정 필요:</strong>
+      <code>/usr/local/etc/smb4.conf</code>에 아래 줄이 없습니다.
+      <pre class="mb-0 mt-1 p-2 rounded" style="background:#1e2a3a;color:#b3e5fc;font-size:.76rem">include = /usr/local/etc/smb4.conf.d/*.conf</pre>
+    </div>
+    <form method="post" action="/shares/setup" class="flex-shrink-0">
+      <button class="btn btn-warning btn-sm text-dark text-nowrap"><i class="bi bi-wrench me-1"></i>Setup 적용</button>
+    </form>
+  </div>
+</div>
+{{end}}
+
+<div class="row g-3">
+  <div class="col-12 col-xl-8">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem">
+          <i class="bi bi-folder-fill me-1"></i>SMB 공유 목록
+          <span class="badge bg-secondary ms-1">{{len .SMB.Shares}}</span>
+        </span>
+      </div>
+      {{if not .SMB.Shares}}
+      <div class="p-4 text-center text-muted">
+        <i class="bi bi-folder2-open" style="font-size:2rem;opacity:.3"></i>
+        <p class="mt-2 mb-0">등록된 공유가 없습니다.</p>
+      </div>
+      {{else}}
+      <table class="table mb-0" style="font-size:.875rem">
+        <thead><tr><th>공유 이름</th><th>경로</th><th>허용 사용자</th><th>옵션</th><th class="text-end">작업</th></tr></thead>
+        <tbody>
+          {{range .SMB.Shares}}
+          <tr>
+            <td class="fw-semibold">
+              <i class="bi bi-folder me-1 text-warning"></i>{{.Name}}
+              {{if .Comment}}<div class="text-muted" style="font-size:.78rem">{{.Comment}}</div>{{end}}
+            </td>
+            <td class="mono" style="font-size:.82rem">{{.Path}}</td>
+            <td style="font-size:.82rem">{{if .ValidUsers}}{{.ValidUsers}}{{else}}<span class="text-muted">제한 없음</span>{{end}}</td>
+            <td style="font-size:.78rem">
+              {{if .ReadOnly}}<span class="badge bg-secondary me-1">읽기전용</span>{{end}}
+              {{if .GuestOK}}<span class="badge bg-warning text-dark">게스트</span>{{end}}
+              {{if and (not .ReadOnly) (not .GuestOK)}}<span class="badge bg-primary bg-opacity-75">읽기/쓰기</span>{{end}}
+            </td>
+            <td class="text-end">
+              <form method="post" action="/shares/{{.Name}}/delete"
+                    onsubmit="return confirm('공유 \'{{.Name}}\' 을(를) 삭제하시겠습니까?')">
+                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+      {{end}}
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-4">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-plus-circle me-1"></i>공유 추가</span>
+      </div>
+      <div class="p-3">
+        <form method="post" action="/shares">
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">공유 이름</label>
+            <input type="text" name="name" class="form-control form-control-sm"
+                   placeholder="media" pattern="[A-Za-z0-9][A-Za-z0-9_\-]{0,79}" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">경로</label>
+            <input type="text" name="path" class="form-control form-control-sm" placeholder="/zdata/media" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">설명</label>
+            <input type="text" name="comment" class="form-control form-control-sm" placeholder="Media files">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">허용 사용자</label>
+            <input type="text" name="valid_users" class="form-control form-control-sm"
+                   placeholder="user1 user2 @group (빈칸=모두)">
+          </div>
+          <div class="mb-3">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" name="read_only" value="1" id="chkRO">
+              <label class="form-check-label small" for="chkRO">읽기 전용</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" name="no_browse" value="1" id="chkNB">
+              <label class="form-check-label small" for="chkNB">숨기기</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" name="guest_ok" value="1" id="chkGuest">
+              <label class="form-check-label small" for="chkGuest">게스트 허용</label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm w-100">
+            <i class="bi bi-plus-lg me-1"></i>공유 추가
+          </button>
+        </form>
+        <hr class="my-3">
+        <div class="text-muted" style="font-size:.78rem">
+          설정 파일: <code>/usr/local/etc/smb4.conf.d/&lt;name&gt;.conf</code><br>
+          추가 후 Reload 버튼으로 Samba에 반영하세요.<br>
+          Samba 사용자 등록: <a href="/localusers" class="text-muted">로컬 사용자 관리</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{else}}
+{{/* ════════════════════════════════ NFS 탭 ════════════════════════════════ */}}
+
+<div class="d-flex align-items-center gap-2 mb-3">
+  {{if eq .AgentMode "host-socket"}}
+    {{if .NFS.Running}}
+      <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>nfsd 실행 중</span>
+    {{else}}
+      <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>nfsd 중지됨</span>
+    {{end}}
+  {{else}}
+    <span class="badge bg-secondary">local exec</span>
+  {{end}}
+  <form method="post" action="/nfs/reload" class="d-inline">
+    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-repeat me-1"></i>mountd Reload</button>
+  </form>
+</div>
+
+{{if not .NFS.Running}}
+<div class="alert alert-warning py-2 mb-3" style="font-size:.85rem">
+  <i class="bi bi-info-circle me-1"></i>
+  NFS 서버가 실행되지 않습니다. <code>/etc/rc.conf</code>에서 활성화하세요:
+  <pre class="mb-0 mt-1 p-2 rounded" style="background:#1e2a3a;color:#b3e5fc;font-size:.76rem">nfs_server_enable="YES"
+mountd_enable="YES"
+rpcbind_enable="YES"</pre>
+</div>
+{{end}}
+
+<div class="row g-3">
+  <div class="col-12 col-xl-8">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem">
+          <i class="bi bi-hdd-network me-1"></i>NFS Export 목록
+          <span class="badge bg-secondary ms-1">{{len .NFS.Exports}}</span>
+        </span>
+      </div>
+      {{if not .NFS.Exports}}
+      <div class="p-4 text-center text-muted">
+        <i class="bi bi-hdd-network" style="font-size:2rem;opacity:.3"></i>
+        <p class="mt-2 mb-0">등록된 NFS export가 없습니다.</p>
+      </div>
+      {{else}}
+      <table class="table mb-0" style="font-size:.875rem">
+        <thead><tr><th>이름</th><th>경로</th><th>export 줄</th><th class="text-end">작업</th></tr></thead>
+        <tbody>
+          {{range .NFS.Exports}}
+          <tr>
+            <td class="fw-semibold mono">{{.Name}}</td>
+            <td class="mono" style="font-size:.82rem">{{.Path}}</td>
+            <td class="mono text-muted" style="font-size:.76rem;word-break:break-all">{{.Line}}</td>
+            <td class="text-end">
+              <form method="post" action="/nfs/export/{{.Name}}/delete"
+                    onsubmit="return confirm('NFS export \'{{.Name}}\' 를 삭제하시겠습니까?')">
+                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+      {{end}}
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-4">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-plus-circle me-1"></i>Export 추가</span>
+      </div>
+      <div class="p-3">
+        <form method="post" action="/nfs/export">
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">이름 (식별자)</label>
+            <input type="text" name="name" class="form-control form-control-sm"
+                   placeholder="media" pattern="[A-Za-z0-9][A-Za-z0-9_\-]{0,63}" required>
+            <div class="form-text" style="font-size:.73rem">/etc/exports.d/&lt;name&gt;.exports 파일명</div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">경로</label>
+            <input type="text" name="path" class="form-control form-control-sm" placeholder="/zdata/media" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">클라이언트</label>
+            <input type="text" name="clients" class="form-control form-control-sm"
+                   placeholder="192.168.10.0/24 또는 특정 IP">
+            <div class="form-text" style="font-size:.73rem">공백 구분. 비워두면 모든 호스트 허용</div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">maproot</label>
+            <select name="maproot" class="form-select form-select-sm">
+              <option value="nobody">-maproot=nobody (권장)</option>
+              <option value="root">-maproot=root (신뢰 클라이언트)</option>
+              <option value="">없음</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="read_only" value="1" id="nfsRO">
+              <label class="form-check-label small" for="nfsRO">읽기 전용 (-ro)</label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm w-100">
+            <i class="bi bi-plus-lg me-1"></i>Export 추가
+          </button>
+        </form>
+        <hr class="my-3">
+        <div class="text-muted" style="font-size:.78rem">
+          <strong>설정 파일:</strong> <code>/etc/exports.d/&lt;name&gt;.exports</code><br>
+          추가 후 <strong>mountd Reload</strong>로 반영하세요.<br><br>
+          <strong>예시 export 줄:</strong>
+          <pre class="mt-1 p-2 rounded mb-0" style="background:#1e2a3a;color:#b3e5fc;font-size:.73rem">/zdata/media -ro -maproot=nobody 192.168.10.0/24</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{end}}
+
+{{if eq .Tab "users"}}
+{{/* ════════════════════════════════ 로컬 사용자 탭 ════════════════════════════════ */}}
+
+{{if .LocalError}}
+<div class="alert alert-warning py-2"><i class="bi bi-exclamation-triangle me-1"></i>{{.LocalError}}</div>
+{{end}}
+
+<div class="row g-3">
+  <div class="col-12 col-xl-8">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-person-fill me-1"></i>로컬 사용자 <span class="badge bg-secondary ms-1">{{len .LocalUsers.Users}}</span></span>
+      </div>
+      {{if not .LocalUsers.Users}}
+      <div class="p-4 text-center text-muted"><i class="bi bi-person" style="font-size:2rem;opacity:.3"></i><p class="mt-2 mb-0">uid ≥ 1000 사용자 없음</p></div>
+      {{else}}
+      <table class="table mb-0" style="font-size:.875rem">
+        <thead><tr><th>사용자명</th><th>UID</th><th>이름</th><th>그룹</th><th>SMB</th><th>셸</th><th class="text-end">작업</th></tr></thead>
+        <tbody>
+          {{range .LocalUsers.Users}}
+          <tr>
+            <td class="fw-semibold mono">{{.Username}}</td>
+            <td class="mono text-muted" style="font-size:.8rem">{{.UID}}</td>
+            <td style="font-size:.85rem">{{if .FullName}}{{.FullName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
+            <td style="font-size:.78rem">{{range .Groups}}<span class="badge bg-light text-dark border me-1">{{.}}</span>{{end}}</td>
+            <td>
+              {{if .HasSMB}}<span class="badge badge-running"><i class="bi bi-check"></i></span>
+              {{else}}<span class="badge bg-secondary">—</span>{{end}}
+            </td>
+            <td class="mono text-muted" style="font-size:.75rem">{{.Shell}}</td>
+            <td class="text-end">
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-primary" onclick="showSMBPasswd('{{.Username}}')"><i class="bi bi-key"></i></button>
+                <form method="post" action="/localusers/{{.Username}}/delete"
+                      onsubmit="return confirm('사용자 {{.Username}} 삭제?')">
+                  <button class="btn btn-outline-danger"><i class="bi bi-trash"></i></button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+      {{end}}
+    </div>
+
+    <div class="card-table mt-3">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-people-fill me-1"></i>그룹 <span class="badge bg-secondary ms-1">{{len .LocalUsers.Groups}}</span></span>
+        <form method="post" action="/localgroups" class="d-flex gap-1">
+          <input type="text" name="name" class="form-control form-control-sm" placeholder="그룹명" style="width:120px" pattern="[a-zA-Z_][a-zA-Z0-9_\-]{0,30}" required>
+          <button class="btn btn-sm btn-outline-primary text-nowrap"><i class="bi bi-plus-lg"></i> 그룹 추가</button>
+        </form>
+      </div>
+      {{if not .LocalUsers.Groups}}
+      <div class="p-3 text-center text-muted" style="font-size:.85rem">그룹 없음</div>
+      {{else}}
+      <table class="table mb-0" style="font-size:.875rem">
+        <thead><tr><th>그룹명</th><th>GID</th><th>멤버</th><th class="text-end">작업</th></tr></thead>
+        <tbody>
+          {{range .LocalUsers.Groups}}
+          <tr>
+            <td class="fw-semibold mono">{{.Name}}</td>
+            <td class="mono text-muted" style="font-size:.8rem">{{.GID}}</td>
+            <td style="font-size:.78rem">
+              {{range .Members}}<span class="badge bg-light text-dark border me-1">{{.}}</span>{{end}}
+              <button class="btn btn-link btn-sm p-0 ms-1" style="font-size:.75rem"
+                      onclick="showGroupMember('{{.Name}}','add')"><i class="bi bi-person-plus"></i></button>
+            </td>
+            <td class="text-end">
+              <form method="post" action="/localgroups/{{.Name}}/delete" onsubmit="return confirm('그룹 {{.Name}} 삭제?')">
+                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+      {{end}}
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-4">
+    <div class="card-table">
+      <div class="ct-header"><span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-person-plus me-1"></i>사용자 추가</span></div>
+      <div class="p-3">
+        <form method="post" action="/localusers">
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">사용자명 <span class="text-danger">*</span></label>
+            <input type="text" name="username" class="form-control form-control-sm" placeholder="username" pattern="[a-zA-Z_][a-zA-Z0-9_\-]{0,30}" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">이름 (선택)</label>
+            <input type="text" name="fullname" class="form-control form-control-sm" placeholder="Full Name">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">셸</label>
+            <select name="shell" class="form-select form-select-sm">
+              <option value="/sbin/nologin" selected>/sbin/nologin (SMB 전용)</option>
+              <option value="/bin/sh">/bin/sh</option>
+              <option value="/usr/local/bin/bash">/usr/local/bin/bash</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">OS 비밀번호 (선택)</label>
+            <input type="password" name="password" class="form-control form-control-sm" autocomplete="new-password">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-muted mb-1">SMB 비밀번호 (선택)</label>
+            <input type="password" name="smb_password" class="form-control form-control-sm" autocomplete="new-password">
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-person-plus me-1"></i>사용자 생성</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="smbPasswdModal" tabindex="-1">
+  <div class="modal-dialog modal-sm"><div class="modal-content">
+    <div class="modal-header py-2"><h6 class="modal-title mb-0"><i class="bi bi-key me-1"></i>SMB 비밀번호</h6>
+      <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal"></button></div>
+    <form id="smbPasswdForm" method="post">
+      <div class="modal-body py-2">
+        <p class="small mb-2">사용자: <strong id="smbPasswdUser"></strong></p>
+        <input type="password" name="password" class="form-control form-control-sm" placeholder="새 SMB 비밀번호" required autocomplete="new-password">
+      </div>
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="submit" class="btn btn-sm btn-primary">적용</button>
+      </div>
+    </form>
+  </div></div>
+</div>
+
+<div class="modal fade" id="groupMemberModal" tabindex="-1">
+  <div class="modal-dialog modal-sm"><div class="modal-content">
+    <div class="modal-header py-2"><h6 class="modal-title mb-0"><i class="bi bi-people me-1"></i>그룹 멤버</h6>
+      <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal"></button></div>
+    <form id="groupMemberForm" method="post">
+      <div class="modal-body py-2">
+        <p class="small mb-2">그룹: <strong id="groupMemberName"></strong></p>
+        <input type="text" name="username" class="form-control form-control-sm" placeholder="사용자명" required>
+        <div class="d-flex gap-3 mt-2">
+          <div class="form-check"><input class="form-check-input" type="radio" name="action" value="add" id="actAdd" checked><label class="form-check-label small" for="actAdd">추가</label></div>
+          <div class="form-check"><input class="form-check-input" type="radio" name="action" value="remove" id="actRemove"><label class="form-check-label small" for="actRemove">제거</label></div>
+        </div>
+      </div>
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="submit" class="btn btn-sm btn-primary">적용</button>
+      </div>
+    </form>
+  </div></div>
+</div>
+
+<script>
+function showSMBPasswd(u) {
+  document.getElementById('smbPasswdUser').textContent = u;
+  document.getElementById('smbPasswdForm').action = '/localusers/' + u + '/smbpasswd';
+  new bootstrap.Modal(document.getElementById('smbPasswdModal')).show();
+}
+function showGroupMember(g, action) {
+  document.getElementById('groupMemberName').textContent = g;
+  document.getElementById('groupMemberForm').action = '/localgroups/' + g + '/member';
+  document.getElementById(action === 'add' ? 'actAdd' : 'actRemove').checked = true;
+  new bootstrap.Modal(document.getElementById('groupMemberModal')).show();
+}
+</script>
+
+{{end}}
+{{end}}

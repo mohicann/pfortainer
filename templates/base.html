@@ -27,11 +27,19 @@
       border-bottom: 1px solid rgba(255,255,255,0.07);
     }
     .sidebar-logo a { color: #fff; font-size: 1.05rem; font-weight: 700; text-decoration: none; }
-    .sidebar-section {
-      padding: 1rem 1rem 0.35rem;
-      font-size: 0.67rem; text-transform: uppercase;
-      color: rgba(255,255,255,0.28); letter-spacing: 0.09em;
+    .sidebar-section-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: .7rem 1rem .25rem;
+      background: none; border: none; cursor: pointer;
+      font-size: .67rem; text-transform: uppercase;
+      color: rgba(255,255,255,.28); letter-spacing: .09em;
+      transition: color .15s;
     }
+    .sidebar-section-btn:hover { color: rgba(255,255,255,.5); }
+    .sidebar-section-btn .chv {
+      font-size: .65rem; transition: transform .2s;
+    }
+    .sidebar-section-btn.collapsed .chv { transform: rotate(-90deg); }
     .sidebar .nav-link {
       color: var(--nav-text); padding: 0.5rem 0.85rem;
       font-size: 0.86rem; display: flex; align-items: center; gap: 0.55rem;
@@ -39,9 +47,15 @@
     }
     .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,0.07); }
     .sidebar .nav-link.active { color: #fff; background: var(--nav-active); }
+    .sidebar > .nav-collapse { overflow: hidden; }
     .sidebar-footer {
       margin-top: auto; padding: 0.75rem 1rem;
       border-top: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+    .sidebar-nav-scroll {
+      flex: 1; overflow-y: auto; scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.1) transparent;
     }
     .main { margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-height: 100vh; }
     .topbar {
@@ -92,37 +106,88 @@
   </style>
 </head>
 <body>
+{{/* 현재 섹션 판별 */}}
+{{$inApp    := or (eq .ActivePage "dashboard") (or (eq .ActivePage "containers") (or (eq .ActivePage "images") (eq .ActivePage "catalog")))}}
+{{$inSystem := or (eq .ActivePage "system") (or (eq .ActivePage "storage") (or (eq .ActivePage "filesystem") (or (eq .ActivePage "snapshots") (or (eq .ActivePage "replication") (or (eq .ActivePage "filemanager") (or (eq .ActivePage "network") (or (eq .ActivePage "diagnostics") (eq .ActivePage "metrics"))))))))}}
+
+{{$inShares := eq .ActivePage "shares"}}
+{{$inAdmin  := or (eq .ActivePage "alerts") (eq .ActivePage "admin-users")}}
+
   <nav class="sidebar">
     <div class="sidebar-logo">
       <a href="/"><i class="bi bi-grid-3x3-gap-fill me-2" style="color:#4d9eff"></i>pfortainer</a>
     </div>
-    <div class="sidebar-section">pfortainer</div>
-    <ul class="nav flex-column mb-0 px-0">
-      <li><a href="/"           class="nav-link {{if eq .ActivePage "dashboard" }}active{{end}}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-      <li><a href="/containers" class="nav-link {{if eq .ActivePage "containers"}}active{{end}}"><i class="bi bi-boxes"></i> Containers</a></li>
-      <li><a href="/images"     class="nav-link {{if eq .ActivePage "images"    }}active{{end}}"><i class="bi bi-layers"></i> Images</a></li>
-    </ul>
-    <div class="sidebar-section">시스템</div>
-    <ul class="nav flex-column mb-0 px-0">
-      <li><a href="/system"      class="nav-link {{if eq .ActivePage "system"     }}active{{end}}"><i class="bi bi-pc-display"></i> 시스템 정보</a></li>
-      <li><a href="/storage"    class="nav-link {{if eq .ActivePage "storage"   }}active{{end}}"><i class="bi bi-hdd-network"></i> 스토리지 상태</a></li>
-      <li><a href="/filesystem" class="nav-link {{if eq .ActivePage "filesystem"}}active{{end}}"><i class="bi bi-hdd-stack"></i> 파일시스템</a></li>
-      <li><a href="/snapshots"  class="nav-link {{if eq .ActivePage "snapshots" }}active{{end}}"><i class="bi bi-camera"></i> 스냅샷</a></li>
-      <li><a href="/schedules"  class="nav-link {{if eq .ActivePage "schedules" }}active{{end}}"><i class="bi bi-clock-history"></i> 스케줄러</a></li>
-      <li><a href="/files"      class="nav-link {{if eq .ActivePage "filemanager"}}active{{end}}"><i class="bi bi-folder2-open"></i> 파일매니저</a></li>
-      <li><a href="/services"  class="nav-link {{if eq .ActivePage "services"   }}active{{end}}"><i class="bi bi-diagram-3"></i> 서비스</a></li>
-      <li><a href="/metrics"  class="nav-link {{if eq .ActivePage "metrics"    }}active{{end}}"><i class="bi bi-activity"></i> 메트릭</a></li>
-    </ul>
-    <div class="sidebar-section">관리자</div>
-    <ul class="nav flex-column mb-0 px-0">
-      <li><a href="/admin/users" class="nav-link {{if eq .ActivePage "admin-users"}}active{{end}}"><i class="bi bi-people"></i> 사용자 관리</a></li>
-    </ul>
+
+    <div class="sidebar-nav-scroll">
+
+      {{/* ── 앱 ── */}}
+      <button class="sidebar-section-btn {{if not $inApp}}collapsed{{end}}"
+              data-bs-toggle="collapse" data-bs-target="#nav-app"
+              aria-expanded="{{if $inApp}}true{{else}}false{{end}}">
+        <span>앱</span><i class="bi bi-chevron-down chv"></i>
+      </button>
+      <div class="collapse {{if $inApp}}show{{end}}" id="nav-app">
+        <ul class="nav flex-column mb-0 px-0 pb-1">
+          <li><a href="/"           class="nav-link {{if eq .ActivePage "dashboard" }}active{{end}}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+          <li><a href="/containers" class="nav-link {{if eq .ActivePage "containers"}}active{{end}}"><i class="bi bi-boxes"></i> Containers</a></li>
+          <li><a href="/images"     class="nav-link {{if eq .ActivePage "images"    }}active{{end}}"><i class="bi bi-layers"></i> Images</a></li>
+          <li><a href="/catalog"    class="nav-link {{if eq .ActivePage "catalog"   }}active{{end}}"><i class="bi bi-grid-1x2"></i> 앱 카탈로그</a></li>
+        </ul>
+      </div>
+
+      {{/* ── 시스템 ── */}}
+      <button class="sidebar-section-btn {{if not $inSystem}}collapsed{{end}}"
+              data-bs-toggle="collapse" data-bs-target="#nav-system"
+              aria-expanded="{{if $inSystem}}true{{else}}false{{end}}">
+        <span>시스템</span><i class="bi bi-chevron-down chv"></i>
+      </button>
+      <div class="collapse {{if $inSystem}}show{{end}}" id="nav-system">
+        <ul class="nav flex-column mb-0 px-0 pb-1">
+          <li><a href="/system"       class="nav-link {{if eq .ActivePage "system"     }}active{{end}}"><i class="bi bi-pc-display"></i> 시스템</a></li>
+          <li><a href="/metrics"      class="nav-link {{if eq .ActivePage "metrics"    }}active{{end}}"><i class="bi bi-activity"></i> 주요 메트릭</a></li>
+          <li><a href="/storage"      class="nav-link {{if eq .ActivePage "storage"    }}active{{end}}"><i class="bi bi-hdd-network"></i> 스토리지</a></li>
+          <li><a href="/filesystem"   class="nav-link {{if eq .ActivePage "filesystem" }}active{{end}}"><i class="bi bi-diagram-3"></i> ZFS 데이터셋</a></li>
+          <li><a href="/snapshots"    class="nav-link {{if eq .ActivePage "snapshots"  }}active{{end}}"><i class="bi bi-camera"></i> 스케줄 / 스냅샷</a></li>
+          <li><a href="/replications" class="nav-link {{if eq .ActivePage "replication"}}active{{end}}"><i class="bi bi-arrow-repeat"></i> 복제</a></li>
+          <li><a href="/files"        class="nav-link {{if eq .ActivePage "filemanager"}}active{{end}}"><i class="bi bi-folder2-open"></i> 파일매니저</a></li>
+          <li><a href="/network"      class="nav-link {{if eq .ActivePage "network"    }}active{{end}}"><i class="bi bi-ethernet"></i> 네트워크</a></li>
+          <li><a href="/diagnostics"  class="nav-link {{if eq .ActivePage "diagnostics"}}active{{end}}"><i class="bi bi-terminal"></i> 진단/로그</a></li>
+        </ul>
+      </div>
+
+      {{/* ── 공유 ── */}}
+      <button class="sidebar-section-btn {{if not $inShares}}collapsed{{end}}"
+              data-bs-toggle="collapse" data-bs-target="#nav-shares"
+              aria-expanded="{{if $inShares}}true{{else}}false{{end}}">
+        <span>공유</span><i class="bi bi-chevron-down chv"></i>
+      </button>
+      <div class="collapse {{if $inShares}}show{{end}}" id="nav-shares">
+        <ul class="nav flex-column mb-0 px-0 pb-1">
+          <li><a href="/shares" class="nav-link {{if eq .ActivePage "shares"}}active{{end}}"><i class="bi bi-folder-fill"></i> 공유 관리</a></li>
+        </ul>
+      </div>
+
+      {{/* ── 관리자 ── */}}
+      <button class="sidebar-section-btn {{if not $inAdmin}}collapsed{{end}}"
+              data-bs-toggle="collapse" data-bs-target="#nav-admin"
+              aria-expanded="{{if $inAdmin}}true{{else}}false{{end}}">
+        <span>관리자</span><i class="bi bi-chevron-down chv"></i>
+      </button>
+      <div class="collapse {{if $inAdmin}}show{{end}}" id="nav-admin">
+        <ul class="nav flex-column mb-0 px-0 pb-1">
+          <li><a href="/alerts"      class="nav-link {{if eq .ActivePage "alerts"     }}active{{end}}"><i class="bi bi-bell"></i> 알림 설정</a></li>
+          <li><a href="/admin/users" class="nav-link {{if eq .ActivePage "admin-users"}}active{{end}}"><i class="bi bi-people"></i> 사용자 관리</a></li>
+        </ul>
+      </div>
+
+    </div>{{/* end sidebar-nav-scroll */}}
+
     <div class="sidebar-footer">
       {{if .CurrentUser.Username}}
-      <div style="font-size:.75rem;color:rgba(255,255,255,.45);margin-bottom:.4rem;padding:0 .85rem">
-        <i class="bi bi-person-circle me-1"></i>{{.CurrentUser.Username}}
-        <span class="badge bg-secondary ms-1" style="font-size:.65rem">{{.CurrentUser.Role}}</span>
-      </div>
+      <a href="/profile" style="display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:rgba(255,255,255,.55);text-decoration:none;margin-bottom:.3rem;padding:0 .85rem" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.55)'">
+        <i class="bi bi-person-circle"></i>{{.CurrentUser.Username}}
+        <span class="badge bg-secondary ms-auto" style="font-size:.65rem">{{.CurrentUser.Role}}</span>
+      </a>
       {{end}}
       <a href="/logout" class="nav-link text-muted px-0" style="margin:0">
         <i class="bi bi-box-arrow-right"></i><span style="font-size:.8rem">로그아웃</span>
@@ -143,6 +208,33 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+  // 사이드바 섹션 접기 상태 localStorage 저장/복원
+  document.addEventListener('DOMContentLoaded', function() {
+    var sections = ['nav-app', 'nav-system', 'nav-shares', 'nav-admin'];
+    sections.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      // active 링크가 있으면 항상 펼침 (localStorage 무시)
+      var hasActive = el.querySelector('.nav-link.active');
+      if (!hasActive) {
+        var stored = localStorage.getItem('pf-' + id);
+        if (stored === 'closed') {
+          el.classList.remove('show');
+          var btn = el.previousElementSibling;
+          while (btn && btn.tagName !== 'BUTTON') btn = btn.previousElementSibling;
+          if (btn) btn.classList.add('collapsed');
+        }
+      }
+      el.addEventListener('hide.bs.collapse', function() {
+        localStorage.setItem('pf-' + id, 'closed');
+      });
+      el.addEventListener('show.bs.collapse', function() {
+        localStorage.setItem('pf-' + id, 'open');
+      });
+    });
+  });
+  </script>
 </body>
 </html>
 {{end}}

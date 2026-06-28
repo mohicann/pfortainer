@@ -12,6 +12,91 @@
 
 <div class="row g-3">
 
+  {{/* ── 자동 스케줄 ── */}}
+  <div class="col-12">
+  <div class="card-table">
+    <div class="ct-header">
+      <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-clock-history me-1"></i>자동 스케줄</span>
+      <span class="badge bg-secondary">{{len .Schedules}}</span>
+    </div>
+    {{if not .Schedules}}
+    <div class="p-3 text-center text-muted" style="font-size:.85rem">등록된 스케줄이 없습니다.</div>
+    {{else}}
+    <table class="table mb-0" style="font-size:.82rem">
+      <thead><tr><th>유형</th><th>대상</th><th>주기</th><th>보존</th><th>다음 실행</th><th>마지막 실행</th><th class="text-end">작업</th></tr></thead>
+      <tbody>
+        {{range .Schedules}}
+        <tr class="{{if not .Enabled}}text-muted{{end}}">
+          <td>
+            {{if eq .Type "snapshot"}}<span class="badge bg-primary bg-opacity-75">스냅샷</span>
+            {{else if eq .Type "scrub"}}<span class="badge bg-warning text-dark">스크럽</span>
+            {{else if eq .Type "smart_test"}}<span class="badge bg-info text-dark">SMART</span>
+            {{else}}<span class="badge bg-secondary">{{.Type}}</span>{{end}}
+          </td>
+          <td class="mono" style="font-size:.8rem">{{.Target}}</td>
+          <td>{{if eq .Frequency "hourly"}}매시간{{else if eq .Frequency "daily"}}매일{{else if eq .Frequency "weekly"}}매주{{else if eq .Frequency "monthly"}}매월{{else}}{{.Frequency}}{{end}}</td>
+          <td>{{if .Retention}}{{.Retention}}개{{else}}무제한{{end}}</td>
+          <td class="mono" style="font-size:.78rem">{{if .NextRun}}{{.NextRun.Format "01-02 15:04"}}{{else}}—{{end}}</td>
+          <td class="mono" style="font-size:.78rem">{{if .LastRun}}{{.LastRun.Format "01-02 15:04"}}{{else}}—{{end}}</td>
+          <td class="text-end">
+            <div class="btn-group btn-group-sm">
+              <form method="POST" action="/schedules/{{.ID}}/run" class="d-inline">
+                <button class="btn btn-outline-secondary" title="즉시 실행"><i class="bi bi-play-fill"></i></button>
+              </form>
+              <form method="POST" action="/schedules/{{.ID}}/toggle" class="d-inline">
+                <button class="btn btn-outline-secondary" title="{{if .Enabled}}비활성화{{else}}활성화{{end}}">
+                  <i class="bi {{if .Enabled}}bi-pause-fill{{else}}bi-play{{end}}"></i>
+                </button>
+              </form>
+              <form method="POST" action="/schedules/{{.ID}}/delete" class="d-inline"
+                    onsubmit="return confirm('스케줄을 삭제하시겠습니까?')">
+                <button class="btn btn-outline-danger"><i class="bi bi-trash3"></i></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    {{end}}
+    {{/* 스케줄 추가 폼 */}}
+    <div class="p-3 border-top">
+      <form method="POST" action="/schedules" class="row g-2 align-items-end">
+        <div class="col-auto">
+          <label class="form-label small text-muted mb-1">유형</label>
+          <select name="type" id="schedType" class="form-select form-select-sm" onchange="updateSchedTarget()">
+            <option value="snapshot">스냅샷</option>
+            <option value="scrub">스크럽</option>
+            <option value="smart_test">SMART</option>
+          </select>
+        </div>
+        <div class="col-auto" style="min-width:200px">
+          <label class="form-label small text-muted mb-1">대상</label>
+          <select name="target" id="schedTarget" class="form-select form-select-sm">
+            {{range .Datasets}}<option value="{{.}}">{{.}}</option>{{end}}
+          </select>
+        </div>
+        <div class="col-auto">
+          <label class="form-label small text-muted mb-1">주기</label>
+          <select name="frequency" class="form-select form-select-sm">
+            <option value="hourly">매시간</option>
+            <option value="daily" selected>매일</option>
+            <option value="weekly">매주</option>
+            <option value="monthly">매월</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <label class="form-label small text-muted mb-1">보존(개)</label>
+          <input name="retention" type="number" class="form-control form-control-sm" value="7" min="1" style="width:70px">
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-plus me-1"></i>추가</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  </div>
+
   {{/* ── 스냅샷 생성 ── */}}
   <div class="col-12">
     <div class="card-table">
@@ -57,12 +142,13 @@
       </div>
     </div>
   {{else}}
-  {{range .Groups}}
+  {{range $gi, $g := .Groups}}
+  {{$total := len $g.Snapshots}}
   <div class="card-table mb-3">
     <div class="ct-header">
       <span class="fw-semibold mono" style="font-size:.88rem">
-        <i class="bi bi-hdd-stack me-1 text-muted"></i>{{.Dataset}}
-        <span class="badge bg-secondary ms-1">{{len .Snapshots}}</span>
+        <i class="bi bi-hdd-stack me-1 text-muted"></i>{{$g.Dataset}}
+        <span class="badge bg-secondary ms-1">{{$total}}</span>
       </span>
     </div>
     <table class="table mb-0" style="font-size:.875rem">
@@ -76,26 +162,26 @@
         </tr>
       </thead>
       <tbody>
-        {{range .Snapshots}}
-        <tr>
-          <td class="mono fw-semibold" style="color:#1a73e8">@{{.SnapName}}</td>
-          <td class="text-muted" style="font-size:.82rem">{{.Creation.Format "2006-01-02 15:04:05"}}</td>
-          <td>{{.Used}}</td>
-          <td>{{.Refer}}</td>
+        {{range $i, $s := $g.Snapshots}}
+        <tr {{if ge $i 5}}class="snap-extra snap-group-{{$gi}}" style="display:none"{{end}}>
+          <td class="mono fw-semibold" style="color:#1a73e8">@{{$s.SnapName}}</td>
+          <td class="text-muted" style="font-size:.82rem">{{$s.Creation.Format "2006-01-02 15:04:05"}}</td>
+          <td>{{$s.Used}}</td>
+          <td>{{$s.Refer}}</td>
           <td class="text-end">
             <div class="btn-group btn-group-sm">
               <button class="btn btn-outline-secondary"
-                      onclick="doRollback('{{.Name}}')"
+                      onclick="doRollback('{{$s.Name}}')"
                       title="이 시점으로 롤백">
                 <i class="bi bi-arrow-counterclockwise"></i>
               </button>
               <button class="btn btn-outline-primary"
-                      onclick="openClone('{{.Name}}')"
+                      onclick="openClone('{{$s.Name}}')"
                       title="클론 생성">
                 <i class="bi bi-copy"></i>
               </button>
               <button class="btn btn-outline-danger"
-                      onclick="doDelete('{{.Name}}')"
+                      onclick="doDelete('{{$s.Name}}')"
                       title="삭제">
                 <i class="bi bi-trash3"></i>
               </button>
@@ -105,6 +191,15 @@
         {{end}}
       </tbody>
     </table>
+    {{if gt $total 5}}
+    <div class="px-3 py-2 border-top text-center">
+      <button class="btn btn-sm btn-link text-muted snap-more-btn"
+              data-group="{{$gi}}" data-total="{{$total}}"
+              onclick="showMoreSnaps(this)">
+        <i class="bi bi-chevron-down me-1"></i>더 보기 ({{sub $total 5}}개 더)
+      </button>
+    </div>
+    {{end}}
   </div>
   {{end}}
   {{end}}
@@ -168,7 +263,29 @@
   </div>
 </div>
 
+
 <script>
+var schedPoolTargets = [{{range .SchedPools}}"{{.Name}}",{{end}}];
+var schedDiskTargets = [{{range .SchedDisks}}"{{.}}",{{end}}];
+var schedDsTargets   = [{{range .Datasets}}"{{.}}",{{end}}];
+
+function updateSchedTarget() {
+  var t = document.getElementById('schedType').value;
+  var sel = document.getElementById('schedTarget');
+  var opts = t === 'scrub' ? schedPoolTargets : t === 'smart_test' ? schedDiskTargets : schedDsTargets;
+  sel.innerHTML = opts.map(function(v){ return '<option value="'+v+'">'+v+'</option>'; }).join('');
+}
+</script>
+
+<script>
+function showMoreSnaps(btn) {
+  var gi = btn.dataset.group;
+  document.querySelectorAll('.snap-group-' + gi).forEach(function(tr) {
+    tr.style.display = '';
+  });
+  btn.closest('.border-top').style.display = 'none';
+}
+
 var rollbackModal, cloneModal;
 var pendingRollback = '';
 var pendingCloneSrc = '';

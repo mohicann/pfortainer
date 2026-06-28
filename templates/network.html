@@ -1,0 +1,98 @@
+{{template "base" .}}
+{{define "title"}}네트워크 — pfortainer{{end}}
+{{define "pagetitle"}}네트워크{{end}}
+{{define "content"}}
+
+{{if .Error}}
+<div class="alert alert-danger py-2 mb-3"><i class="bi bi-exclamation-triangle me-1"></i>{{.Error}}</div>
+{{end}}
+
+{{/* ── 인터페이스 카드 ── */}}
+<div class="row g-2 mb-3">
+  {{range .Interfaces}}
+  <div class="col-12 col-md-6 col-xl-4">
+    <div class="card h-100" style="border:1px solid rgba(0,0,0,.09);border-radius:8px;background:#fff">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <i class="bi bi-ethernet" style="font-size:1.1rem;color:#4d9eff"></i>
+          <span class="fw-semibold mono" style="font-size:.95rem">{{.Name}}</span>
+          {{if .Up}}
+            {{if eq .Status "active"}}
+              <span class="badge bg-success ms-auto" style="font-size:.68rem">active</span>
+            {{else}}
+              <span class="badge bg-warning text-dark ms-auto" style="font-size:.68rem">UP</span>
+            {{end}}
+          {{else}}
+            <span class="badge bg-secondary ms-auto" style="font-size:.68rem">DOWN</span>
+          {{end}}
+        </div>
+
+        {{if .MAC}}
+        <div class="mb-1" style="font-size:.8rem">
+          <span class="text-muted">MAC</span>
+          <span class="mono ms-2">{{.MAC}}</span>
+        </div>
+        {{end}}
+
+        {{range .Inet}}
+        <div class="mb-1" style="font-size:.82rem">
+          <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 mono">{{.}}</span>
+        </div>
+        {{end}}
+
+        {{range .Inet6}}
+        {{if not (contains . "fe80::")}}
+        <div class="mb-1" style="font-size:.78rem">
+          <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 mono" style="font-size:.72rem">{{.}}</span>
+        </div>
+        {{end}}
+        {{end}}
+
+        {{if .Media}}
+        <div class="mt-2 text-muted" style="font-size:.73rem">{{.Media}}</div>
+        {{end}}
+
+        {{if .MTU}}
+        <div class="text-muted" style="font-size:.73rem">MTU {{.MTU}}</div>
+        {{end}}
+      </div>
+    </div>
+  </div>
+  {{else}}
+  <div class="col-12">
+    <div class="alert alert-secondary py-2">인터페이스 정보를 가져올 수 없습니다.</div>
+  </div>
+  {{end}}
+</div>
+
+{{/* ── 라우팅 테이블 + DNS ── */}}
+<div class="row g-3">
+  <div class="col-12 col-xl-8">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-diagram-2 me-1"></i>라우팅 테이블</span>
+      </div>
+      <pre style="margin:0;padding:1rem;font-size:.75rem;background:#0d1117;color:#c9d1d9;border-radius:0 0 8px 8px;overflow-x:auto;white-space:pre">{{.Routes}}</pre>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-4">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-globe me-1"></i>DNS 서버</span>
+      </div>
+      <div class="p-3">
+        {{if .DNS}}
+          {{range .DNS}}
+          <div class="mono mb-1" style="font-size:.85rem">{{.}}</div>
+          {{end}}
+        {{else}}
+          <span class="text-muted" style="font-size:.85rem">/etc/resolv.conf 없음</span>
+        {{end}}
+        <div class="text-muted mt-2" style="font-size:.73rem">/etc/resolv.conf</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{end}}

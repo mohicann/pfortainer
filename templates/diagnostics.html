@@ -1,0 +1,195 @@
+{{template "base" .}}
+{{define "title"}}진단/로그 — pfortainer{{end}}
+{{define "pagetitle"}}진단 / 로그{{end}}
+{{define "content"}}
+
+<div class="row g-3" style="min-height:70vh">
+
+  {{/* ── 소스 패널 ── */}}
+  <div class="col-12 col-md-3 col-xl-2">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.82rem"><i class="bi bi-list-ul me-1"></i>소스</span>
+      </div>
+      <div class="p-2">
+
+        <div class="text-muted mb-1" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;padding:0 .25rem">Jail 로그</div>
+        <div class="d-grid gap-1 mb-2">
+          <button class="btn btn-sm btn-outline-secondary text-start src-btn"
+                  data-url="/api/diag/local-log?file=pfortainer" data-label="pfortainer.log">
+            <i class="bi bi-file-text me-1"></i>pfortainer.log
+          </button>
+        </div>
+
+        <div class="text-muted mb-1" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;padding:0 .25rem">호스트 로그</div>
+        <div class="d-grid gap-1 mb-2">
+          <button class="btn btn-sm btn-outline-secondary text-start src-btn"
+                  data-url="/api/diag/host-log?file=messages" data-label="/var/log/messages">
+            <i class="bi bi-file-text me-1"></i>messages
+          </button>
+          <button class="btn btn-sm btn-outline-secondary text-start src-btn"
+                  data-url="/api/diag/host-log?file=security" data-label="/var/log/security">
+            <i class="bi bi-shield me-1"></i>security
+          </button>
+          <button class="btn btn-sm btn-outline-secondary text-start src-btn"
+                  data-url="/api/diag/host-log?file=dmesg" data-label="/var/log/dmesg">
+            <i class="bi bi-cpu me-1"></i>dmesg
+          </button>
+        </div>
+
+        <div class="text-muted mb-1" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;padding:0 .25rem">서비스</div>
+        <div class="d-grid gap-1 mb-2">
+          <button class="btn btn-sm btn-outline-secondary text-start src-btn"
+                  data-url="/api/diag/cmd?cmd=sockstat" data-label="sockstat -l (서비스 포트)">
+            <i class="bi bi-diagram-3 me-1"></i>서비스 포트
+          </button>
+          <button class="btn btn-sm btn-outline-secondary text-start src-btn"
+                  data-url="/api/diag/cmd?cmd=ps" data-label="ps auxww (프로세스)">
+            <i class="bi bi-list-task me-1"></i>프로세스 목록
+          </button>
+        </div>
+
+        <div class="text-muted mb-1" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;padding:0 .25rem">진단 명령</div>
+        <div class="d-grid gap-1">
+          <button class="btn btn-sm btn-outline-secondary text-start src-btn"
+                  data-url="/api/diag/cmd?cmd=df" data-label="df -h">
+            <i class="bi bi-hdd me-1"></i>df -h
+          </button>
+          <button class="btn btn-sm btn-outline-secondary text-start src-btn"
+                  data-url="/api/diag/cmd?cmd=mount" data-label="mount">
+            <i class="bi bi-hdd-stack me-1"></i>mount
+          </button>
+          <button class="btn btn-sm btn-outline-secondary text-start src-btn"
+                  data-url="/api/diag/cmd?cmd=ifconfig" data-label="ifconfig">
+            <i class="bi bi-ethernet me-1"></i>ifconfig
+          </button>
+          <button class="btn btn-sm btn-outline-secondary text-start src-btn"
+                  data-url="/api/diag/cmd?cmd=netstat" data-label="netstat -rn">
+            <i class="bi bi-diagram-2 me-1"></i>netstat -rn
+          </button>
+          <button class="btn btn-sm btn-outline-secondary text-start src-btn"
+                  data-url="/api/diag/cmd?cmd=sockstat" data-label="sockstat -l">
+            <i class="bi bi-plug me-1"></i>sockstat -l
+          </button>
+          <button class="btn btn-sm btn-outline-secondary text-start src-btn"
+                  data-url="/api/diag/cmd?cmd=ps" data-label="ps auxww">
+            <i class="bi bi-list-task me-1"></i>ps auxww
+          </button>
+          <button class="btn btn-sm btn-outline-secondary text-start src-btn"
+                  data-url="/api/diag/cmd?cmd=dmesg" data-label="dmesg -T">
+            <i class="bi bi-broadcast me-1"></i>dmesg -T
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{/* ── 출력 패널 ── */}}
+  <div class="col-12 col-md-9 col-xl-10">
+    <div class="card-table h-100" style="display:flex;flex-direction:column">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.82rem">
+          <i class="bi bi-terminal me-1"></i><span id="outputLabel">소스를 선택하세요</span>
+        </span>
+        <div class="d-flex align-items-center gap-2">
+          <div class="form-check form-switch mb-0 d-none" id="autoRefreshWrapper">
+            <input class="form-check-input" type="checkbox" id="autoRefresh" role="switch">
+            <label class="form-check-label small text-muted" for="autoRefresh">자동 새로고침</label>
+          </div>
+          <select id="linesSelect" class="form-select form-select-sm d-none" style="width:auto">
+            <option value="100">100줄</option>
+            <option value="200" selected>200줄</option>
+            <option value="500">500줄</option>
+            <option value="1000">1000줄</option>
+          </select>
+          <button id="refreshBtn" class="btn btn-sm btn-outline-secondary d-none" onclick="loadCurrent()">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+          <button id="copyBtn" class="btn btn-sm btn-outline-secondary d-none" onclick="copyOutput()">
+            <i class="bi bi-clipboard"></i>
+          </button>
+        </div>
+      </div>
+      <div style="flex:1;overflow:auto;background:#0d1117;border-radius:0 0 8px 8px">
+        <pre id="outputPre" style="margin:0;padding:1rem;color:#c9d1d9;font-size:.76rem;line-height:1.5;min-height:400px;white-space:pre-wrap;word-break:break-all">소스 패널에서 로그 파일 또는 진단 명령을 선택하세요.</pre>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let currentUrl = '';
+let autoRefreshTimer = null;
+const isLog = url => url.includes('/log');
+
+function updateLines() {
+  if (!currentUrl) return;
+  const lines = document.getElementById('linesSelect').value;
+  const base = currentUrl.replace(/&lines=\d+/, '').replace(/\?lines=\d+/, '');
+  const sep = base.includes('?') ? '&' : '?';
+  currentUrl = base + sep + 'lines=' + lines;
+  loadCurrent();
+}
+document.getElementById('linesSelect').addEventListener('change', updateLines);
+
+document.querySelectorAll('.src-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.src-btn').forEach(b => b.classList.remove('active', 'btn-secondary'));
+    this.classList.add('active', 'btn-secondary');
+    this.classList.remove('btn-outline-secondary');
+
+    const baseUrl = this.dataset.url;
+    const label = this.dataset.label;
+    document.getElementById('outputLabel').textContent = label;
+
+    const log = isLog(baseUrl);
+    document.getElementById('autoRefreshWrapper').classList.toggle('d-none', !log);
+    document.getElementById('linesSelect').classList.toggle('d-none', !log);
+    document.getElementById('refreshBtn').classList.remove('d-none');
+    document.getElementById('copyBtn').classList.remove('d-none');
+
+    const lines = document.getElementById('linesSelect').value;
+    currentUrl = log ? baseUrl + '&lines=' + lines : baseUrl;
+    loadCurrent();
+  });
+});
+
+// Restore active style when switching away
+document.querySelectorAll('.src-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.src-btn').forEach(b => {
+      if (b !== this) {
+        b.classList.remove('active', 'btn-secondary');
+        b.classList.add('btn-outline-secondary');
+      }
+    });
+  });
+});
+
+function loadCurrent() {
+  if (!currentUrl) return;
+  const pre = document.getElementById('outputPre');
+  pre.textContent = '로딩 중...';
+  fetch(currentUrl)
+    .then(r => r.text())
+    .then(t => {
+      pre.textContent = t;
+      pre.parentElement.scrollTop = pre.parentElement.scrollHeight;
+    })
+    .catch(e => { pre.textContent = '오류: ' + e.message; });
+}
+
+document.getElementById('autoRefresh').addEventListener('change', function() {
+  clearInterval(autoRefreshTimer);
+  if (this.checked) {
+    autoRefreshTimer = setInterval(loadCurrent, 5000);
+  }
+});
+
+function copyOutput() {
+  const text = document.getElementById('outputPre').textContent;
+  navigator.clipboard.writeText(text).catch(() => {});
+}
+</script>
+{{end}}

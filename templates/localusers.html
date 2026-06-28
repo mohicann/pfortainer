@@ -1,0 +1,244 @@
+{{template "base" .}}
+{{define "title"}}로컬 사용자 관리 — pfortainer{{end}}
+{{define "pagetitle"}}로컬 사용자 / 그룹{{end}}
+{{define "content"}}
+
+{{if .Error}}
+<div class="alert alert-danger py-2 mb-3"><i class="bi bi-exclamation-triangle me-1"></i>{{.Error}}</div>
+{{end}}
+{{if .Success}}
+<div class="alert alert-success py-2 mb-3"><i class="bi bi-check-circle me-1"></i>{{.Success}}</div>
+{{end}}
+
+<div class="row g-3">
+
+  {{/* ── 사용자 목록 ── */}}
+  <div class="col-12 col-xl-8">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem">
+          <i class="bi bi-person-fill me-1"></i>로컬 사용자
+          <span class="badge bg-secondary ms-1">{{len .Status.Users}}</span>
+        </span>
+      </div>
+      {{if not .Status.Users}}
+      <div class="p-4 text-center text-muted">
+        <i class="bi bi-person" style="font-size:2rem;opacity:.3"></i>
+        <p class="mt-2 mb-0">uid ≥ 1000 사용자 없음</p>
+      </div>
+      {{else}}
+      <table class="table mb-0" style="font-size:.875rem">
+        <thead>
+          <tr>
+            <th>사용자명</th><th>UID</th><th>이름</th><th>그룹</th><th>SMB</th><th>셸</th><th class="text-end">작업</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Status.Users}}
+          <tr>
+            <td class="fw-semibold mono">{{.Username}}</td>
+            <td class="mono text-muted" style="font-size:.8rem">{{.UID}}</td>
+            <td style="font-size:.85rem">{{if .FullName}}{{.FullName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
+            <td style="font-size:.78rem">
+              {{range .Groups}}<span class="badge bg-light text-dark border me-1">{{.}}</span>{{end}}
+            </td>
+            <td>
+              {{if .HasSMB}}
+                <span class="badge badge-running" title="SMB 계정 있음"><i class="bi bi-check"></i></span>
+              {{else}}
+                <span class="badge bg-secondary" title="SMB 계정 없음">—</span>
+              {{end}}
+            </td>
+            <td class="mono text-muted" style="font-size:.75rem">{{.Shell}}</td>
+            <td class="text-end">
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-primary" title="SMB 비밀번호 설정"
+                        onclick="showSMBPasswd('{{.Username}}')">
+                  <i class="bi bi-key"></i>
+                </button>
+                <form method="post" action="/localusers/{{.Username}}/delete"
+                      onsubmit="return confirm('사용자 {{.Username}}을(를) 삭제하시겠습니까?\n홈 디렉토리도 함께 삭제됩니다.')">
+                  <button class="btn btn-outline-danger" title="삭제">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+      {{end}}
+    </div>
+
+    {{/* ── 그룹 목록 ── */}}
+    <div class="card-table mt-3">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem">
+          <i class="bi bi-people-fill me-1"></i>그룹 (gid ≥ 1000 + wheel)
+          <span class="badge bg-secondary ms-1">{{len .Status.Groups}}</span>
+        </span>
+        <form method="post" action="/localgroups" class="d-flex gap-1">
+          <input type="text" name="name" class="form-control form-control-sm" placeholder="그룹명" style="width:120px"
+                 pattern="[a-zA-Z_][a-zA-Z0-9_\-]{0,30}" required>
+          <button class="btn btn-sm btn-outline-primary text-nowrap">
+            <i class="bi bi-plus-lg"></i> 그룹 추가
+          </button>
+        </form>
+      </div>
+      {{if not .Status.Groups}}
+      <div class="p-3 text-center text-muted" style="font-size:.85rem">그룹 없음</div>
+      {{else}}
+      <table class="table mb-0" style="font-size:.875rem">
+        <thead><tr><th>그룹명</th><th>GID</th><th>멤버</th><th class="text-end">작업</th></tr></thead>
+        <tbody>
+          {{range .Status.Groups}}
+          <tr>
+            <td class="fw-semibold mono">{{.Name}}</td>
+            <td class="mono text-muted" style="font-size:.8rem">{{.GID}}</td>
+            <td style="font-size:.78rem">
+              {{range .Members}}<span class="badge bg-light text-dark border me-1">{{.}}</span>{{end}}
+              <button class="btn btn-link btn-sm p-0 ms-1" style="font-size:.75rem"
+                      onclick="showGroupMember('{{.Name}}','add')" title="멤버 추가">
+                <i class="bi bi-person-plus"></i>
+              </button>
+            </td>
+            <td class="text-end">
+              <form method="post" action="/localgroups/{{.Name}}/delete"
+                    onsubmit="return confirm('그룹 {{.Name}}을(를) 삭제하시겠습니까?')">
+                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+      {{end}}
+    </div>
+  </div>
+
+  {{/* ── 사용자 추가 폼 ── */}}
+  <div class="col-12 col-xl-4">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-person-plus me-1"></i>사용자 추가</span>
+      </div>
+      <div class="p-3">
+        <form method="post" action="/localusers">
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">사용자명 <span class="text-danger">*</span></label>
+            <input type="text" name="username" class="form-control form-control-sm"
+                   placeholder="username" pattern="[a-zA-Z_][a-zA-Z0-9_\-]{0,30}" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">이름 (선택)</label>
+            <input type="text" name="fullname" class="form-control form-control-sm" placeholder="Full Name">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">셸</label>
+            <select name="shell" class="form-select form-select-sm">
+              <option value="/sbin/nologin" selected>/sbin/nologin (SMB 전용)</option>
+              <option value="/bin/sh">/bin/sh</option>
+              <option value="/usr/local/bin/bash">/usr/local/bin/bash</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">OS 비밀번호 (선택)</label>
+            <input type="password" name="password" class="form-control form-control-sm"
+                   placeholder="빈칸=비밀번호 잠금" autocomplete="new-password">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-muted mb-1">
+              SMB 비밀번호 (선택)
+              <span class="text-muted" style="font-size:.73rem">— Windows 파일 공유 접근용</span>
+            </label>
+            <input type="password" name="smb_password" class="form-control form-control-sm"
+                   placeholder="빈칸=SMB 계정 미생성" autocomplete="new-password">
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm w-100">
+            <i class="bi bi-person-plus me-1"></i>사용자 생성
+          </button>
+        </form>
+        <hr class="my-3">
+        <div class="text-muted" style="font-size:.78rem">
+          <strong>SMB 전용 사용자</strong>는 셸을 <code>/sbin/nologin</code>으로 설정하면 SSH 로그인 없이 파일 공유만 가능합니다.<br><br>
+          SMB 비밀번호는 OS 비밀번호와 별개로 관리됩니다.<br>
+          기존 사용자의 SMB 비밀번호는 목록의 <i class="bi bi-key"></i> 버튼으로 변경하세요.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{{/* ── SMB 비밀번호 모달 ── */}}
+<div class="modal fade" id="smbPasswdModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title mb-0"><i class="bi bi-key me-1"></i>SMB 비밀번호 설정</h6>
+        <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="smbPasswdForm" method="post">
+        <div class="modal-body py-2">
+          <p class="small mb-2">사용자: <strong id="smbPasswdUser"></strong></p>
+          <input type="password" name="password" class="form-control form-control-sm"
+                 placeholder="새 SMB 비밀번호" required autocomplete="new-password">
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+          <button type="submit" class="btn btn-sm btn-primary">적용</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{{/* ── 그룹 멤버 추가 모달 ── */}}
+<div class="modal fade" id="groupMemberModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title mb-0"><i class="bi bi-people me-1"></i>그룹 멤버 관리</h6>
+        <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="groupMemberForm" method="post">
+        <div class="modal-body py-2">
+          <p class="small mb-2">그룹: <strong id="groupMemberName"></strong></p>
+          <div class="mb-2">
+            <input type="text" name="username" class="form-control form-control-sm" placeholder="사용자명" required>
+          </div>
+          <div class="d-flex gap-2">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="action" value="add" id="actAdd" checked>
+              <label class="form-check-label small" for="actAdd">추가</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="action" value="remove" id="actRemove">
+              <label class="form-check-label small" for="actRemove">제거</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+          <button type="submit" class="btn btn-sm btn-primary">적용</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function showSMBPasswd(username) {
+  document.getElementById('smbPasswdUser').textContent = username;
+  document.getElementById('smbPasswdForm').action = '/localusers/' + username + '/smbpasswd';
+  new bootstrap.Modal(document.getElementById('smbPasswdModal')).show();
+}
+function showGroupMember(group, action) {
+  document.getElementById('groupMemberName').textContent = group;
+  document.getElementById('groupMemberForm').action = '/localgroups/' + group + '/member';
+  document.getElementById(action === 'add' ? 'actAdd' : 'actRemove').checked = true;
+  new bootstrap.Modal(document.getElementById('groupMemberModal')).show();
+}
+</script>
+{{end}}

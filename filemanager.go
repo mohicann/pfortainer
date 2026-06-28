@@ -45,6 +45,7 @@ type ClipBoard struct {
 
 type FileListVM struct {
 	ActivePage  string
+	CurrentUser SessionUser
 	CWD         string
 	Breadcrumbs []Breadcrumb
 	Entries     []FileEntry
@@ -251,6 +252,7 @@ func (h *handlers) fileList(w http.ResponseWriter, r *http.Request) {
 
 	render(w, "filemanager", FileListVM{
 		ActivePage:  "filemanager",
+		CurrentUser: userFrom(r),
 		CWD:         cwd,
 		Breadcrumbs: buildBreadcrumbs(cwd),
 		Entries:     entries,

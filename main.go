@@ -62,7 +62,14 @@ func main() {
 
 	mux.HandleFunc("GET /login", h.loginPage)
 	mux.HandleFunc("POST /login", h.login)
+	mux.HandleFunc("GET /login/totp", h.totpPage)
+	mux.HandleFunc("POST /login/totp", h.totpVerify)
 	mux.HandleFunc("GET /logout", h.logout)
+
+	mux.Handle("GET /profile", auth(h.profilePage))
+	mux.Handle("POST /profile/2fa/begin", auth(h.totpSetupBegin))
+	mux.Handle("POST /profile/2fa/enable", auth(h.totpSetupConfirm))
+	mux.Handle("POST /profile/2fa/disable", auth(h.totpDisable))
 
 	// viewer: read-only pages
 	mux.Handle("GET /{$}", auth(h.dashboard))
@@ -99,6 +106,54 @@ func main() {
 	mux.Handle("POST /api/files/save", authOp(h.fileSave))
 	mux.Handle("POST /api/files/clip", authOp(h.fileClip))
 	mux.Handle("POST /api/files/paste", authOp(h.filePaste))
+
+	// 로컬 사용자/그룹
+	mux.Handle("GET /localusers", auth(h.localUsersPage))
+	mux.Handle("POST /localusers", authOp(h.localUserCreate))
+	mux.Handle("POST /localusers/{username}/delete", authOp(h.localUserDelete))
+	mux.Handle("POST /localusers/{username}/smbpasswd", authOp(h.localUserSMBPasswd))
+	mux.Handle("POST /localgroups", authOp(h.localGroupCreate))
+	mux.Handle("POST /localgroups/{name}/delete", authOp(h.localGroupDelete))
+	mux.Handle("POST /localgroups/{name}/member", authOp(h.localGroupMember))
+
+	// SMB 공유
+	mux.Handle("GET /shares", auth(h.sharesPage))
+	mux.Handle("POST /shares", authOp(h.shareCreate))
+	mux.Handle("POST /shares/{name}/delete", authOp(h.shareDelete))
+	mux.Handle("POST /shares/reload", authOp(h.shareReload))
+	mux.Handle("POST /shares/setup", authOp(h.shareSetup))
+	mux.Handle("POST /nfs/export", authOp(h.nfsCreate))
+	mux.Handle("POST /nfs/export/{name}/delete", authOp(h.nfsDelete))
+	mux.Handle("POST /nfs/reload", authOp(h.nfsReload))
+
+	// SMART 테스트
+	mux.Handle("POST /api/smart/test", authOp(h.smartTestRun))
+
+	// 네트워크
+	mux.Handle("GET /network", auth(h.networkPage))
+
+	// 앱 카탈로그
+	mux.Handle("GET /catalog", auth(h.catalogPage))
+	mux.Handle("POST /catalog/{id}/install", authOp(h.catalogInstall))
+	mux.Handle("POST /catalog/{id}/remove", authOp(h.catalogRemove))
+
+	// 진단/로그
+	mux.Handle("GET /diagnostics", auth(h.diagnosticsPage))
+	mux.Handle("GET /api/diag/local-log", auth(h.diagLocalLog))
+	mux.Handle("GET /api/diag/host-log", auth(h.diagHostLog))
+	mux.Handle("GET /api/diag/cmd", auth(h.diagCmd))
+
+	// ZFS 복제
+	mux.Handle("GET /replications", auth(h.replicationPage))
+	mux.Handle("POST /replications", authOp(h.replicationCreate))
+	mux.Handle("POST /replications/{id}/delete", authOp(h.replicationDelete))
+	mux.Handle("POST /replications/{id}/toggle", authOp(h.replicationToggle))
+	mux.Handle("POST /replications/{id}/run", authOp(h.replicationRun))
+
+	// 알림 설정
+	mux.Handle("GET /alerts", auth(h.alertsPage))
+	mux.Handle("POST /alerts", authOp(h.alertsSave))
+	mux.Handle("POST /alerts/test", authOp(h.alertTest))
 
 	// ZFS 스냅샷
 	mux.Handle("GET /snapshots", auth(h.snapshots))

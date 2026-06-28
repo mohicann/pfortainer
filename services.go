@@ -12,6 +12,25 @@ import (
 	"strings"
 )
 
+// hostGetAgent fetches a path from the host-agent socket only — no local exec fallback.
+// Use for endpoints that have no meaningful local equivalent (SMB, NFS, etc.).
+func hostGetAgent(path string) ([]byte, error) {
+	hc := hostdClient()
+	if hc == nil {
+		return nil, fmt.Errorf("host agent unavailable (socket not found)")
+	}
+	resp, err := hc.Get("http://hostd" + path)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	b, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("%s", strings.TrimSpace(string(b)))
+	}
+	return b, nil
+}
+
 // hostPost sends a JSON POST to the host-agent socket and returns the response body.
 // It does NOT fall back to local exec — write operations must go through the agent.
 func hostPost(path string, body []byte) ([]byte, error) {
@@ -45,9 +64,10 @@ type ServiceEntry struct {
 }
 
 type ServicesVM struct {
-	ActivePage string
-	Services   []ServiceEntry
-	FetchError string
+	ActivePage  string
+	CurrentUser SessionUser
+	Services    []ServiceEntry
+	FetchError  string
 }
 
 // ── Data collection ───────────────────────────────────────────────────────────
@@ -232,7 +252,7 @@ func listeningSockets() ([]ServiceEntry, error) {
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 func (h *handlers) servicesInfo(w http.ResponseWriter, r *http.Request) {
-	vm := ServicesVM{ActivePage: "services"}
+	vm := ServicesVM{ActivePage: "services", CurrentUser: userFrom(r)}
 
 	sockEntries, sockErr := listeningSockets()
 	if sockErr != nil {

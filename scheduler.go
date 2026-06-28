@@ -49,7 +49,11 @@ func newScheduler(cdb *ConfigDB) *Scheduler {
 // Start runs the scheduler loop. Call in a goroutine.
 func (s *Scheduler) Start(ctx context.Context) {
 	ticker := time.NewTicker(time.Minute)
+	alertTicker := time.NewTicker(5 * time.Minute)
+	replTicker := time.NewTicker(10 * time.Minute)
 	defer ticker.Stop()
+	defer alertTicker.Stop()
+	defer replTicker.Stop()
 	s.tick() // run immediately on startup
 	for {
 		select {
@@ -57,6 +61,29 @@ func (s *Scheduler) Start(ctx context.Context) {
 			return
 		case <-ticker.C:
 			s.tick()
+		case <-alertTicker.C:
+			go checkAndFireAlerts(s.cdb)
+		case <-replTicker.C:
+			go s.replTick()
+		}
+	}
+}
+
+func (s *Scheduler) replTick() {
+	due, err := s.cdb.DueReplTasks()
+	if err != nil {
+		log.Printf("scheduler: DueReplTasks: %v", err)
+		return
+	}
+	for _, t := range due {
+		log.Printf("[scheduler] replication %s: %s → %s", t.Name, t.SourceDataset, t.TargetPath)
+		result, err := runReplication(t.SourceDataset, t.TargetPath, t.LastSnapshot, t.Recursive)
+		if err != nil {
+			log.Printf("[scheduler] replication %s failed: %v", t.Name, err)
+			s.cdb.UpdateReplTaskResult(t.ID, t.LastSnapshot, "error", err.Error())
+		} else {
+			log.Printf("[scheduler] replication %s ok: %s", t.Name, result.CurrentSnapshot)
+			s.cdb.UpdateReplTaskResult(t.ID, result.CurrentSnapshot, "ok", "")
 		}
 	}
 }
@@ -93,6 +120,8 @@ func (s *Scheduler) run(sched DBSchedule) error {
 		runErr = s.runSnapshot(sched)
 	case "scrub":
 		runErr = s.runScrub(sched)
+	case "smart_test":
+		runErr = s.runSmartTest(sched)
 	default:
 		runErr = fmt.Errorf("unknown schedule type: %s", sched.Type)
 	}
@@ -115,6 +144,16 @@ func (s *Scheduler) runSnapshot(sched DBSchedule) error {
 		}
 	}
 	return nil
+}
+
+func (s *Scheduler) runSmartTest(sched DBSchedule) error {
+	testType := sched.Prefix
+	if testType == "" || testType == "auto" {
+		testType = "short"
+	}
+	log.Printf("[scheduler] smart-test %s on %s", testType, sched.Target)
+	_, err := startSmartTest(sched.Target, testType)
+	return err
 }
 
 func (s *Scheduler) runScrub(sched DBSchedule) error {

@@ -50,8 +50,137 @@ func (h *handlers) login(w http.ResponseWriter, r *http.Request) {
 		render(w, "login", map[string]any{"Error": "사용자명 또는 비밀번호가 올바르지 않습니다."})
 		return
 	}
+	_, totpEnabled, _ := h.cdb.GetUserTOTP(username)
+	if totpEnabled {
+		setPreAuthCookie(w, username, h.cfg.SessionSecret)
+		http.Redirect(w, r, "/login/totp", http.StatusSeeOther)
+		return
+	}
 	setAuthCookie(w, h.cfg.SessionSecret, user.Username, user.Role)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (h *handlers) totpPage(w http.ResponseWriter, r *http.Request) {
+	if _, ok := getPreAuthUser(r, h.cfg.SessionSecret); !ok {
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return
+	}
+	render(w, "login_totp", map[string]any{"Error": ""})
+}
+
+func (h *handlers) totpVerify(w http.ResponseWriter, r *http.Request) {
+	username, ok := getPreAuthUser(r, h.cfg.SessionSecret)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+	code := strings.TrimSpace(r.FormValue("code"))
+	secret, _, err := h.cdb.GetUserTOTP(username)
+	if err != nil || !verifyTOTP(secret, code) {
+		w.WriteHeader(http.StatusUnauthorized)
+		render(w, "login_totp", map[string]any{"Error": "인증 코드가 올바르지 않습니다."})
+		return
+	}
+	user, _ := h.cdb.GetUser(username)
+	clearPreAuthCookie(w)
+	setAuthCookie(w, h.cfg.SessionSecret, username, user.Role)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// ── 프로필 / 2FA 설정 ─────────────────────────────────────────────────────────
+
+type ProfileVM struct {
+	ActivePage  string
+	CurrentUser SessionUser
+	AgentMode   string
+	TOTPEnabled bool
+	SetupSecret string
+	OtpURI      string
+	Success     string
+	Error       string
+}
+
+func (h *handlers) profilePage(w http.ResponseWriter, r *http.Request) {
+	u := userFrom(r)
+	_, enabled, _ := h.cdb.GetUserTOTP(u.Username)
+	render(w, "profile", ProfileVM{
+		ActivePage:  "",
+		CurrentUser: u,
+		AgentMode:   agentMode(),
+		TOTPEnabled: enabled,
+		Success:     r.URL.Query().Get("success"),
+	})
+}
+
+func (h *handlers) totpSetupBegin(w http.ResponseWriter, r *http.Request) {
+	u := userFrom(r)
+	secret := generateTOTPSecret()
+	if err := h.cdb.SetTOTPSecret(u.Username, secret); err != nil {
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+	render(w, "profile", ProfileVM{
+		ActivePage:  "",
+		CurrentUser: u,
+		AgentMode:   agentMode(),
+		TOTPEnabled: false,
+		SetupSecret: secret,
+		OtpURI:      totpAuthURI(secret, u.Username),
+	})
+}
+
+func (h *handlers) totpSetupConfirm(w http.ResponseWriter, r *http.Request) {
+	u := userFrom(r)
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+	secret := r.FormValue("secret")
+	code := strings.TrimSpace(r.FormValue("code"))
+	if !verifyTOTP(secret, code) {
+		render(w, "profile", ProfileVM{
+			ActivePage:  "",
+			CurrentUser: u,
+			AgentMode:   agentMode(),
+			TOTPEnabled: false,
+			SetupSecret: secret,
+			OtpURI:      totpAuthURI(secret, u.Username),
+			Error:       "인증 코드가 올바르지 않습니다. 다시 시도하세요.",
+		})
+		return
+	}
+	if err := h.cdb.SetTOTPSecret(u.Username, secret); err != nil {
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+	h.cdb.EnableTOTP(u.Username)
+	http.Redirect(w, r, "/profile?success=2FA가+활성화되었습니다.", http.StatusSeeOther)
+}
+
+func (h *handlers) totpDisable(w http.ResponseWriter, r *http.Request) {
+	u := userFrom(r)
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+	code := strings.TrimSpace(r.FormValue("code"))
+	secret, enabled, _ := h.cdb.GetUserTOTP(u.Username)
+	if !enabled || !verifyTOTP(secret, code) {
+		render(w, "profile", ProfileVM{
+			ActivePage:  "",
+			CurrentUser: u,
+			AgentMode:   agentMode(),
+			TOTPEnabled: true,
+			Error:       "인증 코드가 올바르지 않습니다.",
+		})
+		return
+	}
+	h.cdb.DisableTOTP(u.Username)
+	http.Redirect(w, r, "/profile?success=2FA가+비활성화되었습니다.", http.StatusSeeOther)
 }
 
 func (h *handlers) logout(w http.ResponseWriter, r *http.Request) {
@@ -471,9 +600,10 @@ func (h *handlers) filesystemInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render(w, "filesystem", map[string]any{
-		"ActivePage": "filesystem",
-		"Pools":      pools,
-		"Datasets":   datasets,
+		"ActivePage":  "filesystem",
+		"CurrentUser": userFrom(r),
+		"Pools":       pools,
+		"Datasets":    datasets,
 	})
 }
 
@@ -1134,6 +1264,358 @@ func (h *handlers) adminUserDelete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/admin/users?success="+username+"+삭제+완료", http.StatusSeeOther)
 }
 
+// ── 로컬 사용자/그룹 관리 ─────────────────────────────────────────────────────
+
+type LocalUsersVM struct {
+	ActivePage  string
+	CurrentUser SessionUser
+	Status      LocalUsersStatus
+	AgentMode   string
+	Error       string
+	Success     string
+}
+
+func (h *handlers) localUsersPage(w http.ResponseWriter, r *http.Request) {
+	vm := LocalUsersVM{
+		ActivePage:  "localusers",
+		CurrentUser: userFrom(r),
+		AgentMode:   agentMode(),
+		Error:       r.URL.Query().Get("error"),
+		Success:     r.URL.Query().Get("success"),
+	}
+	status, err := getLocalUsersStatus()
+	if err != nil {
+		vm.Error = "사용자 목록 조회 실패: " + err.Error()
+	} else {
+		vm.Status = status
+	}
+	render(w, "localusers", vm)
+}
+
+func (h *handlers) localUserCreate(w http.ResponseWriter, r *http.Request) {
+	username := r.FormValue("username")
+	err := createLocalUser(
+		username,
+		r.FormValue("fullname"),
+		r.FormValue("shell"),
+		r.FormValue("password"),
+		r.FormValue("smb_password"),
+	)
+	if err != nil {
+		http.Redirect(w, r, "/shares?tab=users&error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/shares?tab=users&success=사용자+"+username+"+생성됨", http.StatusSeeOther)
+}
+
+func (h *handlers) localUserDelete(w http.ResponseWriter, r *http.Request) {
+	username := r.PathValue("username")
+	if err := deleteLocalUser(username); err != nil {
+		http.Redirect(w, r, "/shares?tab=users&error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/shares?tab=users&success=사용자+"+username+"+삭제됨", http.StatusSeeOther)
+}
+
+func (h *handlers) localUserSMBPasswd(w http.ResponseWriter, r *http.Request) {
+	username := r.PathValue("username")
+	if err := setLocalUserSMBPasswd(username, r.FormValue("password")); err != nil {
+		http.Redirect(w, r, "/shares?tab=users&error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/shares?tab=users&success="+username+"+SMB+비밀번호+설정됨", http.StatusSeeOther)
+}
+
+func (h *handlers) localGroupCreate(w http.ResponseWriter, r *http.Request) {
+	name := r.FormValue("name")
+	if err := createLocalGroup(name); err != nil {
+		http.Redirect(w, r, "/shares?tab=users&error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/shares?tab=users&success=그룹+"+name+"+생성됨", http.StatusSeeOther)
+}
+
+func (h *handlers) localGroupDelete(w http.ResponseWriter, r *http.Request) {
+	name := r.PathValue("name")
+	if err := deleteLocalGroup(name); err != nil {
+		http.Redirect(w, r, "/shares?tab=users&error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/shares?tab=users&success=그룹+"+name+"+삭제됨", http.StatusSeeOther)
+}
+
+func (h *handlers) localGroupMember(w http.ResponseWriter, r *http.Request) {
+	group := r.PathValue("name")
+	username := r.FormValue("username")
+	action := r.FormValue("action")
+	if err := updateGroupMember(group, username, action); err != nil {
+		http.Redirect(w, r, "/shares?tab=users&error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/shares?tab=users&success=그룹+멤버+변경됨", http.StatusSeeOther)
+}
+
+// ── SMB 공유 관리 ─────────────────────────────────────────────────────────────
+
+type SharesVM struct {
+	ActivePage  string
+	CurrentUser SessionUser
+	Tab         string // "smb" | "nfs" | "users"
+	SMB         SMBStatus
+	NFS         NFSStatus
+	LocalUsers  LocalUsersStatus
+	LocalError  string
+	AgentMode   string
+	Error       string
+	Success     string
+}
+
+func (h *handlers) sharesPage(w http.ResponseWriter, r *http.Request) {
+	tab := r.URL.Query().Get("tab")
+	if tab != "nfs" && tab != "users" {
+		tab = "smb"
+	}
+	vm := SharesVM{
+		ActivePage:  "shares",
+		CurrentUser: userFrom(r),
+		Tab:         tab,
+		AgentMode:   agentMode(),
+		Error:       r.URL.Query().Get("error"),
+		Success:     r.URL.Query().Get("success"),
+	}
+	switch tab {
+	case "smb":
+		if s, err := getSMBStatus(); err != nil {
+			vm.Error = "SMB 상태 조회 실패: " + err.Error()
+		} else {
+			vm.SMB = s
+		}
+	case "nfs":
+		if s, err := getNFSStatus(); err != nil {
+			vm.Error = "NFS 상태 조회 실패: " + err.Error()
+		} else {
+			vm.NFS = s
+		}
+	case "users":
+		if s, err := getLocalUsersStatus(); err != nil {
+			vm.LocalError = "사용자 목록 조회 실패: " + err.Error()
+		} else {
+			vm.LocalUsers = s
+		}
+	}
+	render(w, "shares", vm)
+}
+
+func (h *handlers) nfsCreate(w http.ResponseWriter, r *http.Request) {
+	path := r.FormValue("path")
+	name := r.FormValue("name")
+	clients := r.FormValue("clients")
+	readOnly := r.FormValue("read_only") == "1"
+	mapRoot := r.FormValue("maproot")
+
+	// Build the export line
+	var line strings.Builder
+	line.WriteString(path)
+	if readOnly {
+		line.WriteString("\t-ro")
+	}
+	if mapRoot != "" {
+		line.WriteString("\t-maproot=" + mapRoot)
+	}
+	if clients != "" {
+		for _, c := range strings.Fields(clients) {
+			line.WriteString("\t" + c)
+		}
+	}
+
+	e := NFSExport{Name: name, Path: path, Line: line.String(), Clients: clients}
+	if err := createNFSExport(e); err != nil {
+		http.Redirect(w, r, "/shares?tab=nfs&error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/shares?tab=nfs&success=NFS+export+"+name+"+저장됨", http.StatusSeeOther)
+}
+
+func (h *handlers) nfsDelete(w http.ResponseWriter, r *http.Request) {
+	name := r.PathValue("name")
+	if err := deleteNFSExport(name); err != nil {
+		http.Redirect(w, r, "/shares?tab=nfs&error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/shares?tab=nfs&success=NFS+export+"+name+"+삭제됨", http.StatusSeeOther)
+}
+
+func (h *handlers) nfsReload(w http.ResponseWriter, r *http.Request) {
+	out, err := reloadNFS()
+	if err != nil {
+		http.Redirect(w, r, "/shares?tab=nfs&error=reload+실패:+"+err.Error(), http.StatusSeeOther)
+		return
+	}
+	msg := "mountd reload 완료"
+	if out != "" {
+		msg = out
+	}
+	http.Redirect(w, r, "/shares?tab=nfs&success="+msg, http.StatusSeeOther)
+}
+
+func (h *handlers) shareCreate(w http.ResponseWriter, r *http.Request) {
+	boolField := func(name string) bool { return r.FormValue(name) == "1" }
+	share := SMBShare{
+		Name:       r.FormValue("name"),
+		Path:       r.FormValue("path"),
+		Comment:    r.FormValue("comment"),
+		ValidUsers: r.FormValue("valid_users"),
+		ReadOnly:   boolField("read_only"),
+		Browseable: !boolField("no_browse"),
+		GuestOK:    boolField("guest_ok"),
+	}
+	if share.Name == "" || share.Path == "" {
+		http.Redirect(w, r, "/shares?error=이름과+경로는+필수입니다", http.StatusSeeOther)
+		return
+	}
+	if err := createSMBShare(share); err != nil {
+		http.Redirect(w, r, "/shares?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/shares?success=공유+"+share.Name+"+저장됨", http.StatusSeeOther)
+}
+
+func (h *handlers) shareDelete(w http.ResponseWriter, r *http.Request) {
+	name := r.PathValue("name")
+	if err := deleteSMBShare(name); err != nil {
+		http.Redirect(w, r, "/shares?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/shares?success=공유+"+name+"+삭제됨", http.StatusSeeOther)
+}
+
+func (h *handlers) shareReload(w http.ResponseWriter, r *http.Request) {
+	out, err := reloadSamba()
+	if err != nil {
+		http.Redirect(w, r, "/shares?error=reload+실패:+"+err.Error(), http.StatusSeeOther)
+		return
+	}
+	msg := "Samba reload 완료"
+	if out != "" {
+		msg = out
+	}
+	http.Redirect(w, r, "/shares?success="+msg, http.StatusSeeOther)
+}
+
+func (h *handlers) shareSetup(w http.ResponseWriter, r *http.Request) {
+	msg, err := setupSamba()
+	if err != nil {
+		http.Redirect(w, r, "/shares?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/shares?success="+msg, http.StatusSeeOther)
+}
+
+// ── SMART 테스트 ───────────────────────────────────────────────────────────────
+
+func (h *handlers) smartTestRun(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Device   string `json:"device"`
+		TestType string `json:"test_type"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonErr(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	output, err := startSmartTest(req.Device, req.TestType)
+	if err != nil {
+		jsonErr(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"output": output})
+}
+
+// ── 알림 설정 ─────────────────────────────────────────────────────────────────
+
+type AlertsVM struct {
+	ActivePage  string
+	CurrentUser SessionUser
+	Settings    AlertSettings
+	Error       string
+	Success     string
+}
+
+func (h *handlers) alertsPage(w http.ResponseWriter, r *http.Request) {
+	vm := AlertsVM{
+		ActivePage:  "alerts",
+		CurrentUser: userFrom(r),
+		Settings:    loadAlertSettings(h.cdb),
+		Error:       r.URL.Query().Get("error"),
+		Success:     r.URL.Query().Get("success"),
+	}
+	render(w, "alerts", vm)
+}
+
+func (h *handlers) alertsSave(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Redirect(w, r, "/alerts?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	s := AlertSettings{
+		EmailEnabled:    r.FormValue("email_enabled") == "1",
+		SMTPHost:        strings.TrimSpace(r.FormValue("smtp_host")),
+		SMTPPort:        587,
+		SMTPUser:        strings.TrimSpace(r.FormValue("smtp_user")),
+		SMTPPass:        r.FormValue("smtp_pass"),
+		SMTPFrom:        strings.TrimSpace(r.FormValue("smtp_from")),
+		SMTPTo:          strings.TrimSpace(r.FormValue("smtp_to")),
+		WebhookEnabled:  r.FormValue("webhook_enabled") == "1",
+		WebhookURL:      strings.TrimSpace(r.FormValue("webhook_url")),
+		CheckPoolHealth: r.FormValue("check_pool_health") == "1",
+		CheckSMART:      r.FormValue("check_smart") == "1",
+		CheckCapacity:   r.FormValue("check_capacity") == "1",
+		CheckScrub:      r.FormValue("check_scrub") == "1",
+		CapacityPct:     85,
+		CooldownHours:   4,
+	}
+	fmt.Sscanf(r.FormValue("smtp_port"), "%d", &s.SMTPPort)
+	fmt.Sscanf(r.FormValue("capacity_pct"), "%d", &s.CapacityPct)
+	fmt.Sscanf(r.FormValue("cooldown_hours"), "%d", &s.CooldownHours)
+
+	// Keep existing password if field is blank (don't overwrite with empty)
+	if s.SMTPPass == "" {
+		existing := loadAlertSettings(h.cdb)
+		s.SMTPPass = existing.SMTPPass
+	}
+	if err := saveAlertSettings(h.cdb, s); err != nil {
+		http.Redirect(w, r, "/alerts?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/alerts?success=설정+저장+완료", http.StatusSeeOther)
+}
+
+func (h *handlers) alertTest(w http.ResponseWriter, r *http.Request) {
+	s := loadAlertSettings(h.cdb)
+	var errs []string
+	if s.EmailEnabled {
+		subject := "[pfortainer] 테스트 알림"
+		body := "pfortainer 알림 테스트입니다.\n\n발송 시각: " + time.Now().Format("2006-01-02 15:04:05")
+		if err := sendAlertEmail(s, subject, body); err != nil {
+			errs = append(errs, "이메일: "+err.Error())
+		}
+	}
+	if s.WebhookEnabled && s.WebhookURL != "" {
+		if err := sendWebhook(s.WebhookURL, "test", "pfortainer", "테스트 알림"); err != nil {
+			errs = append(errs, "웹훅: "+err.Error())
+		}
+	}
+	if len(errs) > 0 {
+		http.Redirect(w, r, "/alerts?error="+strings.Join(errs, " / "), http.StatusSeeOther)
+		return
+	}
+	if !s.EmailEnabled && (!s.WebhookEnabled || s.WebhookURL == "") {
+		http.Redirect(w, r, "/alerts?error=활성화된+채널이+없습니다", http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/alerts?success=테스트+알림+발송+완료", http.StatusSeeOther)
+}
+
 // ── ZFS 스냅샷 ────────────────────────────────────────────────────────────────
 
 type SnapGroup struct {
@@ -1146,43 +1628,53 @@ type SnapshotsVM struct {
 	CurrentUser SessionUser
 	Groups      []SnapGroup
 	Datasets    []string // filesystem dataset names for create form
+	Schedules   []DBSchedule
+	SchedPools  []ZFSPool
+	SchedDisks  []string
 	Error       string
 	Success     string
 }
 
 func (h *handlers) snapshots(w http.ResponseWriter, r *http.Request) {
-	_, groupOrder, err := listSnapshotsByDataset("")
-	groups := map[string][]Snapshot{}
+	groups, groupOrder, err := listSnapshotsByDataset("")
 	if err != nil {
 		log.Printf("snapshots: list: %v", err)
-	} else {
-		var all []Snapshot
-		all, err = listSnapshots("")
-		if err == nil {
-			for _, s := range all {
-				groups[s.Dataset] = append(groups[s.Dataset], s)
-			}
-		}
 	}
 
 	datasets, _ := listZFSDatasets()
 	var dsNames []string
 	for _, d := range datasets {
-		if d.Type == "filesystem" {
+		if d.Type == "filesystem" && !strings.Contains(d.Name, "/containers/") {
 			dsNames = append(dsNames, d.Name)
 		}
 	}
 
 	var sg []SnapGroup
 	for _, ds := range groupOrder {
-		sg = append(sg, SnapGroup{Dataset: ds, Snapshots: groups[ds]})
+		// Podman 컨테이너 레이어(/containers/) 스냅샷 제외
+		if strings.Contains(ds, "/containers/") {
+			continue
+		}
+		snaps := groups[ds]
+		// newest first
+		for i, j := 0, len(snaps)-1; i < j; i, j = i+1, j-1 {
+			snaps[i], snaps[j] = snaps[j], snaps[i]
+		}
+		sg = append(sg, SnapGroup{Dataset: ds, Snapshots: snaps})
 	}
+
+	scheds, _ := h.cdb.ListSchedules()
+	schedPools, _ := listZFSPools()
+	schedDisks, _ := listSmartDevices()
 
 	vm := SnapshotsVM{
 		ActivePage:  "snapshots",
 		CurrentUser: userFrom(r),
 		Groups:      sg,
 		Datasets:    dsNames,
+		Schedules:   scheds,
+		SchedPools:  schedPools,
+		SchedDisks:  schedDisks,
 		Error:       r.URL.Query().Get("error"),
 		Success:     r.URL.Query().Get("success"),
 	}
@@ -1267,6 +1759,7 @@ type SchedulesVM struct {
 	Schedules   []DBSchedule
 	Datasets    []string // for create form
 	Pools       []ZFSPool
+	Disks       []DiskSMART
 	Error       string
 	Success     string
 }
@@ -1275,6 +1768,7 @@ func (h *handlers) schedulesPage(w http.ResponseWriter, r *http.Request) {
 	scheds, _ := h.cdb.ListSchedules()
 	datasets, _ := listZFSDatasets()
 	pools, _ := listZFSPools()
+	disks, _ := smartSummary()
 
 	var dsNames []string
 	for _, d := range datasets {
@@ -1289,6 +1783,7 @@ func (h *handlers) schedulesPage(w http.ResponseWriter, r *http.Request) {
 		Schedules:   scheds,
 		Datasets:    dsNames,
 		Pools:       pools,
+		Disks:       disks,
 		Error:       r.URL.Query().Get("error"),
 		Success:     r.URL.Query().Get("success"),
 	}
@@ -1297,7 +1792,7 @@ func (h *handlers) schedulesPage(w http.ResponseWriter, r *http.Request) {
 
 func (h *handlers) scheduleCreate(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		http.Redirect(w, r, "/schedules?error="+err.Error(), http.StatusSeeOther)
+		http.Redirect(w, r, "/snapshots?error="+err.Error(), http.StatusSeeOther)
 		return
 	}
 	schedType := r.FormValue("type")
@@ -1311,7 +1806,7 @@ func (h *handlers) scheduleCreate(w http.ResponseWriter, r *http.Request) {
 	fmt.Sscanf(r.FormValue("retention"), "%d", &retention)
 
 	if schedType == "" || target == "" || frequency == "" {
-		http.Redirect(w, r, "/schedules?error=필수+항목+누락", http.StatusSeeOther)
+		http.Redirect(w, r, "/snapshots?error=필수+항목+누락", http.StatusSeeOther)
 		return
 	}
 
@@ -1323,10 +1818,10 @@ func (h *handlers) scheduleCreate(w http.ResponseWriter, r *http.Request) {
 		NextRun: &next,
 	})
 	if err != nil {
-		http.Redirect(w, r, "/schedules?error="+err.Error(), http.StatusSeeOther)
+		http.Redirect(w, r, "/snapshots?error="+err.Error(), http.StatusSeeOther)
 		return
 	}
-	http.Redirect(w, r, "/schedules?success=스케줄+추가+완료", http.StatusSeeOther)
+	http.Redirect(w, r, "/snapshots?success=스케줄+추가+완료", http.StatusSeeOther)
 }
 
 func (h *handlers) scheduleToggle(w http.ResponseWriter, r *http.Request) {
@@ -1334,34 +1829,366 @@ func (h *handlers) scheduleToggle(w http.ResponseWriter, r *http.Request) {
 	fmt.Sscanf(r.PathValue("id"), "%d", &id)
 	sched, err := h.cdb.GetSchedule(id)
 	if err != nil {
-		http.Redirect(w, r, "/schedules?error="+err.Error(), http.StatusSeeOther)
+		http.Redirect(w, r, "/snapshots?error="+err.Error(), http.StatusSeeOther)
 		return
 	}
 	if err := h.cdb.ToggleSchedule(id, !sched.Enabled); err != nil {
-		http.Redirect(w, r, "/schedules?error="+err.Error(), http.StatusSeeOther)
+		http.Redirect(w, r, "/snapshots?error="+err.Error(), http.StatusSeeOther)
 		return
 	}
-	http.Redirect(w, r, "/schedules", http.StatusSeeOther)
+	http.Redirect(w, r, "/snapshots", http.StatusSeeOther)
 }
 
 func (h *handlers) scheduleDelete(w http.ResponseWriter, r *http.Request) {
 	var id int64
 	fmt.Sscanf(r.PathValue("id"), "%d", &id)
 	if err := h.cdb.DeleteSchedule(id); err != nil {
-		http.Redirect(w, r, "/schedules?error="+err.Error(), http.StatusSeeOther)
+		http.Redirect(w, r, "/snapshots?error="+err.Error(), http.StatusSeeOther)
 		return
 	}
-	http.Redirect(w, r, "/schedules?success=삭제+완료", http.StatusSeeOther)
+	http.Redirect(w, r, "/snapshots?success=삭제+완료", http.StatusSeeOther)
 }
 
 func (h *handlers) scheduleRunNow(w http.ResponseWriter, r *http.Request) {
 	var id int64
 	fmt.Sscanf(r.PathValue("id"), "%d", &id)
 	if err := h.sched.RunNow(id); err != nil {
-		http.Redirect(w, r, "/schedules?error="+err.Error(), http.StatusSeeOther)
+		http.Redirect(w, r, "/snapshots?error="+err.Error(), http.StatusSeeOther)
 		return
 	}
-	http.Redirect(w, r, "/schedules?success=즉시+실행+완료", http.StatusSeeOther)
+	http.Redirect(w, r, "/snapshots?success=즉시+실행+완료", http.StatusSeeOther)
+}
+
+// ── 네트워크 ──────────────────────────────────────────────────────────────────
+
+type NetworkIface struct {
+	Name   string   `json:"name"`
+	Flags  []string `json:"flags"`
+	MAC    string   `json:"mac"`
+	MTU    int      `json:"mtu"`
+	Status string   `json:"status"`
+	Inet   []string `json:"inet"`
+	Inet6  []string `json:"inet6"`
+	Media  string   `json:"media"`
+	Up     bool     `json:"up"`
+}
+
+type NetStatusVM struct {
+	ActivePage  string
+	CurrentUser SessionUser
+	Interfaces  []NetworkIface
+	Routes      string
+	DNS         []string
+	AgentMode   string
+	Error       string
+}
+
+func (h *handlers) networkPage(w http.ResponseWriter, r *http.Request) {
+	vm := NetStatusVM{
+		ActivePage:  "network",
+		CurrentUser: userFrom(r),
+		AgentMode:   agentMode(),
+	}
+	b, err := hostGetAgent("/network/status")
+	if err != nil {
+		vm.Error = "네트워크 상태 조회 실패: " + err.Error()
+	} else {
+		var raw struct {
+			Interfaces []NetworkIface `json:"interfaces"`
+			Routes     string         `json:"routes"`
+			DNS        []string       `json:"dns"`
+		}
+		if err := json.Unmarshal(b, &raw); err != nil {
+			vm.Error = "파싱 실패: " + err.Error()
+		} else {
+			vm.Interfaces = raw.Interfaces
+			vm.Routes = raw.Routes
+			vm.DNS = raw.DNS
+		}
+	}
+	render(w, "network", vm)
+}
+
+// ── 앱 카탈로그 ───────────────────────────────────────────────────────────────
+
+type CatalogVM struct {
+	ActivePage  string
+	CurrentUser SessionUser
+	Apps        []CatalogApp
+	Installed   map[string]string // appID → container state ("running"|"exited"|...)
+	AgentMode   string
+	Error       string
+	Success     string
+}
+
+func (h *handlers) catalogPage(w http.ResponseWriter, r *http.Request) {
+	vm := CatalogVM{
+		ActivePage:  "catalog",
+		CurrentUser: userFrom(r),
+		AgentMode:   agentMode(),
+		Apps:        CatalogApps,
+		Installed:   map[string]string{},
+		Error:       r.URL.Query().Get("error"),
+		Success:     r.URL.Query().Get("success"),
+	}
+	// pf-* 컨테이너 목록으로 설치 상태 확인
+	if cs, err := h.pc.ListContainers(); err == nil {
+		for _, c := range cs {
+			for _, name := range c.Names {
+				if strings.HasPrefix(name, "pf-") {
+					id := strings.TrimPrefix(name, "pf-")
+					vm.Installed[id] = c.State
+				}
+			}
+		}
+	}
+	render(w, "catalog", vm)
+}
+
+func (h *handlers) catalogInstall(w http.ResponseWriter, r *http.Request) {
+	appID := r.PathValue("id")
+	var app *CatalogApp
+	for i := range CatalogApps {
+		if CatalogApps[i].ID == appID {
+			app = &CatalogApps[i]
+			break
+		}
+	}
+	if app == nil {
+		http.Redirect(w, r, "/catalog?error=앱+없음", http.StatusSeeOther)
+		return
+	}
+
+	// 폼 값으로 {{field}} 대체
+	replace := func(s string) string {
+		for _, f := range app.Fields {
+			s = strings.ReplaceAll(s, "{{"+f.Name+"}}", r.FormValue(f.Name))
+		}
+		return s
+	}
+
+	var ports []string
+	for _, p := range app.Ports {
+		ports = append(ports, replace(p))
+	}
+	var volumes []string
+	for _, v := range app.Volumes {
+		volumes = append(volumes, replace(v))
+	}
+	env := map[string]string{}
+	for k, v := range app.Env {
+		env[k] = replace(v)
+	}
+
+	body, _ := json.Marshal(map[string]interface{}{
+		"name":    app.ContainerName(),
+		"image":   app.Image,
+		"ports":   ports,
+		"volumes": volumes,
+		"env":     env,
+		"cmd":     app.Cmd,
+	})
+	if _, err := hostPost("/catalog/run", body); err != nil {
+		http.Redirect(w, r, "/catalog?error=설치+실패:+"+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/catalog?success="+app.Name+"+설치+완료", http.StatusSeeOther)
+}
+
+func (h *handlers) catalogRemove(w http.ResponseWriter, r *http.Request) {
+	appID := r.PathValue("id")
+	var app *CatalogApp
+	for i := range CatalogApps {
+		if CatalogApps[i].ID == appID {
+			app = &CatalogApps[i]
+			break
+		}
+	}
+	if app == nil {
+		http.Redirect(w, r, "/catalog?error=앱+없음", http.StatusSeeOther)
+		return
+	}
+	body, _ := json.Marshal(map[string]string{"name": app.ContainerName()})
+	if _, err := hostPost("/catalog/remove", body); err != nil {
+		http.Redirect(w, r, "/catalog?error=제거+실패:+"+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/catalog?success="+app.Name+"+제거됨", http.StatusSeeOther)
+}
+
+// ── 진단/로그 ─────────────────────────────────────────────────────────────────
+
+func (h *handlers) diagnosticsPage(w http.ResponseWriter, r *http.Request) {
+	render(w, "diagnostics", map[string]any{
+		"ActivePage":  "diagnostics",
+		"CurrentUser": userFrom(r),
+		"AgentMode":   agentMode(),
+	})
+}
+
+// diagLocalLog — Jail 내부 로그 직접 읽기 (pfortainer.log)
+func (h *handlers) diagLocalLog(w http.ResponseWriter, r *http.Request) {
+	allowed := map[string]string{
+		"pfortainer": "/var/log/pfortainer.log",
+	}
+	file := r.URL.Query().Get("file")
+	lines := r.URL.Query().Get("lines")
+	if lines == "" {
+		lines = "200"
+	}
+	path, ok := allowed[file]
+	if !ok {
+		http.Error(w, "unknown log", http.StatusBadRequest)
+		return
+	}
+	out, err := os.ReadFile(path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// tail: last N lines
+	linesAll := strings.Split(string(out), "\n")
+	var n int
+	fmt.Sscanf(lines, "%d", &n)
+	if n <= 0 {
+		n = 200
+	}
+	if len(linesAll) > n {
+		linesAll = linesAll[len(linesAll)-n:]
+	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Write([]byte(strings.Join(linesAll, "\n")))
+}
+
+// diagHostLog — host agent 경유 로그
+func (h *handlers) diagHostLog(w http.ResponseWriter, r *http.Request) {
+	file := r.URL.Query().Get("file")
+	lines := r.URL.Query().Get("lines")
+	if lines == "" {
+		lines = "200"
+	}
+	b, err := hostGetAgent("/diag/log?file=" + file + "&lines=" + lines)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadGateway)
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Write(b)
+}
+
+// diagCmd — host agent 경유 진단 명령
+func (h *handlers) diagCmd(w http.ResponseWriter, r *http.Request) {
+	cmd := r.URL.Query().Get("cmd")
+	b, err := hostGetAgent("/diag/cmd?cmd=" + cmd)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadGateway)
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Write(b)
+}
+
+// ── ZFS 복제 ──────────────────────────────────────────────────────────────────
+
+type ReplicationVM struct {
+	ActivePage  string
+	CurrentUser SessionUser
+	Tasks       []DBReplTask
+	AgentMode   string
+	Error       string
+	Success     string
+}
+
+func (h *handlers) replicationPage(w http.ResponseWriter, r *http.Request) {
+	vm := ReplicationVM{
+		ActivePage:  "replication",
+		CurrentUser: userFrom(r),
+		AgentMode:   agentMode(),
+		Error:       r.URL.Query().Get("error"),
+		Success:     r.URL.Query().Get("success"),
+	}
+	tasks, err := h.cdb.ListReplTasks()
+	if err != nil {
+		vm.Error = "복제 태스크 조회 실패: " + err.Error()
+	} else {
+		vm.Tasks = tasks
+	}
+	render(w, "replications", vm)
+}
+
+func (h *handlers) replicationCreate(w http.ResponseWriter, r *http.Request) {
+	t := DBReplTask{
+		Name:          r.FormValue("name"),
+		SourceDataset: r.FormValue("source_dataset"),
+		TargetPath:    r.FormValue("target_path"),
+		Recursive:     r.FormValue("recursive") == "1",
+		Schedule:      r.FormValue("schedule"),
+		Enabled:       true,
+	}
+	if t.Name == "" || t.SourceDataset == "" || t.TargetPath == "" {
+		http.Redirect(w, r, "/replications?error=이름+소스+대상은+필수입니다", http.StatusSeeOther)
+		return
+	}
+	if t.Schedule == "" {
+		t.Schedule = "manual"
+	}
+	if _, err := h.cdb.CreateReplTask(t); err != nil {
+		http.Redirect(w, r, "/replications?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/replications?success=복제+태스크+추가됨", http.StatusSeeOther)
+}
+
+func (h *handlers) replicationDelete(w http.ResponseWriter, r *http.Request) {
+	var id int64
+	fmt.Sscanf(r.PathValue("id"), "%d", &id)
+	if err := h.cdb.DeleteReplTask(id); err != nil {
+		http.Redirect(w, r, "/replications?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/replications?success=삭제됨", http.StatusSeeOther)
+}
+
+func (h *handlers) replicationToggle(w http.ResponseWriter, r *http.Request) {
+	var id int64
+	fmt.Sscanf(r.PathValue("id"), "%d", &id)
+	enabled := r.FormValue("enabled") == "1"
+	if err := h.cdb.ToggleReplTask(id, enabled); err != nil {
+		http.Redirect(w, r, "/replications?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/replications", http.StatusSeeOther)
+}
+
+func (h *handlers) replicationRun(w http.ResponseWriter, r *http.Request) {
+	var id int64
+	fmt.Sscanf(r.PathValue("id"), "%d", &id)
+
+	tasks, err := h.cdb.ListReplTasks()
+	if err != nil {
+		http.Redirect(w, r, "/replications?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	var task *DBReplTask
+	for i := range tasks {
+		if tasks[i].ID == id {
+			task = &tasks[i]
+			break
+		}
+	}
+	if task == nil {
+		http.Redirect(w, r, "/replications?error=태스크+없음", http.StatusSeeOther)
+		return
+	}
+
+	result, runErr := runReplication(task.SourceDataset, task.TargetPath, task.LastSnapshot, task.Recursive)
+	if runErr != nil {
+		h.cdb.UpdateReplTaskResult(id, task.LastSnapshot, "error", runErr.Error())
+		http.Redirect(w, r, "/replications?error=복제+실패:+"+runErr.Error(), http.StatusSeeOther)
+		return
+	}
+	h.cdb.UpdateReplTaskResult(id, result.CurrentSnapshot, "ok", "")
+	http.Redirect(w, r, "/replications?success=복제+완료+→+"+result.CurrentSnapshot, http.StatusSeeOther)
 }
 
 // jsonOK / jsonErr helpers (used by snapshot API handlers)

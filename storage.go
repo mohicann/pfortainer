@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"strings"
 )
 
@@ -10,13 +11,13 @@ import (
 
 // StorageVM backs the "스토리지 상태" page: ZFS pool health plus per-disk SMART.
 type StorageVM struct {
-	ActivePage  string
-	CurrentUser SessionUser
-	AgentMode   string // "host-socket" | "local-exec"
-	Pools       []PoolStatus
-	Disks       []DiskSMART
-	PoolError   string
-	DiskError   string
+	ActivePage   string
+	CurrentUser  SessionUser
+	AgentMode    string // "host-socket" | "local-exec"
+	Pools     []PoolStatus
+	Disks     []DiskSMART
+	PoolError string
+	DiskError string
 }
 
 // PoolStatus is the parsed result of `zpool status` for a single pool.
@@ -61,6 +62,21 @@ type DiskSMART struct {
 
 // agentMode reports whether privileged reads go through the host-agent socket or
 // fall back to direct execution (local dev / running on the host directly).
+// startSmartTest triggers a SMART self-test (short/long/conveyance/offline)
+// on the given device via the host agent.
+func startSmartTest(device, testType string) (string, error) {
+	body, _ := json.Marshal(map[string]string{"device": device, "type": testType})
+	resp, err := hostPost("/smart/test", body)
+	if err != nil {
+		return "", err
+	}
+	var out struct {
+		Output string `json:"output"`
+	}
+	json.Unmarshal(resp, &out)
+	return out.Output, nil
+}
+
 func agentMode() string {
 	if hostdClient() != nil {
 		return "host-socket"
@@ -74,6 +90,15 @@ func poolStatus() ([]PoolStatus, error) {
 		return nil, err
 	}
 	return parseZpoolStatus(out), nil
+}
+
+// listSmartDevices returns only device names from smartctl --scan, without reading per-disk data.
+func listSmartDevices() ([]string, error) {
+	out, err := hostGet("/smart-scan", []string{"smartctl", "--scan"})
+	if err != nil {
+		return nil, err
+	}
+	return parseSmartScan(out), nil
 }
 
 // smartSummary scans for SMART-capable devices and collects a one-line health
