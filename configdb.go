@@ -66,8 +66,167 @@ func migrate(db *sql.DB) error {
 			value      TEXT NOT NULL,
 			updated_at INTEGER NOT NULL
 		);
+		CREATE TABLE IF NOT EXISTS schedules (
+			id         INTEGER PRIMARY KEY,
+			type       TEXT    NOT NULL,
+			target     TEXT    NOT NULL,
+			frequency  TEXT    NOT NULL,
+			retention  INTEGER NOT NULL DEFAULT 7,
+			prefix     TEXT    NOT NULL DEFAULT 'auto',
+			enabled    INTEGER NOT NULL DEFAULT 1,
+			last_run   INTEGER,
+			next_run   INTEGER,
+			created_at INTEGER NOT NULL
+		);
 	`)
 	return err
+}
+
+// ── Schedule CRUD ─────────────────────────────────────────────────────────────
+
+type DBSchedule struct {
+	ID        int64
+	Type      string // "snapshot" | "scrub"
+	Target    string // dataset (snapshot) or pool name (scrub)
+	Frequency string // "hourly" | "daily" | "weekly" | "monthly"
+	Retention int    // keep N snapshots (0 = unlimited)
+	Prefix    string // auto-snapshot name prefix
+	Enabled   bool
+	LastRun   *time.Time
+	NextRun   *time.Time
+	CreatedAt time.Time
+}
+
+func (c *ConfigDB) CreateSchedule(s DBSchedule) (int64, error) {
+	res, err := c.db.Exec(
+		`INSERT INTO schedules (type, target, frequency, retention, prefix, enabled, next_run, created_at)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+		s.Type, s.Target, s.Frequency, s.Retention, s.Prefix,
+		boolInt(s.Enabled), unixOrNil(s.NextRun), time.Now().Unix(),
+	)
+	if err != nil {
+		return 0, err
+	}
+	return res.LastInsertId()
+}
+
+func (c *ConfigDB) ListSchedules() ([]DBSchedule, error) {
+	rows, err := c.db.Query(
+		`SELECT id, type, target, frequency, retention, prefix, enabled, last_run, next_run, created_at
+		 FROM schedules ORDER BY id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []DBSchedule
+	for rows.Next() {
+		var s DBSchedule
+		var enabled int
+		var lastRun, nextRun *int64
+		var createdAt int64
+		if err := rows.Scan(&s.ID, &s.Type, &s.Target, &s.Frequency, &s.Retention,
+			&s.Prefix, &enabled, &lastRun, &nextRun, &createdAt); err != nil {
+			return nil, err
+		}
+		s.Enabled = enabled != 0
+		s.CreatedAt = time.Unix(createdAt, 0)
+		if lastRun != nil {
+			t := time.Unix(*lastRun, 0)
+			s.LastRun = &t
+		}
+		if nextRun != nil {
+			t := time.Unix(*nextRun, 0)
+			s.NextRun = &t
+		}
+		out = append(out, s)
+	}
+	return out, rows.Err()
+}
+
+func (c *ConfigDB) GetSchedule(id int64) (*DBSchedule, error) {
+	var s DBSchedule
+	var lastRun, nextRun *int64
+	var createdAt, enabled int64
+	err := c.db.QueryRow(
+		`SELECT id, type, target, frequency, retention, prefix, enabled, last_run, next_run, created_at
+		 FROM schedules WHERE id=?`, id,
+	).Scan(&s.ID, &s.Type, &s.Target, &s.Frequency, &s.Retention,
+		&s.Prefix, &enabled, &lastRun, &nextRun, &createdAt)
+	if err != nil {
+		return nil, err
+	}
+	s.Enabled = enabled != 0
+	s.CreatedAt = time.Unix(createdAt, 0)
+	if lastRun != nil {
+		t := time.Unix(*lastRun, 0)
+		s.LastRun = &t
+	}
+	if nextRun != nil {
+		t := time.Unix(*nextRun, 0)
+		s.NextRun = &t
+	}
+	return &s, nil
+}
+
+func (c *ConfigDB) UpdateScheduleRun(id int64, lastRun, nextRun time.Time) error {
+	_, err := c.db.Exec(
+		"UPDATE schedules SET last_run=?, next_run=? WHERE id=?",
+		lastRun.Unix(), nextRun.Unix(), id,
+	)
+	return err
+}
+
+func (c *ConfigDB) ToggleSchedule(id int64, enabled bool) error {
+	_, err := c.db.Exec("UPDATE schedules SET enabled=? WHERE id=?", boolInt(enabled), id)
+	return err
+}
+
+func (c *ConfigDB) DeleteSchedule(id int64) error {
+	_, err := c.db.Exec("DELETE FROM schedules WHERE id=?", id)
+	return err
+}
+
+func (c *ConfigDB) DueSchedules() ([]DBSchedule, error) {
+	now := time.Now().Unix()
+	rows, err := c.db.Query(
+		`SELECT id FROM schedules WHERE enabled=1 AND (next_run IS NULL OR next_run <= ?)`, now)
+	if err != nil {
+		return nil, err
+	}
+	var ids []int64
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			rows.Close()
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	rows.Close()
+	var out []DBSchedule
+	for _, id := range ids {
+		s, err := c.GetSchedule(id)
+		if err != nil {
+			continue
+		}
+		out = append(out, *s)
+	}
+	return out, nil
+}
+
+func boolInt(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+func unixOrNil(t *time.Time) *int64 {
+	if t == nil {
+		return nil
+	}
+	v := t.Unix()
+	return &v
 }
 
 // BootstrapAdmin creates an "admin" user with the given password only when the

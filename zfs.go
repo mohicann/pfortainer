@@ -1,11 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // emptyDatasetThreshold: refer 값이 이 값 미만이면 파일 없는 빈 데이터셋으로 간주 (1 MiB)
@@ -203,4 +205,112 @@ func destroyZFSDataset(name string) error {
 		return fmt.Errorf("%s", msg)
 	}
 	return nil
+}
+
+// ── ZFS 스냅샷 ────────────────────────────────────────────────────────────────
+
+type Snapshot struct {
+	Name     string    // 전체 이름: dataset@snapname
+	Dataset  string    // @ 앞 부분
+	SnapName string    // @ 뒷 부분
+	Creation time.Time
+	Used     string
+	Refer    string
+}
+
+// listSnapshots lists all snapshots under dataset (empty = all pools).
+// Results are sorted by creation time ascending.
+func listSnapshots(dataset string) ([]Snapshot, error) {
+	args := []string{"list", "-H", "-p", "-t", "snapshot",
+		"-o", "name,creation,used,refer", "-s", "creation"}
+	if dataset != "" {
+		args = append(args, "-r", dataset)
+	}
+	out, err := zfsRun("zfs", args...)
+	if err != nil {
+		return nil, err
+	}
+	var snaps []Snapshot
+	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+		if line == "" {
+			continue
+		}
+		f := strings.Split(line, "\t")
+		if len(f) < 4 {
+			continue
+		}
+		name := f[0]
+		atIdx := strings.LastIndex(name, "@")
+		if atIdx < 0 {
+			continue
+		}
+		sec, _ := strconv.ParseInt(f[1], 10, 64)
+		used, _ := strconv.ParseInt(f[2], 10, 64)
+		refer, _ := strconv.ParseInt(f[3], 10, 64)
+		snaps = append(snaps, Snapshot{
+			Name:     name,
+			Dataset:  name[:atIdx],
+			SnapName: name[atIdx+1:],
+			Creation: time.Unix(sec, 0),
+			Used:     fmtBytes(used),
+			Refer:    fmtBytes(refer),
+		})
+	}
+	return snaps, nil
+}
+
+// Snapshot write operations are routed through the host agent (pfortainer_hostd)
+// because the Jail does not have ZFS delegation for write operations.
+
+func createSnapshot(dataset, snapname string) error {
+	body, _ := json.Marshal(map[string]string{"dataset": dataset, "snapname": snapname})
+	_, err := hostPost("/zfs/snapshot", body)
+	return err
+}
+
+func destroySnapshot(fullName string) error {
+	body, _ := json.Marshal(map[string]string{"name": fullName})
+	_, err := hostPost("/zfs/snapshot/delete", body)
+	return err
+}
+
+// rollbackSnapshot rolls back to a snapshot. The agent uses -r to destroy newer snapshots.
+func rollbackSnapshot(fullName string) error {
+	body, _ := json.Marshal(map[string]string{"name": fullName})
+	_, err := hostPost("/zfs/rollback", body)
+	return err
+}
+
+func cloneSnapshot(fullName, target string) error {
+	body, _ := json.Marshal(map[string]string{"name": fullName, "target": target})
+	_, err := hostPost("/zfs/clone", body)
+	return err
+}
+
+// listSnapshotsByDataset returns a map of dataset → snapshots, ordered by creation time.
+func listSnapshotsByDataset(dataset string) (map[string][]Snapshot, []string, error) {
+	snaps, err := listSnapshots(dataset)
+	if err != nil {
+		return nil, nil, err
+	}
+	groups := make(map[string][]Snapshot)
+	var order []string
+	for _, s := range snaps {
+		if _, ok := groups[s.Dataset]; !ok {
+			order = append(order, s.Dataset)
+		}
+		groups[s.Dataset] = append(groups[s.Dataset], s)
+	}
+	return groups, order, nil
+}
+
+// pruneSnapshots deletes the oldest snapshots matching prefix under dataset,
+// keeping at most keep. keep=0 means keep all. Routed through host agent.
+func pruneSnapshots(dataset, prefix string, keep int) error {
+	if keep <= 0 {
+		return nil
+	}
+	body, _ := json.Marshal(map[string]any{"dataset": dataset, "prefix": prefix, "keep": keep})
+	_, err := hostPost("/zfs/snapshot/prune", body)
+	return err
 }

@@ -137,6 +137,179 @@ func runHostd() {
 		writeCmdOutLenient(w, out, err)
 	})
 
+	// ZFS snapshot write endpoints — all require POST and run as host root.
+	// Input/output is JSON.
+	mux.HandleFunc("/zfs/snapshot", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "POST only", http.StatusMethodNotAllowed)
+			return
+		}
+		var req struct {
+			Dataset  string `json:"dataset"`
+			SnapName string `json:"snapname"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Dataset == "" || req.SnapName == "" {
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+		auditLog("zfs snapshot %s@%s", req.Dataset, req.SnapName)
+		out, err := exec.Command("zfs", "snapshot", req.Dataset+"@"+req.SnapName).CombinedOutput()
+		if err != nil {
+			msg := strings.TrimSpace(string(out))
+			if msg == "" {
+				msg = err.Error()
+			}
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"success":true}`))
+	})
+
+	mux.HandleFunc("/zfs/snapshot/delete", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "POST only", http.StatusMethodNotAllowed)
+			return
+		}
+		var req struct {
+			Name string `json:"name"` // dataset@snapname
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Name == "" {
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+		if !strings.Contains(req.Name, "@") {
+			http.Error(w, "invalid snapshot name", http.StatusBadRequest)
+			return
+		}
+		auditLog("zfs destroy %s", req.Name)
+		out, err := exec.Command("zfs", "destroy", req.Name).CombinedOutput()
+		if err != nil {
+			msg := strings.TrimSpace(string(out))
+			if msg == "" {
+				msg = err.Error()
+			}
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"success":true}`))
+	})
+
+	mux.HandleFunc("/zfs/rollback", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "POST only", http.StatusMethodNotAllowed)
+			return
+		}
+		var req struct {
+			Name string `json:"name"` // dataset@snapname
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Name == "" {
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+		if !strings.Contains(req.Name, "@") {
+			http.Error(w, "invalid snapshot name", http.StatusBadRequest)
+			return
+		}
+		auditLog("zfs rollback -r %s", req.Name)
+		out, err := exec.Command("zfs", "rollback", "-r", req.Name).CombinedOutput()
+		if err != nil {
+			msg := strings.TrimSpace(string(out))
+			if msg == "" {
+				msg = err.Error()
+			}
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"success":true}`))
+	})
+
+	mux.HandleFunc("/zfs/clone", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "POST only", http.StatusMethodNotAllowed)
+			return
+		}
+		var req struct {
+			Name   string `json:"name"`   // dataset@snapname
+			Target string `json:"target"` // new dataset
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Name == "" || req.Target == "" {
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+		if !strings.Contains(req.Name, "@") {
+			http.Error(w, "invalid snapshot name", http.StatusBadRequest)
+			return
+		}
+		auditLog("zfs clone %s %s", req.Name, req.Target)
+		out, err := exec.Command("zfs", "clone", req.Name, req.Target).CombinedOutput()
+		if err != nil {
+			msg := strings.TrimSpace(string(out))
+			if msg == "" {
+				msg = err.Error()
+			}
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"success":true}`))
+	})
+
+	mux.HandleFunc("/zfs/snapshot/prune", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "POST only", http.StatusMethodNotAllowed)
+			return
+		}
+		var req struct {
+			Dataset string `json:"dataset"`
+			Prefix  string `json:"prefix"`
+			Keep    int    `json:"keep"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Dataset == "" {
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+		if req.Keep <= 0 {
+			w.Header().Set("Content-Type", "application/json")
+			w.Write([]byte(`{"success":true}`))
+			return
+		}
+		auditLog("zfs snapshot prune %s prefix=%s keep=%d", req.Dataset, req.Prefix, req.Keep)
+		// List snapshots directly via zfs binary (host-side, no agent recursion)
+		out, err := exec.Command("zfs", "list", "-H", "-p", "-t", "snapshot",
+			"-o", "name,creation", "-s", "creation", "-r", req.Dataset).Output()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		var matching []string
+		for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+			if line == "" {
+				continue
+			}
+			f := strings.SplitN(line, "\t", 2)
+			name := f[0]
+			atIdx := strings.LastIndex(name, "@")
+			if atIdx < 0 {
+				continue
+			}
+			ds := name[:atIdx]
+			sn := name[atIdx+1:]
+			if ds == req.Dataset && strings.HasPrefix(sn, req.Prefix) {
+				matching = append(matching, name)
+			}
+		}
+		for len(matching) > req.Keep {
+			auditLog("zfs destroy %s (prune)", matching[0])
+			exec.Command("zfs", "destroy", matching[0]).Run()
+			matching = matching[1:]
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"success":true}`))
+	})
+
 	mux.HandleFunc("/compose-up", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)

@@ -1,0 +1,281 @@
+{{template "base" .}}
+{{define "title"}}스냅샷 — pfortainer{{end}}
+{{define "pagetitle"}}ZFS 스냅샷{{end}}
+{{define "content"}}
+
+{{if .Error}}
+<div class="alert alert-danger py-2 mb-3"><i class="bi bi-exclamation-triangle me-1"></i>{{.Error}}</div>
+{{end}}
+{{if .Success}}
+<div class="alert alert-success py-2 mb-3"><i class="bi bi-check-circle me-1"></i>{{.Success}}</div>
+{{end}}
+
+<div class="row g-3">
+
+  {{/* ── 스냅샷 생성 ── */}}
+  <div class="col-12">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-camera me-1"></i>스냅샷 생성</span>
+      </div>
+      <div class="p-3">
+        <div class="row g-2 align-items-end">
+          <div class="col-auto" style="min-width:260px">
+            <label class="form-label small fw-semibold text-muted mb-1">데이터셋</label>
+            <select id="createDs" class="form-select form-select-sm">
+              {{range .Datasets}}<option value="{{.}}">{{.}}</option>{{end}}
+            </select>
+          </div>
+          <div class="col-auto" style="min-width:220px">
+            <label class="form-label small fw-semibold text-muted mb-1">스냅샷 이름</label>
+            <input id="createName" type="text" class="form-control form-control-sm"
+                   placeholder="예: manual-20260628" autocomplete="off">
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-primary btn-sm" onclick="doCreate()">
+              <i class="bi bi-camera me-1"></i>생성
+            </button>
+            <button class="btn btn-outline-secondary btn-sm ms-1" onclick="fillAutoName()">
+              <i class="bi bi-magic me-1"></i>자동 이름
+            </button>
+          </div>
+          <div class="col-12">
+            <div id="createErr" class="alert alert-danger py-1 mt-1 d-none" style="font-size:.83rem"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{/* ── 스냅샷 목록 ── */}}
+  <div class="col-12">
+  {{if not .Groups}}
+    <div class="card-table">
+      <div class="p-4 text-center text-muted">
+        <i class="bi bi-camera" style="font-size:2rem;opacity:.3"></i>
+        <p class="mt-2 mb-0">스냅샷이 없습니다.</p>
+      </div>
+    </div>
+  {{else}}
+  {{range .Groups}}
+  <div class="card-table mb-3">
+    <div class="ct-header">
+      <span class="fw-semibold mono" style="font-size:.88rem">
+        <i class="bi bi-hdd-stack me-1 text-muted"></i>{{.Dataset}}
+        <span class="badge bg-secondary ms-1">{{len .Snapshots}}</span>
+      </span>
+    </div>
+    <table class="table mb-0" style="font-size:.875rem">
+      <thead>
+        <tr>
+          <th>스냅샷 이름</th>
+          <th>생성 시각</th>
+          <th>사용 공간</th>
+          <th>참조 크기</th>
+          <th class="text-end">작업</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Snapshots}}
+        <tr>
+          <td class="mono fw-semibold" style="color:#1a73e8">@{{.SnapName}}</td>
+          <td class="text-muted" style="font-size:.82rem">{{.Creation.Format "2006-01-02 15:04:05"}}</td>
+          <td>{{.Used}}</td>
+          <td>{{.Refer}}</td>
+          <td class="text-end">
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-secondary"
+                      onclick="doRollback('{{.Name}}')"
+                      title="이 시점으로 롤백">
+                <i class="bi bi-arrow-counterclockwise"></i>
+              </button>
+              <button class="btn btn-outline-primary"
+                      onclick="openClone('{{.Name}}')"
+                      title="클론 생성">
+                <i class="bi bi-copy"></i>
+              </button>
+              <button class="btn btn-outline-danger"
+                      onclick="doDelete('{{.Name}}')"
+                      title="삭제">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+  {{end}}
+  {{end}}
+  </div>
+
+</div>
+
+{{/* ── 롤백 확인 모달 ── */}}
+<div class="modal fade" id="rollbackModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content border-warning">
+      <div class="modal-header py-2" style="background:#fff3cd">
+        <h6 class="modal-title fw-semibold">
+          <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>롤백 확인
+        </h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:.9rem" class="mb-2">다음 스냅샷으로 롤백하시겠습니까?</p>
+        <code id="rollbackTarget" class="d-block p-2 bg-light rounded mb-3"></code>
+        <p class="text-danger mb-0" style="font-size:.83rem">
+          <i class="bi bi-exclamation-circle me-1"></i>
+          롤백 이후 생성된 스냅샷은 자동으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
+        </p>
+        <div id="rollbackErr" class="alert alert-danger py-1 mt-2 d-none" style="font-size:.83rem"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-sm btn-warning" onclick="confirmRollback()">
+          <i class="bi bi-arrow-counterclockwise me-1"></i>롤백
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{/* ── 클론 모달 ── */}}
+<div class="modal fade" id="cloneModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title fw-semibold"><i class="bi bi-copy me-2"></i>스냅샷 클론</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:.88rem" class="mb-2">
+          소스: <code id="cloneSrc"></code>
+        </p>
+        <label class="form-label small fw-semibold text-muted mb-1">새 데이터셋 경로</label>
+        <input id="cloneTarget" type="text" class="form-control form-control-sm"
+               placeholder="예: zdata/backup-clone" autocomplete="off">
+        <div id="cloneErr" class="alert alert-danger py-1 mt-2 d-none" style="font-size:.83rem"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="confirmClone()">
+          <i class="bi bi-copy me-1"></i>클론 생성
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var rollbackModal, cloneModal;
+var pendingRollback = '';
+var pendingCloneSrc = '';
+
+document.addEventListener('DOMContentLoaded', function() {
+  rollbackModal = new bootstrap.Modal(document.getElementById('rollbackModal'));
+  cloneModal    = new bootstrap.Modal(document.getElementById('cloneModal'));
+  fillAutoName();
+});
+
+function fillAutoName() {
+  var now = new Date();
+  var pad = function(n) { return String(n).padStart(2, '0'); };
+  var label = 'manual-' +
+    now.getFullYear() +
+    pad(now.getMonth()+1) +
+    pad(now.getDate()) + '-' +
+    pad(now.getHours()) +
+    pad(now.getMinutes()) +
+    pad(now.getSeconds());
+  document.getElementById('createName').value = label;
+}
+
+function doCreate() {
+  var ds   = document.getElementById('createDs').value;
+  var name = document.getElementById('createName').value.trim();
+  var errEl = document.getElementById('createErr');
+  errEl.classList.add('d-none');
+  if (!ds || !name) {
+    errEl.textContent = '데이터셋과 스냅샷 이름을 입력하세요.';
+    errEl.classList.remove('d-none');
+    return;
+  }
+  fetch('/api/snapshots/create', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({dataset: ds, snapname: name})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.success) { location.reload(); }
+    else { errEl.textContent = d.error || '생성 실패'; errEl.classList.remove('d-none'); }
+  })
+  .catch(function(e) { errEl.textContent = String(e); errEl.classList.remove('d-none'); });
+}
+
+function doDelete(name) {
+  if (!confirm(name + '\n\n이 스냅샷을 삭제하시겠습니까?')) return;
+  fetch('/api/snapshots/delete', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({name: name})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.success) { location.reload(); }
+    else { alert('삭제 실패: ' + (d.error || '')); }
+  });
+}
+
+function doRollback(name) {
+  pendingRollback = name;
+  document.getElementById('rollbackTarget').textContent = name;
+  document.getElementById('rollbackErr').classList.add('d-none');
+  rollbackModal.show();
+}
+
+function confirmRollback() {
+  var errEl = document.getElementById('rollbackErr');
+  fetch('/api/snapshots/rollback', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({name: pendingRollback})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.success) { rollbackModal.hide(); location.reload(); }
+    else { errEl.textContent = d.error || '롤백 실패'; errEl.classList.remove('d-none'); }
+  });
+}
+
+function openClone(name) {
+  pendingCloneSrc = name;
+  document.getElementById('cloneSrc').textContent = name;
+  document.getElementById('cloneTarget').value = '';
+  document.getElementById('cloneErr').classList.add('d-none');
+  cloneModal.show();
+}
+
+function confirmClone() {
+  var target = document.getElementById('cloneTarget').value.trim();
+  var errEl  = document.getElementById('cloneErr');
+  if (!target) {
+    errEl.textContent = '대상 데이터셋 경로를 입력하세요.';
+    errEl.classList.remove('d-none');
+    return;
+  }
+  fetch('/api/snapshots/clone', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({name: pendingCloneSrc, target: target})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.success) { cloneModal.hide(); location.reload(); }
+    else { errEl.textContent = d.error || '클론 실패'; errEl.classList.remove('d-none'); }
+  });
+}
+</script>
+{{end}}

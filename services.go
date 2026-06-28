@@ -12,6 +12,25 @@ import (
 	"strings"
 )
 
+// hostPost sends a JSON POST to the host-agent socket and returns the response body.
+// It does NOT fall back to local exec — write operations must go through the agent.
+func hostPost(path string, body []byte) ([]byte, error) {
+	hc := hostdClient()
+	if hc == nil {
+		return nil, fmt.Errorf("host agent unavailable (socket not found)")
+	}
+	resp, err := hc.Post("http://hostd"+path, "application/json", bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	b, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("%s", strings.TrimSpace(string(b)))
+	}
+	return b, nil
+}
+
 // ── View Models ───────────────────────────────────────────────────────────────
 
 type ServiceEntry struct {

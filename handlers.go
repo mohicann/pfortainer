@@ -15,14 +15,15 @@ import (
 )
 
 type handlers struct {
-	cfg *Config
-	pc  *PodmanClient
-	mc  *MetricsCollector
-	cdb *ConfigDB
+	cfg   *Config
+	pc    *PodmanClient
+	mc    *MetricsCollector
+	cdb   *ConfigDB
+	sched *Scheduler
 }
 
-func newHandlers(cfg *Config, pc *PodmanClient, mc *MetricsCollector, cdb *ConfigDB) *handlers {
-	return &handlers{cfg: cfg, pc: pc, mc: mc, cdb: cdb}
+func newHandlers(cfg *Config, pc *PodmanClient, mc *MetricsCollector, cdb *ConfigDB, sched *Scheduler) *handlers {
+	return &handlers{cfg: cfg, pc: pc, mc: mc, cdb: cdb, sched: sched}
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
@@ -1131,4 +1132,247 @@ func (h *handlers) adminUserDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/admin/users?success="+username+"+삭제+완료", http.StatusSeeOther)
+}
+
+// ── ZFS 스냅샷 ────────────────────────────────────────────────────────────────
+
+type SnapGroup struct {
+	Dataset   string
+	Snapshots []Snapshot
+}
+
+type SnapshotsVM struct {
+	ActivePage  string
+	CurrentUser SessionUser
+	Groups      []SnapGroup
+	Datasets    []string // filesystem dataset names for create form
+	Error       string
+	Success     string
+}
+
+func (h *handlers) snapshots(w http.ResponseWriter, r *http.Request) {
+	_, groupOrder, err := listSnapshotsByDataset("")
+	groups := map[string][]Snapshot{}
+	if err != nil {
+		log.Printf("snapshots: list: %v", err)
+	} else {
+		var all []Snapshot
+		all, err = listSnapshots("")
+		if err == nil {
+			for _, s := range all {
+				groups[s.Dataset] = append(groups[s.Dataset], s)
+			}
+		}
+	}
+
+	datasets, _ := listZFSDatasets()
+	var dsNames []string
+	for _, d := range datasets {
+		if d.Type == "filesystem" {
+			dsNames = append(dsNames, d.Name)
+		}
+	}
+
+	var sg []SnapGroup
+	for _, ds := range groupOrder {
+		sg = append(sg, SnapGroup{Dataset: ds, Snapshots: groups[ds]})
+	}
+
+	vm := SnapshotsVM{
+		ActivePage:  "snapshots",
+		CurrentUser: userFrom(r),
+		Groups:      sg,
+		Datasets:    dsNames,
+		Error:       r.URL.Query().Get("error"),
+		Success:     r.URL.Query().Get("success"),
+	}
+	render(w, "snapshots", vm)
+}
+
+func (h *handlers) snapshotCreate(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Dataset  string `json:"dataset"`
+		SnapName string `json:"snapname"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonErr(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if req.Dataset == "" || req.SnapName == "" {
+		jsonErr(w, "dataset and snapname required", http.StatusBadRequest)
+		return
+	}
+	if err := createSnapshot(req.Dataset, req.SnapName); err != nil {
+		jsonErr(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	jsonOK(w)
+}
+
+func (h *handlers) snapshotDelete(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Name string `json:"name"` // dataset@snapname
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonErr(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := destroySnapshot(req.Name); err != nil {
+		jsonErr(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	jsonOK(w)
+}
+
+func (h *handlers) snapshotRollback(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Name string `json:"name"` // dataset@snapname
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonErr(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := rollbackSnapshot(req.Name); err != nil {
+		jsonErr(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	jsonOK(w)
+}
+
+func (h *handlers) snapshotClone(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Name   string `json:"name"`   // source: dataset@snapname
+		Target string `json:"target"` // new dataset path
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonErr(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if req.Name == "" || req.Target == "" {
+		jsonErr(w, "name and target required", http.StatusBadRequest)
+		return
+	}
+	if err := cloneSnapshot(req.Name, req.Target); err != nil {
+		jsonErr(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	jsonOK(w)
+}
+
+// ── 스케줄러 ──────────────────────────────────────────────────────────────────
+
+type SchedulesVM struct {
+	ActivePage  string
+	CurrentUser SessionUser
+	Schedules   []DBSchedule
+	Datasets    []string // for create form
+	Pools       []ZFSPool
+	Error       string
+	Success     string
+}
+
+func (h *handlers) schedulesPage(w http.ResponseWriter, r *http.Request) {
+	scheds, _ := h.cdb.ListSchedules()
+	datasets, _ := listZFSDatasets()
+	pools, _ := listZFSPools()
+
+	var dsNames []string
+	for _, d := range datasets {
+		if d.Type == "filesystem" {
+			dsNames = append(dsNames, d.Name)
+		}
+	}
+
+	vm := SchedulesVM{
+		ActivePage:  "schedules",
+		CurrentUser: userFrom(r),
+		Schedules:   scheds,
+		Datasets:    dsNames,
+		Pools:       pools,
+		Error:       r.URL.Query().Get("error"),
+		Success:     r.URL.Query().Get("success"),
+	}
+	render(w, "schedules", vm)
+}
+
+func (h *handlers) scheduleCreate(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Redirect(w, r, "/schedules?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	schedType := r.FormValue("type")
+	target := r.FormValue("target")
+	frequency := r.FormValue("frequency")
+	prefix := strings.TrimSpace(r.FormValue("prefix"))
+	if prefix == "" {
+		prefix = "auto"
+	}
+	retention := 7
+	fmt.Sscanf(r.FormValue("retention"), "%d", &retention)
+
+	if schedType == "" || target == "" || frequency == "" {
+		http.Redirect(w, r, "/schedules?error=필수+항목+누락", http.StatusSeeOther)
+		return
+	}
+
+	now := time.Now()
+	next := nextRunTime(frequency, now)
+	_, err := h.cdb.CreateSchedule(DBSchedule{
+		Type: schedType, Target: target, Frequency: frequency,
+		Retention: retention, Prefix: prefix, Enabled: true,
+		NextRun: &next,
+	})
+	if err != nil {
+		http.Redirect(w, r, "/schedules?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/schedules?success=스케줄+추가+완료", http.StatusSeeOther)
+}
+
+func (h *handlers) scheduleToggle(w http.ResponseWriter, r *http.Request) {
+	var id int64
+	fmt.Sscanf(r.PathValue("id"), "%d", &id)
+	sched, err := h.cdb.GetSchedule(id)
+	if err != nil {
+		http.Redirect(w, r, "/schedules?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	if err := h.cdb.ToggleSchedule(id, !sched.Enabled); err != nil {
+		http.Redirect(w, r, "/schedules?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/schedules", http.StatusSeeOther)
+}
+
+func (h *handlers) scheduleDelete(w http.ResponseWriter, r *http.Request) {
+	var id int64
+	fmt.Sscanf(r.PathValue("id"), "%d", &id)
+	if err := h.cdb.DeleteSchedule(id); err != nil {
+		http.Redirect(w, r, "/schedules?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/schedules?success=삭제+완료", http.StatusSeeOther)
+}
+
+func (h *handlers) scheduleRunNow(w http.ResponseWriter, r *http.Request) {
+	var id int64
+	fmt.Sscanf(r.PathValue("id"), "%d", &id)
+	if err := h.sched.RunNow(id); err != nil {
+		http.Redirect(w, r, "/schedules?error="+err.Error(), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/schedules?success=즉시+실행+완료", http.StatusSeeOther)
+}
+
+// jsonOK / jsonErr helpers (used by snapshot API handlers)
+func jsonOK(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(`{"success":true}`))
+}
+
+func jsonErr(w http.ResponseWriter, msg string, code int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	b, _ := json.Marshal(map[string]string{"error": msg})
+	w.Write(b)
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -26,7 +27,9 @@ func main() {
 
 	pc := newPodmanClient(cfg.PodmanSocket)
 	mc := newMetricsCollector(cfg.MetricsDB, cfg.MetricsRetainDays)
-	h := newHandlers(cfg, pc, mc, cdb)
+	sched := newScheduler(cdb)
+	go sched.Start(context.Background())
+	h := newHandlers(cfg, pc, mc, cdb, sched)
 
 	// requireRole returns a middleware that checks the session role, injects
 	// the SessionUser into context, and redirects to /login if unauthenticated.
@@ -96,6 +99,20 @@ func main() {
 	mux.Handle("POST /api/files/save", authOp(h.fileSave))
 	mux.Handle("POST /api/files/clip", authOp(h.fileClip))
 	mux.Handle("POST /api/files/paste", authOp(h.filePaste))
+
+	// ZFS 스냅샷
+	mux.Handle("GET /snapshots", auth(h.snapshots))
+	mux.Handle("POST /api/snapshots/create", authOp(h.snapshotCreate))
+	mux.Handle("POST /api/snapshots/delete", authOp(h.snapshotDelete))
+	mux.Handle("POST /api/snapshots/rollback", authOp(h.snapshotRollback))
+	mux.Handle("POST /api/snapshots/clone", authOp(h.snapshotClone))
+
+	// 스케줄러
+	mux.Handle("GET /schedules", auth(h.schedulesPage))
+	mux.Handle("POST /schedules", authOp(h.scheduleCreate))
+	mux.Handle("POST /schedules/{id}/toggle", authOp(h.scheduleToggle))
+	mux.Handle("POST /schedules/{id}/delete", authOp(h.scheduleDelete))
+	mux.Handle("POST /schedules/{id}/run", authOp(h.scheduleRunNow))
 
 	// admin: user management
 	mux.Handle("GET /admin/users", authAdm(h.adminUsers))
