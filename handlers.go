@@ -477,7 +477,7 @@ func (h *handlers) filesystemInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handlers) storageHealth(w http.ResponseWriter, r *http.Request) {
-	vm := StorageVM{ActivePage: "storage", AgentMode: agentMode()}
+	vm := StorageVM{ActivePage: "storage", CurrentUser: userFrom(r), AgentMode: agentMode()}
 	if pools, err := poolStatus(); err != nil {
 		log.Printf("storage: zpool status error: %v", err)
 		vm.PoolError = err.Error()

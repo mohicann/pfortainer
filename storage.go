@@ -10,12 +10,13 @@ import (
 
 // StorageVM backs the "스토리지 상태" page: ZFS pool health plus per-disk SMART.
 type StorageVM struct {
-	ActivePage string
-	AgentMode  string // "host-socket" | "local-exec"
-	Pools      []PoolStatus
-	Disks      []DiskSMART
-	PoolError  string
-	DiskError  string
+	ActivePage  string
+	CurrentUser SessionUser
+	AgentMode   string // "host-socket" | "local-exec"
+	Pools       []PoolStatus
+	Disks       []DiskSMART
+	PoolError   string
+	DiskError   string
 }
 
 // PoolStatus is the parsed result of `zpool status` for a single pool.

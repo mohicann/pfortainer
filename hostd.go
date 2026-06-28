@@ -57,6 +57,13 @@ func writeCmdOutLenient(w http.ResponseWriter, out []byte, err error) {
 // runHostd starts the host-agent HTTP server on a Unix socket.
 // It exposes /sockstat and /jls so pfortainer inside a Jail can call them.
 func runHostd() {
+	// Ensure /usr/local/sbin (smartctl, etc.) is in PATH for daemon(8) environments.
+	if p := os.Getenv("PATH"); p != "" {
+		os.Setenv("PATH", p+":/usr/local/sbin:/usr/local/bin")
+	} else {
+		os.Setenv("PATH", "/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin")
+	}
+
 	os.MkdirAll("/run/pfortainer", 0755)
 	os.Remove(hostdSockPath)
 
