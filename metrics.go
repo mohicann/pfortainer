@@ -34,10 +34,11 @@ const (
 )
 
 type MetricSample struct {
-	Time int64
-	CPU  [4]float64 // user, nice, sys, intr (%)
-	Mem  [4]float64 // free, active, inactive, wired (MiB)
-	Load [3]float64 // 1, 5, 15 min
+	Time    int64
+	CPU     [4]float64 // user, nice, sys, intr (%)
+	CPUTemp float64    // °C (average across cores, 0 if unavailable)
+	Mem     [4]float64 // free, active, inactive, wired (MiB)
+	Load    [3]float64 // 1, 5, 15 min
 
 	// Network KB/s [rx, tx] per interface
 	NetIgc0 [2]float64
@@ -106,6 +107,7 @@ CREATE TABLE IF NOT EXISTS metrics (
 	cpu_nice         REAL NOT NULL DEFAULT 0,
 	cpu_sys          REAL NOT NULL DEFAULT 0,
 	cpu_intr         REAL NOT NULL DEFAULT 0,
+	cpu_temp         REAL NOT NULL DEFAULT 0,
 	mem_free         REAL NOT NULL DEFAULT 0,
 	mem_active       REAL NOT NULL DEFAULT 0,
 	mem_inactive     REAL NOT NULL DEFAULT 0,
@@ -131,7 +133,7 @@ CREATE TABLE IF NOT EXISTS metrics (
 	pool_zboot_total REAL NOT NULL DEFAULT 0
 );`
 
-const insertSQL = `INSERT OR REPLACE INTO metrics VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+const insertSQL = `INSERT OR REPLACE INTO metrics VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
 
 func (mc *MetricsCollector) setupDB(path string) error {
 	db, err := sql.Open("sqlite", path+"?_journal=WAL&_timeout=5000&_synchronous=NORMAL")
@@ -159,7 +161,7 @@ func (mc *MetricsCollector) populateRing() {
 		return
 	}
 	rows, err := mc.db.Query(`
-		SELECT time,cpu_user,cpu_nice,cpu_sys,cpu_intr,
+		SELECT time,cpu_user,cpu_nice,cpu_sys,cpu_intr,cpu_temp,
 		       mem_free,mem_active,mem_inactive,mem_wired,
 		       load1,load5,load15,
 		       net_igc0_rx,net_igc0_tx,net_ts_rx,net_ts_tx,
@@ -177,7 +179,7 @@ func (mc *MetricsCollector) populateRing() {
 	for rows.Next() {
 		var s MetricSample
 		rows.Scan(&s.Time,
-			&s.CPU[0], &s.CPU[1], &s.CPU[2], &s.CPU[3],
+			&s.CPU[0], &s.CPU[1], &s.CPU[2], &s.CPU[3], &s.CPUTemp,
 			&s.Mem[0], &s.Mem[1], &s.Mem[2], &s.Mem[3],
 			&s.Load[0], &s.Load[1], &s.Load[2],
 			&s.NetIgc0[0], &s.NetIgc0[1], &s.NetTs[0], &s.NetTs[1],
@@ -240,7 +242,7 @@ func (mc *MetricsCollector) writeToDB(s MetricSample) {
 	}
 	mc.insertStmt.Exec(
 		s.Time,
-		s.CPU[0], s.CPU[1], s.CPU[2], s.CPU[3],
+		s.CPU[0], s.CPU[1], s.CPU[2], s.CPU[3], s.CPUTemp,
 		s.Mem[0], s.Mem[1], s.Mem[2], s.Mem[3],
 		s.Load[0], s.Load[1], s.Load[2],
 		s.NetIgc0[0], s.NetIgc0[1], s.NetTs[0], s.NetTs[1],
@@ -261,6 +263,7 @@ func (mc *MetricsCollector) collect() MetricSample {
 
 	s := MetricSample{Time: now.Unix()}
 	s.CPU = mc.collectCPU()
+	s.CPUTemp = mc.collectCPUTemp()
 	s.Mem = mc.collectMem()
 	s.Load = mc.collectLoad()
 	s.NetIgc0, s.NetTs = mc.collectNet(elapsed)
@@ -308,6 +311,33 @@ func (mc *MetricsCollector) collectCPU() [4]float64 {
 		float64(delta[cpSys]) / float64(total) * 100,
 		float64(delta[cpIntr]) / float64(total) * 100,
 	}
+}
+
+// collectCPUTemp reads per-core temperature from dev.cpu.N.temperature
+// (coretemp/amdtemp drivers), which report deciKelvin as a 32-bit int.
+// Returns the average across available cores, or 0 if the driver isn't loaded.
+func (mc *MetricsCollector) collectCPUTemp() float64 {
+	var sum float64
+	var n int
+	for i := 0; i < 64; i++ {
+		b, err := unix.SysctlRaw(fmt.Sprintf("dev.cpu.%d.temperature", i))
+		if err != nil {
+			if i == 0 {
+				continue // core 0 missing doesn't necessarily mean no more cores
+			}
+			break
+		}
+		if len(b) < 4 {
+			continue
+		}
+		deciKelvin := int32(binary.LittleEndian.Uint32(b))
+		sum += float64(deciKelvin)/10 - 273.15
+		n++
+	}
+	if n == 0 {
+		return 0
+	}
+	return sum / float64(n)
 }
 
 // ── Memory ────────────────────────────────────────────────────────────────────
@@ -547,6 +577,7 @@ type ndResponse struct {
 
 var chartMeta = map[string][]string{
 	"system.cpu":      {"time", "user", "nice", "sys", "intr"},
+	"system.cputemp":  {"time", "tempC"},
 	"system.ram":      {"time", "free", "active", "inactive", "wired"},
 	"system.load":     {"time", "load1", "load5", "load15"},
 	"net.igc0":        {"time", "received", "sent"},
@@ -564,6 +595,8 @@ func (mc *MetricsCollector) sampleRow(chart string, s MetricSample) []float64 {
 	switch chart {
 	case "system.cpu":
 		return []float64{ts, s.CPU[0], s.CPU[1], s.CPU[2], s.CPU[3]}
+	case "system.cputemp":
+		return []float64{ts, s.CPUTemp}
 	case "system.ram":
 		return []float64{ts, s.Mem[0], s.Mem[1], s.Mem[2], s.Mem[3]}
 	case "system.load":
@@ -636,6 +669,7 @@ func (mc *MetricsCollector) queryRing(chart string, labels []string, afterSecs, 
 // chartCols maps chart names to their SQL column expressions
 var chartCols = map[string]string{
 	"system.cpu":     "cpu_user,cpu_nice,cpu_sys,cpu_intr",
+	"system.cputemp": "cpu_temp",
 	"system.ram":     "mem_free,mem_active,mem_inactive,mem_wired",
 	"system.load":    "load1,load5,load15",
 	"net.igc0":       "net_igc0_rx,net_igc0_tx",

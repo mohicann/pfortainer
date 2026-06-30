@@ -207,6 +207,13 @@ async function refreshGaugeCPU() {
     updateGauge(gCpu, pct);
     document.getElementById('gv-cpu').textContent = pct.toFixed(1) + '%';
   } catch(e) { console.error('gauge cpu', e); }
+
+  try {
+    const dt = await fetchND('system.cputemp', -5, 2);
+    const rowt = latestRow(dt.data);
+    const temp = rowt ? rowt[1] : 0;
+    document.getElementById('gs-cpu').textContent = temp > 0 ? temp.toFixed(1) + '°C' : ' ';
+  } catch(e) { console.error('gauge cpu temp', e); }
 }
 
 async function refreshGaugeRAM() {
