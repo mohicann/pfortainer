@@ -173,7 +173,7 @@ FreeBSD 호스트
 │   ├── metrics.db                   ← 메트릭 SQLite DB (영구 보존)
 │   └── .env                         ← 환경변수 설정
 │
-└── Jail: pfortainer (192.168.10.111)
+└── Jail: pfortainer (192.168.0.111)
     ├── /app        → nullfs ro mount (/zdata/tools/pfortainer-freebsd/)
     ├── /run/podman → nullfs rw mount (호스트 Podman 소켓)
     ├── /var/log/pfortainer.log      ← Jail 내부 로그 (ZFS에 영구 보존)
@@ -227,7 +227,7 @@ FreeBSD 호스트
        path = /zdata/jails/pfortainer;
        host.hostname = pfortainer;
 
-       ip4.addr = igc3|192.168.10.111/24;
+       ip4.addr = igc3|192.168.0.111/24;
        ip4.addr += lo0|127.0.0.2/8;
 
        exec.start = "/bin/sh /etc/rc";
@@ -300,16 +300,16 @@ FreeBSD 호스트
 
 7. `pf.conf`에 포트 포워딩 추가:
 
-   pfortainer는 Jail(`192.168.10.111`)에서 실행되므로, 호스트 IP 및 Tailscale IP로 접근하려면 pf 포워딩이 필요합니다.
+   pfortainer는 Jail(`192.168.0.111`)에서 실행되므로, 호스트 IP 및 Tailscale IP로 접근하려면 pf 포워딩이 필요합니다.
 
    ```sh
    # /etc/pf.conf (rdr-anchor 위에 추가)
    ts_if=tailscale0
    ext_if=igc3
    # Tailscale → Jail  ($ts_if 인터페이스 IP를 런타임에 동적 참조)
-   rdr pass on $ts_if proto tcp from any to ($ts_if) port 11000 -> 192.168.10.111 port 11000
+   rdr pass on $ts_if proto tcp from any to ($ts_if) port 11000 -> 192.168.0.111 port 11000
    # 호스트 LAN IP → Jail
-   rdr pass on $ext_if proto tcp from any to ($ext_if) port 11000 -> 192.168.10.111 port 11000
+   rdr pass on $ext_if proto tcp from any to ($ext_if) port 11000 -> 192.168.0.111 port 11000
    ```
    ```sh
    pfctl -f /etc/pf.conf
@@ -324,10 +324,10 @@ FreeBSD 호스트
 
 ### 로컬에서 접속 (SSH 포트 포워딩)
 
-pfortainer는 Jail(`192.168.10.111`)에서 실행되므로, 로컬 Mac에서 접속할 때는 Jail IP를 지정해야 합니다:
+pfortainer는 Jail(`192.168.0.111`)에서 실행되므로, 로컬 Mac에서 접속할 때는 Jail IP를 지정해야 합니다:
 
 ```sh
-ssh -L 11000:192.168.10.111:11000 fbnas
+ssh -L 11000:192.168.0.111:11000 fbnas
 ```
 
 그 후 브라우저에서 `http://localhost:11000` 접속.

@@ -248,7 +248,7 @@ rpcbind_enable="YES"</pre>
           <div class="mb-2">
             <label class="form-label small fw-semibold text-muted mb-1">클라이언트</label>
             <input type="text" name="clients" class="form-control form-control-sm"
-                   placeholder="192.168.10.0/24 또는 특정 IP">
+                   placeholder="192.168.0.0/24 또는 특정 IP">
             <div class="form-text" style="font-size:.73rem">공백 구분. 비워두면 모든 호스트 허용</div>
           </div>
           <div class="mb-2">
@@ -274,7 +274,7 @@ rpcbind_enable="YES"</pre>
           <strong>설정 파일:</strong> <code>/etc/exports.d/&lt;name&gt;.exports</code><br>
           추가 후 <strong>mountd Reload</strong>로 반영하세요.<br><br>
           <strong>예시 export 줄:</strong>
-          <pre class="mt-1 p-2 rounded mb-0" style="background:#1e2a3a;color:#b3e5fc;font-size:.73rem">/zdata/media -ro -maproot=nobody 192.168.10.0/24</pre>
+          <pre class="mt-1 p-2 rounded mb-0" style="background:#1e2a3a;color:#b3e5fc;font-size:.73rem">/zdata/media -ro -maproot=nobody 192.168.0.0/24</pre>
         </div>
       </div>
     </div>
