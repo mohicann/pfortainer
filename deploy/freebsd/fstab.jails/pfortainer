@@ -2,4 +2,14 @@
 /run/pfortainer                  /zdata/jails/pfortainer/run/pfortainer nullfs  ro,late  0  0
 /zdata/tools/pfortainer-freebsd  /zdata/jails/pfortainer/app         nullfs  ro,late  0  0
 /zdata                           /zdata/jails/pfortainer/zdata        nullfs  rw,late  0  0
+/zdata/apps                      /zdata/jails/pfortainer/zdata/apps                    nullfs  rw,late  0  0
+/zdata/apps/immich                /zdata/jails/pfortainer/zdata/apps/immich             nullfs  rw,late  0  0
+/zdata/apps/immich/postgres       /zdata/jails/pfortainer/zdata/apps/immich/postgres    nullfs  rw,late  0  0
+/zdata/apps/nextcloud             /zdata/jails/pfortainer/zdata/apps/nextcloud          nullfs  rw,late  0  0
+/zdata/apps/nextcloud/data        /zdata/jails/pfortainer/zdata/apps/nextcloud/data     nullfs  rw,late  0  0
+/zdata/apps/nextcloud/postgres    /zdata/jails/pfortainer/zdata/apps/nextcloud/postgres nullfs  rw,late  0  0
+/zdata/audio-hls                 /zdata/jails/pfortainer/zdata/audio-hls               nullfs  rw,late  0  0
+/zdata/book-audio                /zdata/jails/pfortainer/zdata/book-audio              nullfs  rw,late  0  0
+/zdata/library-private-photo     /zdata/jails/pfortainer/zdata/library-private-photo   nullfs  rw,late  0  0
+/zdata/shared                    /zdata/jails/pfortainer/zdata/shared                  nullfs  rw,late  0  0
 /zboot                           /zdata/jails/pfortainer/zboot        nullfs  ro,late  0  0

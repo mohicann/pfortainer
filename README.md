@@ -232,8 +232,6 @@ FreeBSD 호스트
 
        exec.start = "/bin/sh /etc/rc";
        exec.stop  = "/bin/sh /etc/rc.shutdown";
-       exec.poststart += "zfs jail pfortainer zdata";
-       exec.poststart += "zfs jail pfortainer zboot";
        exec.clean;
        mount.devfs;
        mount.fstab = /etc/fstab.jails/pfortainer;
@@ -252,6 +250,12 @@ FreeBSD 호스트
    /zboot                           /zdata/jails/pfortainer/zboot        nullfs  ro,late  0  0
    ```
 
+   > **주의:** nullfs는 마운트된 트리 안에 별도로 얹힌 하위 마운트를 관통(propagate)하지 않습니다. `zdata` 밑에 별도 ZFS 데이터셋(예: `zdata/book-audio`)이 새로 생기면, 위 `/zdata` 마운트 하나로는 파일매니저에서 그 폴더가 빈 채로 보입니다. 데이터셋마다 개별 nullfs 라인을 추가해야 합니다:
+   > ```
+   > /zdata/book-audio  /zdata/jails/pfortainer/zdata/book-audio  nullfs  rw,late  0  0
+   > ```
+   > 중첩된 데이터셋(예: `apps` 밑의 `apps/immich`)은 계층마다 각각 라인이 필요합니다. 즉시 반영하려면 Jail 재시작 없이 `sudo mount -t nullfs <src> <dst>`로 라이브 마운트할 수 있습니다.
+
    마운트 포인트 생성:
    ```sh
    mkdir -p /zdata/jails/pfortainer/run/podman \
@@ -266,7 +270,9 @@ FreeBSD 호스트
    zfs allow -u root mount,create,destroy,snapshot,rollback zdata
    zfs allow -u root mount,create,destroy,snapshot,rollback zboot
    ```
-   `jail.conf.d/pfortainer.conf`에 `exec.poststart`로 `zfs jail`을 추가해야 재부팅 후에도 유지됩니다. 새 ZFS 풀 추가 시 `zfs allow`와 `exec.poststart` 줄을 동일하게 추가하세요.
+   Jail 내부 root가 해당 풀에 대해 `zfs` 명령을 실행할 수 있도록 하는 권한 위임입니다 (영구 적용, 재부팅 후에도 유지). 새 ZFS 풀 추가 시 동일하게 `zfs allow` 줄을 추가하세요.
+
+   > **참고:** `zfs jail` 기반 데이터셋 델리게이션은 이 구성에서 사용하지 않습니다. `/zdata`, `/zboot`가 이미 nullfs로 Jail에 마운트돼 있어 `zfs jail`을 시도하면 `"dataset already exists"` 오류가 발생합니다. 파일 가시성은 전적으로 nullfs 마운트(`fstab.jails`)로 처리합니다.
 
 4. 호스트 rc 서비스 설치 및 rc.conf 설정:
    ```sh
@@ -369,3 +375,7 @@ Podman 버전 업그레이드 후 같은 증상이 재발하면 libpod API 응�
 curl --unix-socket /run/podman/podman.sock \
   http://d/v5.0.0/libpod/containers/json?all=true
 ```
+
+**파일매니저에서 특정 폴더 진입 시 에러 없이 파일/폴더가 안 보임**
+
+`/zdata` 밑에 새로 만든 ZFS 데이터셋일 가능성이 높다. nullfs는 마운트된 트리 안에 나중에 얹힌 하위 마운트(다른 ZFS 데이터셋)를 관통하지 않으므로, `/zdata` 전체를 nullfs로 마운트해도 그 밑의 개별 데이터셋은 Jail 안에서 빈 디렉토리로 보인다. `fstab.jails/pfortainer`에 해당 데이터셋 전용 nullfs 라인을 추가하면 해결된다. 자세한 내용은 "초기 설치" 섹션의 `fstab.jails` 주의사항 참고.
