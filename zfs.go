@@ -2,9 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"math"
-	"os/exec"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -39,23 +38,13 @@ type ZFSDataset struct {
 	CanDelete   bool // !IsPool && !HasChildren && !HasFiles && Type==filesystem
 }
 
-func zfsRun(bin string, args ...string) ([]byte, error) {
-	out, err := exec.Command(bin, args...).Output()
-	if err != nil {
-		if ee, ok := err.(*exec.ExitError); ok {
-			msg := strings.TrimSpace(string(ee.Stderr))
-			if msg == "" {
-				msg = err.Error()
-			}
-			return nil, fmt.Errorf("%s", msg)
-		}
-		return nil, err
-	}
-	return out, nil
-}
-
+// listZFSPools/listZFSDatasets/listSnapshots run through the host agent because
+// the Jail has no ZFS visibility at all (zfs jail delegation conflicts with the
+// nullfs mounts used for file visibility — `zfs list` inside the Jail always
+// returns "no datasets available"). hostGet falls back to local exec when the
+// agent socket is absent (local dev, or pfortainer run directly on the host).
 func listZFSPools() ([]ZFSPool, error) {
-	out, err := zfsRun("zpool", "list", "-H", "-p", "-o", "name,size,alloc,free,health")
+	out, err := hostGet("/zpool-list", []string{"zpool", "list", "-H", "-p", "-o", "name,size,alloc,free,health"})
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +77,7 @@ func listZFSPools() ([]ZFSPool, error) {
 }
 
 func listZFSDatasets() ([]ZFSDataset, error) {
-	out, err := zfsRun("zfs", "list", "-H", "-p", "-o", "name,type,used,avail,refer,mountpoint")
+	out, err := hostGet("/zfs-list", []string{"zfs", "list", "-H", "-p", "-o", "name,type,used,avail,refer,mountpoint"})
 	if err != nil {
 		return nil, err
 	}
@@ -183,28 +172,18 @@ func listZFSDatasets() ([]ZFSDataset, error) {
 	return datasets, nil
 }
 
+// createZFSDataset/destroyZFSDataset are routed through the host agent (no local
+// exec fallback), same as ZFS snapshot writes — the Jail has no ZFS delegation.
 func createZFSDataset(path string) error {
-	out, err := exec.Command("zfs", "create", path).CombinedOutput()
-	if err != nil {
-		msg := strings.TrimSpace(string(out))
-		if msg == "" {
-			msg = err.Error()
-		}
-		return fmt.Errorf("%s", msg)
-	}
-	return nil
+	body, _ := json.Marshal(map[string]string{"path": path})
+	_, err := hostPost("/zfs/dataset", body)
+	return err
 }
 
 func destroyZFSDataset(name string) error {
-	out, err := exec.Command("zfs", "destroy", name).CombinedOutput()
-	if err != nil {
-		msg := strings.TrimSpace(string(out))
-		if msg == "" {
-			msg = err.Error()
-		}
-		return fmt.Errorf("%s", msg)
-	}
-	return nil
+	body, _ := json.Marshal(map[string]string{"name": name})
+	_, err := hostPost("/zfs/dataset/delete", body)
+	return err
 }
 
 // ── ZFS 스냅샷 ────────────────────────────────────────────────────────────────
@@ -223,10 +202,12 @@ type Snapshot struct {
 func listSnapshots(dataset string) ([]Snapshot, error) {
 	args := []string{"list", "-H", "-p", "-t", "snapshot",
 		"-o", "name,creation,used,refer", "-s", "creation"}
+	path := "/zfs-list-snapshot"
 	if dataset != "" {
 		args = append(args, "-r", dataset)
+		path += "?dataset=" + url.QueryEscape(dataset)
 	}
-	out, err := zfsRun("zfs", args...)
+	out, err := hostGet(path, append([]string{"zfs"}, args...))
 	if err != nil {
 		return nil, err
 	}

@@ -119,7 +119,27 @@ func runHostd() {
 
 	mux.HandleFunc("/zpool-list", func(w http.ResponseWriter, r *http.Request) {
 		out, err := runCmd("zpool", "list", "-H", "-p",
-			"-o", "name,size,alloc,free,health,frag,cap,dedup")
+			"-o", "name,size,alloc,free,health")
+		writeCmdOut(w, out, err)
+	})
+
+	// /zfs-list and /zfs-list-snapshot back listZFSDatasets/listSnapshots in zfs.go.
+	// The Jail has no ZFS delegation at all (zfs jail conflicts with the nullfs
+	// mounts used for file visibility — see fstab.jails), so `zfs list` inside the
+	// Jail always returns "no datasets available". These reads must run on the host.
+	mux.HandleFunc("/zfs-list", func(w http.ResponseWriter, r *http.Request) {
+		out, err := runCmd("zfs", "list", "-H", "-p",
+			"-o", "name,type,used,avail,refer,mountpoint")
+		writeCmdOut(w, out, err)
+	})
+
+	mux.HandleFunc("/zfs-list-snapshot", func(w http.ResponseWriter, r *http.Request) {
+		args := []string{"list", "-H", "-p", "-t", "snapshot",
+			"-o", "name,creation,used,refer", "-s", "creation"}
+		if ds := r.URL.Query().Get("dataset"); ds != "" {
+			args = append(args, "-r", ds)
+		}
+		out, err := runCmd("zfs", args...)
 		writeCmdOut(w, out, err)
 	})
 
@@ -170,6 +190,60 @@ func runHostd() {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{"output": s})
+	})
+
+	// ZFS dataset write endpoints — same reasoning as /zfs-list: the Jail has no
+	// ZFS delegation, so `zfs create`/`zfs destroy` must run on the host.
+	mux.HandleFunc("/zfs/dataset", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "POST only", http.StatusMethodNotAllowed)
+			return
+		}
+		var req struct {
+			Path string `json:"path"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Path == "" {
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+		auditLog("zfs create %s", req.Path)
+		out, err := exec.Command("zfs", "create", req.Path).CombinedOutput()
+		if err != nil {
+			msg := strings.TrimSpace(string(out))
+			if msg == "" {
+				msg = err.Error()
+			}
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"success":true}`))
+	})
+
+	mux.HandleFunc("/zfs/dataset/delete", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "POST only", http.StatusMethodNotAllowed)
+			return
+		}
+		var req struct {
+			Name string `json:"name"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Name == "" {
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+		auditLog("zfs destroy %s", req.Name)
+		out, err := exec.Command("zfs", "destroy", req.Name).CombinedOutput()
+		if err != nil {
+			msg := strings.TrimSpace(string(out))
+			if msg == "" {
+				msg = err.Error()
+			}
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"success":true}`))
 	})
 
 	// ZFS snapshot write endpoints — all require POST and run as host root.

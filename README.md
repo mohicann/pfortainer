@@ -379,3 +379,7 @@ curl --unix-socket /run/podman/podman.sock \
 **파일매니저에서 특정 폴더 진입 시 에러 없이 파일/폴더가 안 보임**
 
 `/zdata` 밑에 새로 만든 ZFS 데이터셋일 가능성이 높다. nullfs는 마운트된 트리 안에 나중에 얹힌 하위 마운트(다른 ZFS 데이터셋)를 관통하지 않으므로, `/zdata` 전체를 nullfs로 마운트해도 그 밑의 개별 데이터셋은 Jail 안에서 빈 디렉토리로 보인다. `fstab.jails/pfortainer`에 해당 데이터셋 전용 nullfs 라인을 추가하면 해결된다. 자세한 내용은 "초기 설치" 섹션의 `fstab.jails` 주의사항 참고.
+
+**ZFS 데이터셋(`/filesystem`) 페이지에 아무 풀/데이터셋도 안 보임**
+
+pfortainer는 Jail 안에서 실행되는데, Jail은 ZFS 델리게이션이 전혀 없어 Jail 내부에서 `zfs list`/`zpool list`를 실행하면 항상 `no datasets/pools available`이 반환된다 (위 nullfs 이슈와는 별개 — `zfs jail` 델리게이션 자체가 nullfs 마운트와 충돌해 항상 조용히 실패하기 때문). 그래서 데이터셋/풀 목록·생성·삭제는 모두 host agent(`pfortainer_hostd`)의 `/zfs-list`, `/zpool-list`, `/zfs/dataset`, `/zfs/dataset/delete` 엔드포인트를 거쳐 **호스트에서** 실행하도록 되어 있다 (스냅샷 생성/삭제/롤백과 동일한 패턴). `pfortainer_hostd`가 죽어 있거나 구버전이면 같은 증상이 재발할 수 있으니 위 "host agent unavailable" 항목대로 재시작할 것.
