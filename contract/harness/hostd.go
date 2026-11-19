@@ -117,6 +117,9 @@ func StartHostdBin(t testing.TB, bin string, rules map[string]ShimRule) *Hostd {
 	t.Cleanup(func() {
 		cmd.Process.Kill()
 		cmd.Wait()
+		if strings.Contains(hd.logs.String(), "WARNING: DATA RACE") {
+			t.Errorf("hostd에서 데이터 레이스 감지 (-race 빌드)")
+		}
 		if t.Failed() {
 			t.Logf("── hostd 로그 ──\n%s", hd.logs.String())
 		}

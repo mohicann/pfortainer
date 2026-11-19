@@ -335,7 +335,8 @@ func TestHostdComposeUp(t *testing.T) {
 	hd := h.StartHostd(t, map[string]h.ShimRule{"podman-compose *": {Stdout: "line one\nline two <x>\n", Stderr: "warn: something\n"}})
 	r := newHrun(t, hd)
 	r.m.Re(`pfortainer-compose-[A-Za-z0-9]+`, "pfortainer-compose-<tmp>")
-	r.m.Re(`/(private/)?(var/folders|tmp)/[^"\s]*?/pfortainer-compose`, "<TMP>/pfortainer-compose")
+	// 임시 디렉터리: macOS Rust(tempfile)는 /var/folders/…, Go(TMPDIR 없음)는 /tmp — 플랫폼 차이라 같은 값으로
+	r.m.Re(`(/private)?/(var/folders/[^"\s]*?|tmp)/pfortainer-compose`, "<TMP>/pfortainer-compose")
 	// stdout·stderr를 동시에 읽어 줄 순서가 정해지지 않음 → log 줄만 정렬
 	r.m.Func(func(s string) string {
 		if !strings.HasPrefix(s, `{"line"`) {

@@ -98,14 +98,28 @@ P7은 지금 Rust↔Rust로 녹색이다. Go가 생기면 `SUT_BIN`/`OTHER_BIN`�
 10. hostd zfs/dataset·snapshot·clone 등은 이름 패턴 검증 없이 인자로 넘김(셸은 없음).
 11. SMART 디스크 표시 순서가 매번 바뀜(UX).
 
-## 다음: Go 구현 G0~G7 (P와 1:1, 해당 계약이 Go로 녹색이면 완료)
+## Go 구현 G0~G7 (2026-11-19 완료)
 
-| 단계 | 통과 대상 |
+`SUT_BIN=$PWD/bin/pfortainer OTHER_BIN=../pfortainer-rs/target/release/pfortainer go test ./contract/...`이
+3회 연속 녹색, `-race` 빌드도 녹색(앱·hostd 로그에 DATA RACE 있으면 실패하도록 하네스가 검사). P7은 양방향
+(Go 앱↔Rust hostd, Rust 앱↔Go hostd, DB를 한쪽으로 만들고 다른 쪽으로 열기) 모두 녹색.
+
+| 단계 | 내용 |
 |---|---|
-| G0 골격(config·testhooks·db 마이그레이션·라우터·-hostd) | TestP0LoginPage, TestRouteInventory(Go 라우터 대조 추가), TestSchema |
-| G1 전 라우트(미구현 501)+권한+인증 | TestAuthzMatrix, TestRouter, P2 전부 |
-| G3 Podman | P3 |
-| G4 스토리지·공유·파일·AppJail·진단(앱 쪽) | P4 |
-| G5 메트릭·알림·스케줄러·데스크탑·복제 | P5 |
-| G6 hostd | P6 |
-| G7 교차 호환 | P7 양방향, `-race`, 3회 반복 |
+| G0 | 골격, `internal/askama`(Rust 템플릿 그대로 해석), `internal/httpx`(axum·serde 흉내), config·testhooks·configdb |
+| G1·G2 | 전 라우트, require_operator/admin, 로그인·TOTP·프로필·사용자 관리 |
+| G3 | Podman 클라이언트·컨테이너 화면·빌드·compose |
+| G4 | 스토리지·스냅샷·스케줄·파일관리자·공유·AppJail·진단 |
+| G5 | 메트릭 수집기(sysctl)·알림(웹훅·Discord·SMTP)·스케줄러·복제 |
+| G6 | hostd 전체 |
+| G7 | 교차 호환·race·반복 |
+
+결정 변경: 계획의 D2(html/template) 대신 askama 해석기. html/template의 자동 이스케이프(`&#39;` 등)와
+공백이 askama와 달라서, 템플릿 28개를 손으로 옮기는 것보다 같은 파일을 해석하는 편이 확실했다.
+
+Go 쪽 정규화 추가는 하나뿐: hostd compose 임시 디렉터리(macOS Rust tempfile은 `/var/folders/…`, Go는 `/tmp`).
+
+### 계약으로 못 덮는 것 (fbnas 섀도 검증에서 확인)
+- 메트릭 수집기의 FreeBSD sysctl 값(devstat·loadavg·온도·ARC) — 파서는 단위 테스트(`metrics_test.go`)
+- 실제 SMTP 발송(lettre ↔ net/smtp 오류 문구는 다를 수 있음), 실제 zfs send/receive 대용량
+- 실제 사용자·그룹 이름 조회(os/user)

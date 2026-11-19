@@ -40,3 +40,5 @@ func readFileString(p string) (string, error) {
 }
 
 var errInvalidUTF8 = errors.New("stream did not contain valid UTF-8")
+
+func utf8Valid(b []byte) bool { return utf8.Valid(b) }

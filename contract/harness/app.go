@@ -176,7 +176,12 @@ func (a *App) start(bin string) {
 		t.Fatalf("start %s: %v", bin, err)
 	}
 	a.cmd = cmd
-	t.Cleanup(a.Stop)
+	t.Cleanup(func() {
+		a.Stop()
+		if strings.Contains(a.logs.String(), "WARNING: DATA RACE") {
+			t.Errorf("앱에서 데이터 레이스 감지 (-race 빌드)\n%s", a.logs.String())
+		}
+	})
 	deadline := time.Now().Add(15 * time.Second)
 	for time.Now().Before(deadline) {
 		resp, err := http.Get(a.URL + "/login")
