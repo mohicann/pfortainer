@@ -1,0 +1,167 @@
+{
+  "hostd_unique": [
+    {
+      "method": "POST",
+      "path": "/replication/run",
+      "content_type": "application/json",
+      "body": {
+        "last_snapshot": "",
+        "recursive": false,
+        "source_dataset": "zdata/f",
+        "target_path": "zbak/f"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/replication/run",
+      "content_type": "application/json",
+      "body": {
+        "last_snapshot": "zdata/apps@auto-old",
+        "recursive": true,
+        "source_dataset": "zdata/apps",
+        "target_path": "zbak/apps"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/smart/test",
+      "content_type": "application/json",
+      "body": {
+        "device": "ada0",
+        "type": "short"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/zfs/snapshot",
+      "content_type": "application/json",
+      "body": {
+        "dataset": "zdata/apps",
+        "snapname": "auto-\u003cts\u003e"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/zfs/snapshot/prune",
+      "content_type": "application/json",
+      "body": {
+        "dataset": "zbak/apps",
+        "keep": 3,
+        "prefix": "auto"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/zfs/snapshot/prune",
+      "content_type": "application/json",
+      "body": {
+        "dataset": "zdata/apps",
+        "keep": 5,
+        "prefix": "auto"
+      }
+    }
+  ],
+  "replication_tasks": [
+    {
+      "enabled": 1,
+      "id": 1,
+      "last_error": "",
+      "last_run_at": "\u003cnow\u003e",
+      "last_snapshot": "zdata/apps@auto-new",
+      "last_status": "ok",
+      "name": "daily-never",
+      "schedule": "daily"
+    },
+    {
+      "enabled": 1,
+      "id": 2,
+      "last_error": "",
+      "last_run_at": null,
+      "last_snapshot": "",
+      "last_status": "",
+      "name": "manual",
+      "schedule": "manual"
+    },
+    {
+      "enabled": 0,
+      "id": 3,
+      "last_error": "",
+      "last_run_at": null,
+      "last_snapshot": "",
+      "last_status": "",
+      "name": "off",
+      "schedule": "daily"
+    },
+    {
+      "enabled": 1,
+      "id": 4,
+      "last_error": "",
+      "last_run_at": "\u003cnow\u003e",
+      "last_snapshot": "",
+      "last_status": "",
+      "name": "recent",
+      "schedule": "daily"
+    },
+    {
+      "enabled": 1,
+      "id": 5,
+      "last_error": "",
+      "last_run_at": "\u003cnow\u003e",
+      "last_snapshot": "zdata/apps@auto-new",
+      "last_status": "ok",
+      "name": "fails",
+      "schedule": "hourly"
+    }
+  ],
+  "schedules": [
+    {
+      "created_at": 1,
+      "enabled": 1,
+      "frequency": "daily",
+      "id": 1,
+      "last_run": "\u003cnow\u003e",
+      "next_run": "\u003cnext_run_time(frequency, last_run)\u003e",
+      "prefix": "auto",
+      "retention": 5,
+      "target": "zdata/apps",
+      "type": "snapshot"
+    },
+    {
+      "created_at": 1,
+      "enabled": 0,
+      "frequency": "daily",
+      "id": 2,
+      "last_run": null,
+      "next_run": 0,
+      "prefix": "auto",
+      "retention": 5,
+      "target": "zdata/off",
+      "type": "snapshot"
+    },
+    {
+      "created_at": 1,
+      "enabled": 1,
+      "frequency": "daily",
+      "id": 3,
+      "last_run": null,
+      "next_run": 4102444800,
+      "prefix": "auto",
+      "retention": 5,
+      "target": "zdata/later",
+      "type": "snapshot"
+    },
+    {
+      "created_at": 1,
+      "enabled": 1,
+      "frequency": "weekly",
+      "id": 4,
+      "last_run": "\u003cnow\u003e",
+      "next_run": "\u003cnext_run_time(frequency, last_run)\u003e",
+      "prefix": "auto",
+      "retention": 0,
+      "target": "ada0",
+      "type": "smart_test"
+    }
+  ],
+  "zfs_snapshot_calls": 1
+}

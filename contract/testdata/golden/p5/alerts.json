@@ -1,0 +1,588 @@
+[
+  {
+    "name": "page_default",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "text/html; charset=utf-8"
+        ]
+      },
+      "body": "\u003c!DOCTYPE html\u003e\u003chtml lang=\"ko\"\u003e\u003chead\u003e\u003cmeta charset=\"UTF-8\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\u003ctitle\u003e알림 설정 — pfortainer\u003c/title\u003e\u003cscript\u003eif (window.top !== window.self) document.documentElement.classList.add('embedded');\u003c/script\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\"\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css\" rel=\"stylesheet\"\u003e\u003cstyle\u003e :root { --sidebar-bg: #1a2332; --sidebar-w: 220px; --header-bg: #1f2d3d; --nav-text: #b3c0d1; --nav-active: #2d4263; --content-bg: #f0f2f5; } body { margin: 0; background: var(--content-bg); } /* /desktop 창(iframe) 안에서는 사이드바·상단바 숨김 */ html.embedded .sidebar, html.embedded .topbar { display: none !important; } html.embedded .main { margin-left: 0; } @media (max-width: 767px) { .desktop-link { display: none; } } .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; } .sidebar-logo { padding: 1.1rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.07); } .sidebar-logo a { color: #fff; font-size: 1.05rem; font-weight: 700; text-decoration: none; } .sidebar-section-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: .7rem 1rem .25rem; background: none; border: none; cursor: pointer; font-size: .67rem; text-transform: uppercase; color: rgba(255,255,255,.28); letter-spacing: .09em; transition: color .15s; } .sidebar-section-btn:hover { color: rgba(255,255,255,.5); } .sidebar-section-btn .chv { font-size: .65rem; transition: transform .2s; } .sidebar-section-btn.collapsed .chv { transform: rotate(-90deg); } .sidebar .nav-link { color: var(--nav-text); padding: 0.5rem 0.85rem; font-size: 0.86rem; display: flex; align-items: center; gap: 0.55rem; border-radius: 5px; margin: 1px 8px; transition: background .12s, color .12s; } .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,0.07); } .sidebar .nav-link.active { color: #fff; background: var(--nav-active); } .sidebar \u003e .nav-collapse { overflow: hidden; } .sidebar-footer { margin-top: auto; padding: 0.75rem 1rem; border-top: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; } .sidebar-nav-scroll { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.1) transparent; } .main { margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-height: 100vh; } .topbar { background: var(--header-bg); padding: 0.7rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; border-bottom: 1px solid rgba(255,255,255,0.07); } .topbar .title { color: #fff; font-size: 0.95rem; font-weight: 500; margin: 0; } .content { flex: 1; padding: 1.5rem; } .badge-running { background: #28a745 !important; } .badge-exited, .badge-stopped { background: #dc3545 !important; } .badge-paused { background: #ffc107 !important; color: #212529 !important; } .badge-created { background: #6c757d !important; } .badge-restarting{ background: #17a2b8 !important; } .stat-card { background: #fff; border-radius: 8px; padding: 1.2rem 1.4rem; border: 1px solid rgba(0,0,0,0.07); } .stat-card .num { font-size: 2rem; font-weight: 700; line-height: 1; margin-bottom: .2rem; } .stat-card .lbl { font-size: .75rem; color: #6c757d; text-transform: uppercase; letter-spacing: .05em; } .card-table { background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.08); } .card-table .ct-header { padding: .75rem 1rem; border-bottom: 1px solid #e9ecef; display: flex; align-items: center; justify-content: space-between; } .card-table table { margin-bottom: 0; font-size: .875rem; } .card-table thead th { background: #f8f9fa; border-bottom: 2px solid #e9ecef; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #6c757d; white-space: nowrap; padding: .6rem .75rem; } .card-table tbody tr:hover { background: #fafbfc; } .card-table td { vertical-align: middle; padding: .6rem .75rem; } .cname { font-weight: 500; color: #1a73e8; text-decoration: none; } .cname:hover { text-decoration: underline; } .mono { font-family: 'SF Mono','Fira Code',monospace; font-size: .82rem; color: #6c757d; } .ptag { display: inline-block; background: #e8f0fe; color: #1a73e8; padding: 1px 7px; border-radius: 3px; font-size: .76rem; font-family: monospace; margin: 1px; } \u003c/style\u003e\u003c/head\u003e\u003cbody\u003e\u003cnav class=\"sidebar\"\u003e\u003cdiv class=\"sidebar-logo\"\u003e\u003ca href=\"/appjail\"\u003e\u003ci class=\"bi bi-grid-3x3-gap-fill me-2\" style=\"color:#4d9eff\"\u003e\u003c/i\u003epfortainer\u003c/a\u003e\u003ca href=\"/desktop\" class=\"desktop-link\" title=\"데스크탑 모드\" style=\"float:right;font-weight:400;opacity:.6\"\u003e\u003ci class=\"bi bi-window-stack\"\u003e\u003c/i\u003e\u003c/a\u003e\u003c/div\u003e\u003cdiv class=\"sidebar-nav-scroll\"\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-app\" aria-expanded=\"false\"\u003e\u003cspan\u003e앱\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-app\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/appjail\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-hdd-stack\"\u003e\u003c/i\u003e AppJail\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/containers\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-boxes\"\u003e\u003c/i\u003e Containers\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/files\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-folder2-open\"\u003e\u003c/i\u003e 파일매니저\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-system\" aria-expanded=\"false\"\u003e\u003cspan\u003e시스템\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-system\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/system\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-pc-display\"\u003e\u003c/i\u003e 시스템\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/metrics\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-activity\"\u003e\u003c/i\u003e 주요 메트릭\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/storage\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-hdd-network\"\u003e\u003c/i\u003e 스토리지\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/filesystem\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-diagram-3\"\u003e\u003c/i\u003e ZFS 데이터셋\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/snapshots\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-camera\"\u003e\u003c/i\u003e 스케줄 / 스냅샷\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/replications\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-arrow-repeat\"\u003e\u003c/i\u003e 복제\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/network\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-ethernet\"\u003e\u003c/i\u003e 네트워크\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/diagnostics\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-terminal\"\u003e\u003c/i\u003e 진단/로그\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-shares\" aria-expanded=\"false\"\u003e\u003cspan\u003e공유\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-shares\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/shares\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-folder-fill\"\u003e\u003c/i\u003e 공유 관리\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003cbutton class=\"sidebar-section-btn \" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-admin\" aria-expanded=\"true\"\u003e\u003cspan\u003e관리자\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse show\" id=\"nav-admin\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/alerts\" class=\"nav-link active\"\u003e\u003ci class=\"bi bi-bell\"\u003e\u003c/i\u003e 알림 설정\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/admin/users\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-people\"\u003e\u003c/i\u003e 사용자 관리\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"sidebar-footer\"\u003e\u003ca href=\"/profile\" style=\"display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:rgba(255,255,255,.55);text-decoration:none;margin-bottom:.3rem;padding:0 .85rem\" onmouseover=\"this.style.color='#fff'\" onmouseout=\"this.style.color='rgba(255,255,255,.55)'\"\u003e\u003ci class=\"bi bi-person-circle\"\u003e\u003c/i\u003eviewer1 \u003cspan class=\"badge bg-secondary ms-auto\" style=\"font-size:.65rem\"\u003eviewer\u003c/span\u003e\u003c/a\u003e\u003ca href=\"/logout\" class=\"nav-link text-muted px-0\" style=\"margin:0\"\u003e\u003ci class=\"bi bi-box-arrow-right\"\u003e\u003c/i\u003e\u003cspan style=\"font-size:.8rem\"\u003e로그아웃\u003c/span\u003e\u003c/a\u003e\u003c/div\u003e\u003c/nav\u003e\u003cdiv class=\"main\"\u003e\u003cdiv class=\"topbar\"\u003e\u003cspan class=\"title\"\u003e알림 설정\u003c/span\u003e\u003cspan style=\"color:rgba(255,255,255,.4);font-size:.78rem\"\u003e\u003ci class=\"bi bi-circle-fill me-1\" style=\"color:#28a745;font-size:.45rem;vertical-align:middle\"\u003e\u003c/i\u003ePodman \u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"content\"\u003e\u003cform method=\"post\" action=\"/alerts\" id=\"alertForm\"\u003e\u003cdiv class=\"row g-3\"\u003e\u003cdiv class=\"col-12 col-xl-6\"\u003e\u003cdiv class=\"card-table h-100\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-envelope me-1\"\u003e\u003c/i\u003e이메일 (SMTP)\u003c/span\u003e\u003cdiv class=\"form-check form-switch mb-0\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"email_enabled\" value=\"1\" id=\"emailEnabled\" onchange=\"toggleSection('emailFields', this.checked)\"\u003e\u003clabel class=\"form-check-label small\" for=\"emailEnabled\"\u003e활성화\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"p-3\" id=\"emailFields\" style=\"opacity:.5;pointer-events:none\"\u003e\u003cdiv class=\"row g-2 mb-2\"\u003e\u003cdiv class=\"col-8\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003eSMTP 서버\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_host\" class=\"form-control form-control-sm\" placeholder=\"smtp.gmail.com\" value=\"\"\u003e\u003c/div\u003e\u003cdiv class=\"col-4\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e포트\u003c/label\u003e\u003cinput type=\"number\" name=\"smtp_port\" class=\"form-control form-control-sm\" value=\"587\"\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e사용자명\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_user\" class=\"form-control form-control-sm\" placeholder=\"user@gmail.com\" value=\"\" autocomplete=\"username\"\u003e\u003c/div\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e 비밀번호 \u003c/label\u003e\u003cinput type=\"password\" name=\"smtp_pass\" class=\"form-control form-control-sm\" placeholder=\"앱 비밀번호\" autocomplete=\"current-password\"\u003e\u003c/div\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e발신 주소 (From)\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_from\" class=\"form-control form-control-sm\" placeholder=\"pfortainer@yourdomain.com (빈칸=사용자명 사용)\" value=\"\"\u003e\u003c/div\u003e\u003cdiv class=\"mb-0\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e수신 주소 (To)\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_to\" class=\"form-control form-control-sm\" placeholder=\"admin@yourdomain.com\" value=\"\"\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-xl-6\"\u003e\u003cdiv class=\"card-table h-100\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-lightning me-1\"\u003e\u003c/i\u003e웹훅 (Webhook)\u003c/span\u003e\u003cdiv class=\"form-check form-switch mb-0\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"webhook_enabled\" value=\"1\" id=\"webhookEnabled\" onchange=\"toggleSection('webhookFields', this.checked)\"\u003e\u003clabel class=\"form-check-label small\" for=\"webhookEnabled\"\u003e활성화\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"p-3\" id=\"webhookFields\" style=\"opacity:.5;pointer-events:none\"\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e웹훅 URL\u003c/label\u003e\u003cinput type=\"url\" name=\"webhook_url\" class=\"form-control form-control-sm\" placeholder=\"https://hooks.slack.com/... 또는 Discord webhook URL\" value=\"\"\u003e\u003c/div\u003e\u003cdiv class=\"text-muted mt-2\" style=\"font-size:.78rem\"\u003e\u003cstrong\u003e전송 페이로드 (JSON)\u003c/strong\u003e\u003cpre class=\"mt-1 p-2 rounded\" style=\"background:#1e2a3a;color:#b3e5fc;font-size:.76rem;overflow:auto\"\u003e{ \"event\": \"pool_health\", \"target\": \"zdata\", \"message\": \"[pfortainer] ZFS 풀 경보: zdata (DEGRADED)\", \"timestamp\": \"2026-06-28T10:00:00Z\", \"source\": \"pfortainer\" }\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-xl-8\"\u003e\u003cdiv class=\"card-table\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-shield-check me-1\"\u003e\u003c/i\u003e알림 규칙\u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"p-3\"\u003e\u003cdiv class=\"row g-3\"\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_pool_health\" value=\"1\" id=\"chkPool\" checked\u003e\u003clabel class=\"form-check-label\" for=\"chkPool\"\u003e\u003cstrong\u003eZFS 풀 상태 이상\u003c/strong\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003eONLINE 외 상태 (DEGRADED, FAULTED 등)\u003c/div\u003e\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_smart\" value=\"1\" id=\"chkSmart\" checked\u003e\u003clabel class=\"form-check-label\" for=\"chkSmart\"\u003e\u003cstrong\u003eSMART 상태 이상\u003c/strong\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003eSMART health = FAILED\u003c/div\u003e\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_scrub\" value=\"1\" id=\"chkScrub\" checked\u003e\u003clabel class=\"form-check-label\" for=\"chkScrub\"\u003e\u003cstrong\u003e스크럽 오류\u003c/strong\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003e스크럽 완료 후 복구 불가 오류 발생 시\u003c/div\u003e\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check mb-1\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_capacity\" value=\"1\" id=\"chkCap\" checked\u003e\u003clabel class=\"form-check-label\" for=\"chkCap\"\u003e\u003cstrong\u003e풀 용량 임계치\u003c/strong\u003e\u003c/label\u003e\u003c/div\u003e\u003cdiv class=\"input-group input-group-sm\" style=\"max-width:180px\"\u003e\u003cinput type=\"number\" name=\"capacity_pct\" class=\"form-control\" value=\"85\" min=\"50\" max=\"99\"\u003e\u003cspan class=\"input-group-text\"\u003e% 이상 시 알림\u003c/span\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-xl-4\"\u003e\u003cdiv class=\"card-table h-100\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-clock me-1\"\u003e\u003c/i\u003e반복 방지 (쿨다운)\u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"p-3\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e알림 재발송 최소 간격\u003c/label\u003e\u003cdiv class=\"input-group input-group-sm\" style=\"max-width:160px\"\u003e\u003cinput type=\"number\" name=\"cooldown_hours\" class=\"form-control\" value=\"4\" min=\"1\" max=\"168\"\u003e\u003cspan class=\"input-group-text\"\u003e시간\u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"text-muted mt-2\" style=\"font-size:.78rem\"\u003e 동일한 이벤트/대상에 대해 설정된 시간 내 중복 발송하지 않습니다. \u003c/div\u003e\u003chr class=\"my-3\"\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003e\u003cstrong\u003e체크 주기\u003c/strong\u003e: 5분마다 자동 확인\u003cbr\u003e\u003cstrong\u003e체크 항목\u003c/strong\u003e: 풀 상태, SMART, 용량, 스크럽 결과 \u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 d-flex gap-2\"\u003e\u003cbutton type=\"submit\" class=\"btn btn-primary\"\u003e\u003ci class=\"bi bi-save me-1\"\u003e\u003c/i\u003e설정 저장 \u003c/button\u003e\u003cbutton type=\"button\" class=\"btn btn-outline-secondary\" onclick=\"sendTest()\"\u003e\u003ci class=\"bi bi-send me-1\"\u003e\u003c/i\u003e테스트 발송 \u003c/button\u003e\u003c/div\u003e\u003c/div\u003e\u003c/form\u003e\u003cscript\u003e function toggleSection(id, enabled) { var el = document.getElementById(id); el.style.opacity = enabled ? '1' : '.5'; el.style.pointerEvents = enabled ? '' : 'none'; } function sendTest() { // Save current settings first, then POST to /alerts/test var form = document.getElementById('alertForm'); var data = new FormData(form); fetch('/alerts', { method: 'POST', body: data }).finally(function() { var f = document.createElement('form'); f.method = 'post'; f.action = '/alerts/test'; document.body.appendChild(f); f.submit(); }); } \u003c/script\u003e\u003c/div\u003e\u003c/div\u003e\u003cscript src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js\"\u003e\u003c/script\u003e\u003cscript\u003e document.addEventListener('DOMContentLoaded', function() { var sections = ['nav-app', 'nav-system', 'nav-shares', 'nav-admin']; sections.forEach(function(id) { var el = document.getElementById(id); if (!el) return; var hasActive = el.querySelector('.nav-link.active'); if (!hasActive) { var stored = localStorage.getItem('pf-' + id); if (stored === 'closed') { el.classList.remove('show'); var btn = el.previousElementSibling; while (btn \u0026\u0026 btn.tagName !== 'BUTTON') btn = btn.previousElementSibling; if (btn) btn.classList.add('collapsed'); } } el.addEventListener('hide.bs.collapse', function() { localStorage.setItem('pf-' + id, 'closed'); }); el.addEventListener('show.bs.collapse', function() { localStorage.setItem('pf-' + id, 'open'); }); }); }); \u003c/script\u003e\u003c/body\u003e\u003c/html\u003e"
+    },
+    "db": {
+      "meta": null,
+      "stub": null
+    }
+  },
+  {
+    "name": "test_no_channels",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?error=활성화된+채널이+없습니다"
+        ]
+      }
+    },
+    "db": {
+      "meta": null,
+      "stub": null
+    }
+  },
+  {
+    "name": "save_webhook",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?success=설정+저장+완료"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": {
+          "capacity_pct": 90,
+          "check_capacity": false,
+          "check_pool_health": true,
+          "check_scrub": false,
+          "check_smart": true,
+          "cooldown_hours": 2,
+          "email_enabled": false,
+          "smtp_from": "",
+          "smtp_host": "",
+          "smtp_pass": "",
+          "smtp_port": 587,
+          "smtp_to": "",
+          "smtp_user": "",
+          "webhook_enabled": true,
+          "webhook_url": "\u003cSTUB\u003e/hook"
+        },
+        "raw": "{\"email_enabled\":false,\"smtp_host\":\"\",\"smtp_port\":587,\"smtp_user\":\"\",\"smtp_pass\":\"\",\"smtp_from\":\"\",\"smtp_to\":\"\",\"webhook_enabled\":true,\"webhook_url\":\"\u003cSTUB\u003e/hook\",\"check_pool_health\":true,\"check_smart\":true,\"check_capacity\":false,\"capacity_pct\":90,\"check_scrub\":false,\"cooldown_hours\":2}"
+      },
+      "stub": null
+    }
+  },
+  {
+    "name": "page_saved",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "text/html; charset=utf-8"
+        ]
+      },
+      "body": "\u003c!DOCTYPE html\u003e\u003chtml lang=\"ko\"\u003e\u003chead\u003e\u003cmeta charset=\"UTF-8\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\u003ctitle\u003e알림 설정 — pfortainer\u003c/title\u003e\u003cscript\u003eif (window.top !== window.self) document.documentElement.classList.add('embedded');\u003c/script\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\"\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css\" rel=\"stylesheet\"\u003e\u003cstyle\u003e :root { --sidebar-bg: #1a2332; --sidebar-w: 220px; --header-bg: #1f2d3d; --nav-text: #b3c0d1; --nav-active: #2d4263; --content-bg: #f0f2f5; } body { margin: 0; background: var(--content-bg); } /* /desktop 창(iframe) 안에서는 사이드바·상단바 숨김 */ html.embedded .sidebar, html.embedded .topbar { display: none !important; } html.embedded .main { margin-left: 0; } @media (max-width: 767px) { .desktop-link { display: none; } } .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; } .sidebar-logo { padding: 1.1rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.07); } .sidebar-logo a { color: #fff; font-size: 1.05rem; font-weight: 700; text-decoration: none; } .sidebar-section-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: .7rem 1rem .25rem; background: none; border: none; cursor: pointer; font-size: .67rem; text-transform: uppercase; color: rgba(255,255,255,.28); letter-spacing: .09em; transition: color .15s; } .sidebar-section-btn:hover { color: rgba(255,255,255,.5); } .sidebar-section-btn .chv { font-size: .65rem; transition: transform .2s; } .sidebar-section-btn.collapsed .chv { transform: rotate(-90deg); } .sidebar .nav-link { color: var(--nav-text); padding: 0.5rem 0.85rem; font-size: 0.86rem; display: flex; align-items: center; gap: 0.55rem; border-radius: 5px; margin: 1px 8px; transition: background .12s, color .12s; } .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,0.07); } .sidebar .nav-link.active { color: #fff; background: var(--nav-active); } .sidebar \u003e .nav-collapse { overflow: hidden; } .sidebar-footer { margin-top: auto; padding: 0.75rem 1rem; border-top: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; } .sidebar-nav-scroll { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.1) transparent; } .main { margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-height: 100vh; } .topbar { background: var(--header-bg); padding: 0.7rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; border-bottom: 1px solid rgba(255,255,255,0.07); } .topbar .title { color: #fff; font-size: 0.95rem; font-weight: 500; margin: 0; } .content { flex: 1; padding: 1.5rem; } .badge-running { background: #28a745 !important; } .badge-exited, .badge-stopped { background: #dc3545 !important; } .badge-paused { background: #ffc107 !important; color: #212529 !important; } .badge-created { background: #6c757d !important; } .badge-restarting{ background: #17a2b8 !important; } .stat-card { background: #fff; border-radius: 8px; padding: 1.2rem 1.4rem; border: 1px solid rgba(0,0,0,0.07); } .stat-card .num { font-size: 2rem; font-weight: 700; line-height: 1; margin-bottom: .2rem; } .stat-card .lbl { font-size: .75rem; color: #6c757d; text-transform: uppercase; letter-spacing: .05em; } .card-table { background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.08); } .card-table .ct-header { padding: .75rem 1rem; border-bottom: 1px solid #e9ecef; display: flex; align-items: center; justify-content: space-between; } .card-table table { margin-bottom: 0; font-size: .875rem; } .card-table thead th { background: #f8f9fa; border-bottom: 2px solid #e9ecef; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #6c757d; white-space: nowrap; padding: .6rem .75rem; } .card-table tbody tr:hover { background: #fafbfc; } .card-table td { vertical-align: middle; padding: .6rem .75rem; } .cname { font-weight: 500; color: #1a73e8; text-decoration: none; } .cname:hover { text-decoration: underline; } .mono { font-family: 'SF Mono','Fira Code',monospace; font-size: .82rem; color: #6c757d; } .ptag { display: inline-block; background: #e8f0fe; color: #1a73e8; padding: 1px 7px; border-radius: 3px; font-size: .76rem; font-family: monospace; margin: 1px; } \u003c/style\u003e\u003c/head\u003e\u003cbody\u003e\u003cnav class=\"sidebar\"\u003e\u003cdiv class=\"sidebar-logo\"\u003e\u003ca href=\"/appjail\"\u003e\u003ci class=\"bi bi-grid-3x3-gap-fill me-2\" style=\"color:#4d9eff\"\u003e\u003c/i\u003epfortainer\u003c/a\u003e\u003ca href=\"/desktop\" class=\"desktop-link\" title=\"데스크탑 모드\" style=\"float:right;font-weight:400;opacity:.6\"\u003e\u003ci class=\"bi bi-window-stack\"\u003e\u003c/i\u003e\u003c/a\u003e\u003c/div\u003e\u003cdiv class=\"sidebar-nav-scroll\"\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-app\" aria-expanded=\"false\"\u003e\u003cspan\u003e앱\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-app\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/appjail\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-hdd-stack\"\u003e\u003c/i\u003e AppJail\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/containers\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-boxes\"\u003e\u003c/i\u003e Containers\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/files\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-folder2-open\"\u003e\u003c/i\u003e 파일매니저\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-system\" aria-expanded=\"false\"\u003e\u003cspan\u003e시스템\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-system\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/system\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-pc-display\"\u003e\u003c/i\u003e 시스템\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/metrics\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-activity\"\u003e\u003c/i\u003e 주요 메트릭\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/storage\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-hdd-network\"\u003e\u003c/i\u003e 스토리지\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/filesystem\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-diagram-3\"\u003e\u003c/i\u003e ZFS 데이터셋\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/snapshots\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-camera\"\u003e\u003c/i\u003e 스케줄 / 스냅샷\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/replications\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-arrow-repeat\"\u003e\u003c/i\u003e 복제\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/network\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-ethernet\"\u003e\u003c/i\u003e 네트워크\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/diagnostics\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-terminal\"\u003e\u003c/i\u003e 진단/로그\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-shares\" aria-expanded=\"false\"\u003e\u003cspan\u003e공유\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-shares\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/shares\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-folder-fill\"\u003e\u003c/i\u003e 공유 관리\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003cbutton class=\"sidebar-section-btn \" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-admin\" aria-expanded=\"true\"\u003e\u003cspan\u003e관리자\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse show\" id=\"nav-admin\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/alerts\" class=\"nav-link active\"\u003e\u003ci class=\"bi bi-bell\"\u003e\u003c/i\u003e 알림 설정\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/admin/users\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-people\"\u003e\u003c/i\u003e 사용자 관리\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"sidebar-footer\"\u003e\u003ca href=\"/profile\" style=\"display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:rgba(255,255,255,.55);text-decoration:none;margin-bottom:.3rem;padding:0 .85rem\" onmouseover=\"this.style.color='#fff'\" onmouseout=\"this.style.color='rgba(255,255,255,.55)'\"\u003e\u003ci class=\"bi bi-person-circle\"\u003e\u003c/i\u003eviewer1 \u003cspan class=\"badge bg-secondary ms-auto\" style=\"font-size:.65rem\"\u003eviewer\u003c/span\u003e\u003c/a\u003e\u003ca href=\"/logout\" class=\"nav-link text-muted px-0\" style=\"margin:0\"\u003e\u003ci class=\"bi bi-box-arrow-right\"\u003e\u003c/i\u003e\u003cspan style=\"font-size:.8rem\"\u003e로그아웃\u003c/span\u003e\u003c/a\u003e\u003c/div\u003e\u003c/nav\u003e\u003cdiv class=\"main\"\u003e\u003cdiv class=\"topbar\"\u003e\u003cspan class=\"title\"\u003e알림 설정\u003c/span\u003e\u003cspan style=\"color:rgba(255,255,255,.4);font-size:.78rem\"\u003e\u003ci class=\"bi bi-circle-fill me-1\" style=\"color:#28a745;font-size:.45rem;vertical-align:middle\"\u003e\u003c/i\u003ePodman \u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"content\"\u003e\u003cdiv class=\"alert alert-success py-2 mb-3\"\u003e\u003ci class=\"bi bi-check-circle me-1\"\u003e\u003c/i\u003e저장\u003c/div\u003e\u003cform method=\"post\" action=\"/alerts\" id=\"alertForm\"\u003e\u003cdiv class=\"row g-3\"\u003e\u003cdiv class=\"col-12 col-xl-6\"\u003e\u003cdiv class=\"card-table h-100\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-envelope me-1\"\u003e\u003c/i\u003e이메일 (SMTP)\u003c/span\u003e\u003cdiv class=\"form-check form-switch mb-0\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"email_enabled\" value=\"1\" id=\"emailEnabled\" onchange=\"toggleSection('emailFields', this.checked)\"\u003e\u003clabel class=\"form-check-label small\" for=\"emailEnabled\"\u003e활성화\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"p-3\" id=\"emailFields\" style=\"opacity:.5;pointer-events:none\"\u003e\u003cdiv class=\"row g-2 mb-2\"\u003e\u003cdiv class=\"col-8\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003eSMTP 서버\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_host\" class=\"form-control form-control-sm\" placeholder=\"smtp.gmail.com\" value=\"\"\u003e\u003c/div\u003e\u003cdiv class=\"col-4\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e포트\u003c/label\u003e\u003cinput type=\"number\" name=\"smtp_port\" class=\"form-control form-control-sm\" value=\"587\"\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e사용자명\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_user\" class=\"form-control form-control-sm\" placeholder=\"user@gmail.com\" value=\"\" autocomplete=\"username\"\u003e\u003c/div\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e 비밀번호 \u003c/label\u003e\u003cinput type=\"password\" name=\"smtp_pass\" class=\"form-control form-control-sm\" placeholder=\"앱 비밀번호\" autocomplete=\"current-password\"\u003e\u003c/div\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e발신 주소 (From)\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_from\" class=\"form-control form-control-sm\" placeholder=\"pfortainer@yourdomain.com (빈칸=사용자명 사용)\" value=\"\"\u003e\u003c/div\u003e\u003cdiv class=\"mb-0\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e수신 주소 (To)\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_to\" class=\"form-control form-control-sm\" placeholder=\"admin@yourdomain.com\" value=\"\"\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-xl-6\"\u003e\u003cdiv class=\"card-table h-100\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-lightning me-1\"\u003e\u003c/i\u003e웹훅 (Webhook)\u003c/span\u003e\u003cdiv class=\"form-check form-switch mb-0\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"webhook_enabled\" value=\"1\" id=\"webhookEnabled\" checked onchange=\"toggleSection('webhookFields', this.checked)\"\u003e\u003clabel class=\"form-check-label small\" for=\"webhookEnabled\"\u003e활성화\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"p-3\" id=\"webhookFields\" \u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e웹훅 URL\u003c/label\u003e\u003cinput type=\"url\" name=\"webhook_url\" class=\"form-control form-control-sm\" placeholder=\"https://hooks.slack.com/... 또는 Discord webhook URL\" value=\"\u003cSTUB\u003e/hook\"\u003e\u003c/div\u003e\u003cdiv class=\"text-muted mt-2\" style=\"font-size:.78rem\"\u003e\u003cstrong\u003e전송 페이로드 (JSON)\u003c/strong\u003e\u003cpre class=\"mt-1 p-2 rounded\" style=\"background:#1e2a3a;color:#b3e5fc;font-size:.76rem;overflow:auto\"\u003e{ \"event\": \"pool_health\", \"target\": \"zdata\", \"message\": \"[pfortainer] ZFS 풀 경보: zdata (DEGRADED)\", \"timestamp\": \"2026-06-28T10:00:00Z\", \"source\": \"pfortainer\" }\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-xl-8\"\u003e\u003cdiv class=\"card-table\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-shield-check me-1\"\u003e\u003c/i\u003e알림 규칙\u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"p-3\"\u003e\u003cdiv class=\"row g-3\"\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_pool_health\" value=\"1\" id=\"chkPool\" checked\u003e\u003clabel class=\"form-check-label\" for=\"chkPool\"\u003e\u003cstrong\u003eZFS 풀 상태 이상\u003c/strong\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003eONLINE 외 상태 (DEGRADED, FAULTED 등)\u003c/div\u003e\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_smart\" value=\"1\" id=\"chkSmart\" checked\u003e\u003clabel class=\"form-check-label\" for=\"chkSmart\"\u003e\u003cstrong\u003eSMART 상태 이상\u003c/strong\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003eSMART health = FAILED\u003c/div\u003e\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_scrub\" value=\"1\" id=\"chkScrub\" \u003e\u003clabel class=\"form-check-label\" for=\"chkScrub\"\u003e\u003cstrong\u003e스크럽 오류\u003c/strong\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003e스크럽 완료 후 복구 불가 오류 발생 시\u003c/div\u003e\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check mb-1\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_capacity\" value=\"1\" id=\"chkCap\" \u003e\u003clabel class=\"form-check-label\" for=\"chkCap\"\u003e\u003cstrong\u003e풀 용량 임계치\u003c/strong\u003e\u003c/label\u003e\u003c/div\u003e\u003cdiv class=\"input-group input-group-sm\" style=\"max-width:180px\"\u003e\u003cinput type=\"number\" name=\"capacity_pct\" class=\"form-control\" value=\"90\" min=\"50\" max=\"99\"\u003e\u003cspan class=\"input-group-text\"\u003e% 이상 시 알림\u003c/span\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-xl-4\"\u003e\u003cdiv class=\"card-table h-100\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-clock me-1\"\u003e\u003c/i\u003e반복 방지 (쿨다운)\u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"p-3\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e알림 재발송 최소 간격\u003c/label\u003e\u003cdiv class=\"input-group input-group-sm\" style=\"max-width:160px\"\u003e\u003cinput type=\"number\" name=\"cooldown_hours\" class=\"form-control\" value=\"2\" min=\"1\" max=\"168\"\u003e\u003cspan class=\"input-group-text\"\u003e시간\u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"text-muted mt-2\" style=\"font-size:.78rem\"\u003e 동일한 이벤트/대상에 대해 설정된 시간 내 중복 발송하지 않습니다. \u003c/div\u003e\u003chr class=\"my-3\"\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003e\u003cstrong\u003e체크 주기\u003c/strong\u003e: 5분마다 자동 확인\u003cbr\u003e\u003cstrong\u003e체크 항목\u003c/strong\u003e: 풀 상태, SMART, 용량, 스크럽 결과 \u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 d-flex gap-2\"\u003e\u003cbutton type=\"submit\" class=\"btn btn-primary\"\u003e\u003ci class=\"bi bi-save me-1\"\u003e\u003c/i\u003e설정 저장 \u003c/button\u003e\u003cbutton type=\"button\" class=\"btn btn-outline-secondary\" onclick=\"sendTest()\"\u003e\u003ci class=\"bi bi-send me-1\"\u003e\u003c/i\u003e테스트 발송 \u003c/button\u003e\u003c/div\u003e\u003c/div\u003e\u003c/form\u003e\u003cscript\u003e function toggleSection(id, enabled) { var el = document.getElementById(id); el.style.opacity = enabled ? '1' : '.5'; el.style.pointerEvents = enabled ? '' : 'none'; } function sendTest() { // Save current settings first, then POST to /alerts/test var form = document.getElementById('alertForm'); var data = new FormData(form); fetch('/alerts', { method: 'POST', body: data }).finally(function() { var f = document.createElement('form'); f.method = 'post'; f.action = '/alerts/test'; document.body.appendChild(f); f.submit(); }); } \u003c/script\u003e\u003c/div\u003e\u003c/div\u003e\u003cscript src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js\"\u003e\u003c/script\u003e\u003cscript\u003e document.addEventListener('DOMContentLoaded', function() { var sections = ['nav-app', 'nav-system', 'nav-shares', 'nav-admin']; sections.forEach(function(id) { var el = document.getElementById(id); if (!el) return; var hasActive = el.querySelector('.nav-link.active'); if (!hasActive) { var stored = localStorage.getItem('pf-' + id); if (stored === 'closed') { el.classList.remove('show'); var btn = el.previousElementSibling; while (btn \u0026\u0026 btn.tagName !== 'BUTTON') btn = btn.previousElementSibling; if (btn) btn.classList.add('collapsed'); } } el.addEventListener('hide.bs.collapse', function() { localStorage.setItem('pf-' + id, 'closed'); }); el.addEventListener('show.bs.collapse', function() { localStorage.setItem('pf-' + id, 'open'); }); }); }); \u003c/script\u003e\u003c/body\u003e\u003c/html\u003e"
+    },
+    "db": {
+      "meta": {
+        "parsed": {
+          "capacity_pct": 90,
+          "check_capacity": false,
+          "check_pool_health": true,
+          "check_scrub": false,
+          "check_smart": true,
+          "cooldown_hours": 2,
+          "email_enabled": false,
+          "smtp_from": "",
+          "smtp_host": "",
+          "smtp_pass": "",
+          "smtp_port": 587,
+          "smtp_to": "",
+          "smtp_user": "",
+          "webhook_enabled": true,
+          "webhook_url": "\u003cSTUB\u003e/hook"
+        },
+        "raw": "{\"email_enabled\":false,\"smtp_host\":\"\",\"smtp_port\":587,\"smtp_user\":\"\",\"smtp_pass\":\"\",\"smtp_from\":\"\",\"smtp_to\":\"\",\"webhook_enabled\":true,\"webhook_url\":\"\u003cSTUB\u003e/hook\",\"check_pool_health\":true,\"check_smart\":true,\"check_capacity\":false,\"capacity_pct\":90,\"check_scrub\":false,\"cooldown_hours\":2}"
+      },
+      "stub": null
+    }
+  },
+  {
+    "name": "test_webhook_ok",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?success=테스트+알림+발송+완료"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": {
+          "capacity_pct": 90,
+          "check_capacity": false,
+          "check_pool_health": true,
+          "check_scrub": false,
+          "check_smart": true,
+          "cooldown_hours": 2,
+          "email_enabled": false,
+          "smtp_from": "",
+          "smtp_host": "",
+          "smtp_pass": "",
+          "smtp_port": 587,
+          "smtp_to": "",
+          "smtp_user": "",
+          "webhook_enabled": true,
+          "webhook_url": "\u003cSTUB\u003e/hook"
+        },
+        "raw": "{\"email_enabled\":false,\"smtp_host\":\"\",\"smtp_port\":587,\"smtp_user\":\"\",\"smtp_pass\":\"\",\"smtp_from\":\"\",\"smtp_to\":\"\",\"webhook_enabled\":true,\"webhook_url\":\"\u003cSTUB\u003e/hook\",\"check_pool_health\":true,\"check_smart\":true,\"check_capacity\":false,\"capacity_pct\":90,\"check_scrub\":false,\"cooldown_hours\":2}"
+      },
+      "stub": [
+        {
+          "method": "POST",
+          "uri": "\u003cSTUB\u003e/hook",
+          "host": "\u003cSTUB\u003e",
+          "content_type": "application/json",
+          "body": {
+            "event": "test",
+            "message": "[pfortainer] 테스트 알림",
+            "source": "pfortainer",
+            "target": "pfortainer",
+            "timestamp": "\u003crfc3339\u003e"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "test_webhook_500",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?error=%EC%9B%B9%ED%9B%85%3A%20webhook%20HTTP%20500%20eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": {
+          "capacity_pct": 90,
+          "check_capacity": false,
+          "check_pool_health": true,
+          "check_scrub": false,
+          "check_smart": true,
+          "cooldown_hours": 2,
+          "email_enabled": false,
+          "smtp_from": "",
+          "smtp_host": "",
+          "smtp_pass": "",
+          "smtp_port": 587,
+          "smtp_to": "",
+          "smtp_user": "",
+          "webhook_enabled": true,
+          "webhook_url": "\u003cSTUB\u003e/hook"
+        },
+        "raw": "{\"email_enabled\":false,\"smtp_host\":\"\",\"smtp_port\":587,\"smtp_user\":\"\",\"smtp_pass\":\"\",\"smtp_from\":\"\",\"smtp_to\":\"\",\"webhook_enabled\":true,\"webhook_url\":\"\u003cSTUB\u003e/hook\",\"check_pool_health\":true,\"check_smart\":true,\"check_capacity\":false,\"capacity_pct\":90,\"check_scrub\":false,\"cooldown_hours\":2}"
+      },
+      "stub": [
+        {
+          "method": "POST",
+          "uri": "\u003cSTUB\u003e/hook",
+          "host": "\u003cSTUB\u003e",
+          "content_type": "application/json",
+          "body": {
+            "event": "test",
+            "message": "[pfortainer] 테스트 알림",
+            "source": "pfortainer",
+            "target": "pfortainer",
+            "timestamp": "\u003crfc3339\u003e"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "save_discord",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?success=설정+저장+완료"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": {
+          "capacity_pct": 85,
+          "check_capacity": true,
+          "check_pool_health": false,
+          "check_scrub": true,
+          "check_smart": false,
+          "cooldown_hours": 4,
+          "email_enabled": false,
+          "smtp_from": "",
+          "smtp_host": "",
+          "smtp_pass": "",
+          "smtp_port": 587,
+          "smtp_to": "",
+          "smtp_user": "",
+          "webhook_enabled": true,
+          "webhook_url": "http://discord.com/api/webhooks/123/abc"
+        },
+        "raw": "{\"email_enabled\":false,\"smtp_host\":\"\",\"smtp_port\":587,\"smtp_user\":\"\",\"smtp_pass\":\"\",\"smtp_from\":\"\",\"smtp_to\":\"\",\"webhook_enabled\":true,\"webhook_url\":\"http://discord.com/api/webhooks/123/abc\",\"check_pool_health\":false,\"check_smart\":false,\"check_capacity\":true,\"capacity_pct\":85,\"check_scrub\":true,\"cooldown_hours\":4}"
+      },
+      "stub": null
+    }
+  },
+  {
+    "name": "test_discord",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?success=테스트+알림+발송+완료"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": {
+          "capacity_pct": 85,
+          "check_capacity": true,
+          "check_pool_health": false,
+          "check_scrub": true,
+          "check_smart": false,
+          "cooldown_hours": 4,
+          "email_enabled": false,
+          "smtp_from": "",
+          "smtp_host": "",
+          "smtp_pass": "",
+          "smtp_port": 587,
+          "smtp_to": "",
+          "smtp_user": "",
+          "webhook_enabled": true,
+          "webhook_url": "http://discord.com/api/webhooks/123/abc"
+        },
+        "raw": "{\"email_enabled\":false,\"smtp_host\":\"\",\"smtp_port\":587,\"smtp_user\":\"\",\"smtp_pass\":\"\",\"smtp_from\":\"\",\"smtp_to\":\"\",\"webhook_enabled\":true,\"webhook_url\":\"http://discord.com/api/webhooks/123/abc\",\"check_pool_health\":false,\"check_smart\":false,\"check_capacity\":true,\"capacity_pct\":85,\"check_scrub\":true,\"cooldown_hours\":4}"
+      },
+      "stub": [
+        {
+          "method": "POST",
+          "uri": "http://discord.com/api/webhooks/123/abc",
+          "host": "discord.com",
+          "content_type": "application/json",
+          "body": {
+            "allowed_mentions": {
+              "parse": []
+            },
+            "embeds": [
+              {
+                "color": 3447003,
+                "description": "pfortainer 알림 테스트입니다.",
+                "footer": {
+                  "text": "test · pfortainer"
+                },
+                "timestamp": "\u003crfc3339\u003e",
+                "title": "[pfortainer] 테스트 알림"
+              }
+            ],
+            "username": "pfortainer"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "save_email_and_webhook",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?success=설정+저장+완료"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": null,
+        "raw": "{\"email_enabled\":true,\"smtp_host\":\"127.0.0.1\",\"smtp_port\":\u003cSMTP_PORT\u003e,\"smtp_user\":\"u\",\"smtp_pass\":\"secret-pw\",\"smtp_from\":\"pf@example.com\",\"smtp_to\":\"me@example.com\",\"webhook_enabled\":true,\"webhook_url\":\"\u003cSTUB\u003e/h2\",\"check_pool_health\":false,\"check_smart\":false,\"check_capacity\":false,\"capacity_pct\":85,\"check_scrub\":false,\"cooldown_hours\":4}"
+      },
+      "stub": null
+    }
+  },
+  {
+    "name": "save_keeps_password",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?success=설정+저장+완료"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": null,
+        "raw": "{\"email_enabled\":true,\"smtp_host\":\"127.0.0.1\",\"smtp_port\":\u003cSMTP_PORT\u003e,\"smtp_user\":\"u\",\"smtp_pass\":\"secret-pw\",\"smtp_from\":\"\",\"smtp_to\":\"me@example.com\",\"webhook_enabled\":false,\"webhook_url\":\"\",\"check_pool_health\":false,\"check_smart\":false,\"check_capacity\":false,\"capacity_pct\":85,\"check_scrub\":false,\"cooldown_hours\":4}"
+      },
+      "stub": null
+    }
+  },
+  {
+    "name": "page_with_email",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "text/html; charset=utf-8"
+        ]
+      },
+      "body": "\u003c!DOCTYPE html\u003e\u003chtml lang=\"ko\"\u003e\u003chead\u003e\u003cmeta charset=\"UTF-8\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\u003ctitle\u003e알림 설정 — pfortainer\u003c/title\u003e\u003cscript\u003eif (window.top !== window.self) document.documentElement.classList.add('embedded');\u003c/script\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\"\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css\" rel=\"stylesheet\"\u003e\u003cstyle\u003e :root { --sidebar-bg: #1a2332; --sidebar-w: 220px; --header-bg: #1f2d3d; --nav-text: #b3c0d1; --nav-active: #2d4263; --content-bg: #f0f2f5; } body { margin: 0; background: var(--content-bg); } /* /desktop 창(iframe) 안에서는 사이드바·상단바 숨김 */ html.embedded .sidebar, html.embedded .topbar { display: none !important; } html.embedded .main { margin-left: 0; } @media (max-width: 767px) { .desktop-link { display: none; } } .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; } .sidebar-logo { padding: 1.1rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.07); } .sidebar-logo a { color: #fff; font-size: 1.05rem; font-weight: 700; text-decoration: none; } .sidebar-section-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: .7rem 1rem .25rem; background: none; border: none; cursor: pointer; font-size: .67rem; text-transform: uppercase; color: rgba(255,255,255,.28); letter-spacing: .09em; transition: color .15s; } .sidebar-section-btn:hover { color: rgba(255,255,255,.5); } .sidebar-section-btn .chv { font-size: .65rem; transition: transform .2s; } .sidebar-section-btn.collapsed .chv { transform: rotate(-90deg); } .sidebar .nav-link { color: var(--nav-text); padding: 0.5rem 0.85rem; font-size: 0.86rem; display: flex; align-items: center; gap: 0.55rem; border-radius: 5px; margin: 1px 8px; transition: background .12s, color .12s; } .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,0.07); } .sidebar .nav-link.active { color: #fff; background: var(--nav-active); } .sidebar \u003e .nav-collapse { overflow: hidden; } .sidebar-footer { margin-top: auto; padding: 0.75rem 1rem; border-top: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; } .sidebar-nav-scroll { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.1) transparent; } .main { margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-height: 100vh; } .topbar { background: var(--header-bg); padding: 0.7rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; border-bottom: 1px solid rgba(255,255,255,0.07); } .topbar .title { color: #fff; font-size: 0.95rem; font-weight: 500; margin: 0; } .content { flex: 1; padding: 1.5rem; } .badge-running { background: #28a745 !important; } .badge-exited, .badge-stopped { background: #dc3545 !important; } .badge-paused { background: #ffc107 !important; color: #212529 !important; } .badge-created { background: #6c757d !important; } .badge-restarting{ background: #17a2b8 !important; } .stat-card { background: #fff; border-radius: 8px; padding: 1.2rem 1.4rem; border: 1px solid rgba(0,0,0,0.07); } .stat-card .num { font-size: 2rem; font-weight: 700; line-height: 1; margin-bottom: .2rem; } .stat-card .lbl { font-size: .75rem; color: #6c757d; text-transform: uppercase; letter-spacing: .05em; } .card-table { background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.08); } .card-table .ct-header { padding: .75rem 1rem; border-bottom: 1px solid #e9ecef; display: flex; align-items: center; justify-content: space-between; } .card-table table { margin-bottom: 0; font-size: .875rem; } .card-table thead th { background: #f8f9fa; border-bottom: 2px solid #e9ecef; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #6c757d; white-space: nowrap; padding: .6rem .75rem; } .card-table tbody tr:hover { background: #fafbfc; } .card-table td { vertical-align: middle; padding: .6rem .75rem; } .cname { font-weight: 500; color: #1a73e8; text-decoration: none; } .cname:hover { text-decoration: underline; } .mono { font-family: 'SF Mono','Fira Code',monospace; font-size: .82rem; color: #6c757d; } .ptag { display: inline-block; background: #e8f0fe; color: #1a73e8; padding: 1px 7px; border-radius: 3px; font-size: .76rem; font-family: monospace; margin: 1px; } \u003c/style\u003e\u003c/head\u003e\u003cbody\u003e\u003cnav class=\"sidebar\"\u003e\u003cdiv class=\"sidebar-logo\"\u003e\u003ca href=\"/appjail\"\u003e\u003ci class=\"bi bi-grid-3x3-gap-fill me-2\" style=\"color:#4d9eff\"\u003e\u003c/i\u003epfortainer\u003c/a\u003e\u003ca href=\"/desktop\" class=\"desktop-link\" title=\"데스크탑 모드\" style=\"float:right;font-weight:400;opacity:.6\"\u003e\u003ci class=\"bi bi-window-stack\"\u003e\u003c/i\u003e\u003c/a\u003e\u003c/div\u003e\u003cdiv class=\"sidebar-nav-scroll\"\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-app\" aria-expanded=\"false\"\u003e\u003cspan\u003e앱\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-app\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/appjail\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-hdd-stack\"\u003e\u003c/i\u003e AppJail\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/containers\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-boxes\"\u003e\u003c/i\u003e Containers\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/files\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-folder2-open\"\u003e\u003c/i\u003e 파일매니저\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-system\" aria-expanded=\"false\"\u003e\u003cspan\u003e시스템\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-system\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/system\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-pc-display\"\u003e\u003c/i\u003e 시스템\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/metrics\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-activity\"\u003e\u003c/i\u003e 주요 메트릭\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/storage\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-hdd-network\"\u003e\u003c/i\u003e 스토리지\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/filesystem\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-diagram-3\"\u003e\u003c/i\u003e ZFS 데이터셋\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/snapshots\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-camera\"\u003e\u003c/i\u003e 스케줄 / 스냅샷\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/replications\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-arrow-repeat\"\u003e\u003c/i\u003e 복제\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/network\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-ethernet\"\u003e\u003c/i\u003e 네트워크\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/diagnostics\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-terminal\"\u003e\u003c/i\u003e 진단/로그\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-shares\" aria-expanded=\"false\"\u003e\u003cspan\u003e공유\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-shares\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/shares\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-folder-fill\"\u003e\u003c/i\u003e 공유 관리\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003cbutton class=\"sidebar-section-btn \" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-admin\" aria-expanded=\"true\"\u003e\u003cspan\u003e관리자\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse show\" id=\"nav-admin\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/alerts\" class=\"nav-link active\"\u003e\u003ci class=\"bi bi-bell\"\u003e\u003c/i\u003e 알림 설정\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/admin/users\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-people\"\u003e\u003c/i\u003e 사용자 관리\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"sidebar-footer\"\u003e\u003ca href=\"/profile\" style=\"display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:rgba(255,255,255,.55);text-decoration:none;margin-bottom:.3rem;padding:0 .85rem\" onmouseover=\"this.style.color='#fff'\" onmouseout=\"this.style.color='rgba(255,255,255,.55)'\"\u003e\u003ci class=\"bi bi-person-circle\"\u003e\u003c/i\u003eviewer1 \u003cspan class=\"badge bg-secondary ms-auto\" style=\"font-size:.65rem\"\u003eviewer\u003c/span\u003e\u003c/a\u003e\u003ca href=\"/logout\" class=\"nav-link text-muted px-0\" style=\"margin:0\"\u003e\u003ci class=\"bi bi-box-arrow-right\"\u003e\u003c/i\u003e\u003cspan style=\"font-size:.8rem\"\u003e로그아웃\u003c/span\u003e\u003c/a\u003e\u003c/div\u003e\u003c/nav\u003e\u003cdiv class=\"main\"\u003e\u003cdiv class=\"topbar\"\u003e\u003cspan class=\"title\"\u003e알림 설정\u003c/span\u003e\u003cspan style=\"color:rgba(255,255,255,.4);font-size:.78rem\"\u003e\u003ci class=\"bi bi-circle-fill me-1\" style=\"color:#28a745;font-size:.45rem;vertical-align:middle\"\u003e\u003c/i\u003ePodman \u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"content\"\u003e\u003cform method=\"post\" action=\"/alerts\" id=\"alertForm\"\u003e\u003cdiv class=\"row g-3\"\u003e\u003cdiv class=\"col-12 col-xl-6\"\u003e\u003cdiv class=\"card-table h-100\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-envelope me-1\"\u003e\u003c/i\u003e이메일 (SMTP)\u003c/span\u003e\u003cdiv class=\"form-check form-switch mb-0\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"email_enabled\" value=\"1\" id=\"emailEnabled\" checked onchange=\"toggleSection('emailFields', this.checked)\"\u003e\u003clabel class=\"form-check-label small\" for=\"emailEnabled\"\u003e활성화\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"p-3\" id=\"emailFields\" \u003e\u003cdiv class=\"row g-2 mb-2\"\u003e\u003cdiv class=\"col-8\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003eSMTP 서버\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_host\" class=\"form-control form-control-sm\" placeholder=\"smtp.gmail.com\" value=\"127.0.0.1\"\u003e\u003c/div\u003e\u003cdiv class=\"col-4\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e포트\u003c/label\u003e\u003cinput type=\"number\" name=\"smtp_port\" class=\"form-control form-control-sm\" value=\"\u003cSMTP_PORT\u003e\"\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e사용자명\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_user\" class=\"form-control form-control-sm\" placeholder=\"user@gmail.com\" value=\"u\" autocomplete=\"username\"\u003e\u003c/div\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e 비밀번호 \u003cspan class=\"text-success ms-1\" style=\"font-size:.75rem\"\u003e(설정됨)\u003c/span\u003e\u003c/label\u003e\u003cinput type=\"password\" name=\"smtp_pass\" class=\"form-control form-control-sm\" placeholder=\"변경 시에만 입력\" autocomplete=\"current-password\"\u003e\u003c/div\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e발신 주소 (From)\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_from\" class=\"form-control form-control-sm\" placeholder=\"pfortainer@yourdomain.com (빈칸=사용자명 사용)\" value=\"\"\u003e\u003c/div\u003e\u003cdiv class=\"mb-0\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e수신 주소 (To)\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_to\" class=\"form-control form-control-sm\" placeholder=\"admin@yourdomain.com\" value=\"me@example.com\"\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-xl-6\"\u003e\u003cdiv class=\"card-table h-100\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-lightning me-1\"\u003e\u003c/i\u003e웹훅 (Webhook)\u003c/span\u003e\u003cdiv class=\"form-check form-switch mb-0\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"webhook_enabled\" value=\"1\" id=\"webhookEnabled\" onchange=\"toggleSection('webhookFields', this.checked)\"\u003e\u003clabel class=\"form-check-label small\" for=\"webhookEnabled\"\u003e활성화\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"p-3\" id=\"webhookFields\" style=\"opacity:.5;pointer-events:none\"\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e웹훅 URL\u003c/label\u003e\u003cinput type=\"url\" name=\"webhook_url\" class=\"form-control form-control-sm\" placeholder=\"https://hooks.slack.com/... 또는 Discord webhook URL\" value=\"\"\u003e\u003c/div\u003e\u003cdiv class=\"text-muted mt-2\" style=\"font-size:.78rem\"\u003e\u003cstrong\u003e전송 페이로드 (JSON)\u003c/strong\u003e\u003cpre class=\"mt-1 p-2 rounded\" style=\"background:#1e2a3a;color:#b3e5fc;font-size:.76rem;overflow:auto\"\u003e{ \"event\": \"pool_health\", \"target\": \"zdata\", \"message\": \"[pfortainer] ZFS 풀 경보: zdata (DEGRADED)\", \"timestamp\": \"2026-06-28T10:00:00Z\", \"source\": \"pfortainer\" }\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-xl-8\"\u003e\u003cdiv class=\"card-table\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-shield-check me-1\"\u003e\u003c/i\u003e알림 규칙\u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"p-3\"\u003e\u003cdiv class=\"row g-3\"\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_pool_health\" value=\"1\" id=\"chkPool\" \u003e\u003clabel class=\"form-check-label\" for=\"chkPool\"\u003e\u003cstrong\u003eZFS 풀 상태 이상\u003c/strong\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003eONLINE 외 상태 (DEGRADED, FAULTED 등)\u003c/div\u003e\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_smart\" value=\"1\" id=\"chkSmart\" \u003e\u003clabel class=\"form-check-label\" for=\"chkSmart\"\u003e\u003cstrong\u003eSMART 상태 이상\u003c/strong\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003eSMART health = FAILED\u003c/div\u003e\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_scrub\" value=\"1\" id=\"chkScrub\" \u003e\u003clabel class=\"form-check-label\" for=\"chkScrub\"\u003e\u003cstrong\u003e스크럽 오류\u003c/strong\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003e스크럽 완료 후 복구 불가 오류 발생 시\u003c/div\u003e\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check mb-1\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_capacity\" value=\"1\" id=\"chkCap\" \u003e\u003clabel class=\"form-check-label\" for=\"chkCap\"\u003e\u003cstrong\u003e풀 용량 임계치\u003c/strong\u003e\u003c/label\u003e\u003c/div\u003e\u003cdiv class=\"input-group input-group-sm\" style=\"max-width:180px\"\u003e\u003cinput type=\"number\" name=\"capacity_pct\" class=\"form-control\" value=\"85\" min=\"50\" max=\"99\"\u003e\u003cspan class=\"input-group-text\"\u003e% 이상 시 알림\u003c/span\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-xl-4\"\u003e\u003cdiv class=\"card-table h-100\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-clock me-1\"\u003e\u003c/i\u003e반복 방지 (쿨다운)\u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"p-3\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e알림 재발송 최소 간격\u003c/label\u003e\u003cdiv class=\"input-group input-group-sm\" style=\"max-width:160px\"\u003e\u003cinput type=\"number\" name=\"cooldown_hours\" class=\"form-control\" value=\"4\" min=\"1\" max=\"168\"\u003e\u003cspan class=\"input-group-text\"\u003e시간\u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"text-muted mt-2\" style=\"font-size:.78rem\"\u003e 동일한 이벤트/대상에 대해 설정된 시간 내 중복 발송하지 않습니다. \u003c/div\u003e\u003chr class=\"my-3\"\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003e\u003cstrong\u003e체크 주기\u003c/strong\u003e: 5분마다 자동 확인\u003cbr\u003e\u003cstrong\u003e체크 항목\u003c/strong\u003e: 풀 상태, SMART, 용량, 스크럽 결과 \u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 d-flex gap-2\"\u003e\u003cbutton type=\"submit\" class=\"btn btn-primary\"\u003e\u003ci class=\"bi bi-save me-1\"\u003e\u003c/i\u003e설정 저장 \u003c/button\u003e\u003cbutton type=\"button\" class=\"btn btn-outline-secondary\" onclick=\"sendTest()\"\u003e\u003ci class=\"bi bi-send me-1\"\u003e\u003c/i\u003e테스트 발송 \u003c/button\u003e\u003c/div\u003e\u003c/div\u003e\u003c/form\u003e\u003cscript\u003e function toggleSection(id, enabled) { var el = document.getElementById(id); el.style.opacity = enabled ? '1' : '.5'; el.style.pointerEvents = enabled ? '' : 'none'; } function sendTest() { // Save current settings first, then POST to /alerts/test var form = document.getElementById('alertForm'); var data = new FormData(form); fetch('/alerts', { method: 'POST', body: data }).finally(function() { var f = document.createElement('form'); f.method = 'post'; f.action = '/alerts/test'; document.body.appendChild(f); f.submit(); }); } \u003c/script\u003e\u003c/div\u003e\u003c/div\u003e\u003cscript src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js\"\u003e\u003c/script\u003e\u003cscript\u003e document.addEventListener('DOMContentLoaded', function() { var sections = ['nav-app', 'nav-system', 'nav-shares', 'nav-admin']; sections.forEach(function(id) { var el = document.getElementById(id); if (!el) return; var hasActive = el.querySelector('.nav-link.active'); if (!hasActive) { var stored = localStorage.getItem('pf-' + id); if (stored === 'closed') { el.classList.remove('show'); var btn = el.previousElementSibling; while (btn \u0026\u0026 btn.tagName !== 'BUTTON') btn = btn.previousElementSibling; if (btn) btn.classList.add('collapsed'); } } el.addEventListener('hide.bs.collapse', function() { localStorage.setItem('pf-' + id, 'closed'); }); el.addEventListener('show.bs.collapse', function() { localStorage.setItem('pf-' + id, 'open'); }); }); }); \u003c/script\u003e\u003c/body\u003e\u003c/html\u003e"
+    },
+    "db": {
+      "meta": {
+        "parsed": null,
+        "raw": "{\"email_enabled\":true,\"smtp_host\":\"127.0.0.1\",\"smtp_port\":\u003cSMTP_PORT\u003e,\"smtp_user\":\"u\",\"smtp_pass\":\"secret-pw\",\"smtp_from\":\"\",\"smtp_to\":\"me@example.com\",\"webhook_enabled\":false,\"webhook_url\":\"\",\"check_pool_health\":false,\"check_smart\":false,\"check_capacity\":false,\"capacity_pct\":85,\"check_scrub\":false,\"cooldown_hours\":4}"
+      },
+      "stub": null
+    }
+  },
+  {
+    "name": "test_email_fail",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?error=%EC%9D%B4%EB%A9%94%EC%9D%BC%3A%20Invalid%20input"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": null,
+        "raw": "{\"email_enabled\":true,\"smtp_host\":\"127.0.0.1\",\"smtp_port\":\u003cSMTP_PORT\u003e,\"smtp_user\":\"u\",\"smtp_pass\":\"secret-pw\",\"smtp_from\":\"\",\"smtp_to\":\"me@example.com\",\"webhook_enabled\":false,\"webhook_url\":\"\",\"check_pool_health\":false,\"check_smart\":false,\"check_capacity\":false,\"capacity_pct\":85,\"check_scrub\":false,\"cooldown_hours\":4}"
+      },
+      "stub": null
+    }
+  },
+  {
+    "name": "save_bad_email_addr",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?success=설정+저장+완료"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": null,
+        "raw": "{\"email_enabled\":true,\"smtp_host\":\"127.0.0.1\",\"smtp_port\":\u003cSMTP_PORT\u003e,\"smtp_user\":\"\",\"smtp_pass\":\"secret-pw\",\"smtp_from\":\"\",\"smtp_to\":\"not an address\",\"webhook_enabled\":false,\"webhook_url\":\"\",\"check_pool_health\":false,\"check_smart\":false,\"check_capacity\":false,\"capacity_pct\":85,\"check_scrub\":false,\"cooldown_hours\":4}"
+      },
+      "stub": null
+    }
+  },
+  {
+    "name": "test_bad_addr",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?error=%EC%9D%B4%EB%A9%94%EC%9D%BC%3A%20Invalid%20input"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": null,
+        "raw": "{\"email_enabled\":true,\"smtp_host\":\"127.0.0.1\",\"smtp_port\":\u003cSMTP_PORT\u003e,\"smtp_user\":\"\",\"smtp_pass\":\"secret-pw\",\"smtp_from\":\"\",\"smtp_to\":\"not an address\",\"webhook_enabled\":false,\"webhook_url\":\"\",\"check_pool_health\":false,\"check_smart\":false,\"check_capacity\":false,\"capacity_pct\":85,\"check_scrub\":false,\"cooldown_hours\":4}"
+      },
+      "stub": null
+    }
+  },
+  {
+    "name": "save_email_no_host",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?success=설정+저장+완료"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": {
+          "capacity_pct": 85,
+          "check_capacity": false,
+          "check_pool_health": false,
+          "check_scrub": false,
+          "check_smart": false,
+          "cooldown_hours": 4,
+          "email_enabled": true,
+          "smtp_from": "",
+          "smtp_host": "",
+          "smtp_pass": "secret-pw",
+          "smtp_port": 587,
+          "smtp_to": "me@example.com",
+          "smtp_user": "",
+          "webhook_enabled": false,
+          "webhook_url": ""
+        },
+        "raw": "{\"email_enabled\":true,\"smtp_host\":\"\",\"smtp_port\":587,\"smtp_user\":\"\",\"smtp_pass\":\"secret-pw\",\"smtp_from\":\"\",\"smtp_to\":\"me@example.com\",\"webhook_enabled\":false,\"webhook_url\":\"\",\"check_pool_health\":false,\"check_smart\":false,\"check_capacity\":false,\"capacity_pct\":85,\"check_scrub\":false,\"cooldown_hours\":4}"
+      },
+      "stub": null
+    }
+  },
+  {
+    "name": "test_email_not_configured",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?error=%EC%9D%B4%EB%A9%94%EC%9D%BC%3A%20SMTP%20not%20configured"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": {
+          "capacity_pct": 85,
+          "check_capacity": false,
+          "check_pool_health": false,
+          "check_scrub": false,
+          "check_smart": false,
+          "cooldown_hours": 4,
+          "email_enabled": true,
+          "smtp_from": "",
+          "smtp_host": "",
+          "smtp_pass": "secret-pw",
+          "smtp_port": 587,
+          "smtp_to": "me@example.com",
+          "smtp_user": "",
+          "webhook_enabled": false,
+          "webhook_url": ""
+        },
+        "raw": "{\"email_enabled\":true,\"smtp_host\":\"\",\"smtp_port\":587,\"smtp_user\":\"\",\"smtp_pass\":\"secret-pw\",\"smtp_from\":\"\",\"smtp_to\":\"me@example.com\",\"webhook_enabled\":false,\"webhook_url\":\"\",\"check_pool_health\":false,\"check_smart\":false,\"check_capacity\":false,\"capacity_pct\":85,\"check_scrub\":false,\"cooldown_hours\":4}"
+      },
+      "stub": null
+    }
+  },
+  {
+    "name": "save_webhook_enabled_no_url",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?success=설정+저장+완료"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": {
+          "capacity_pct": 85,
+          "check_capacity": false,
+          "check_pool_health": false,
+          "check_scrub": false,
+          "check_smart": false,
+          "cooldown_hours": 4,
+          "email_enabled": false,
+          "smtp_from": "",
+          "smtp_host": "",
+          "smtp_pass": "secret-pw",
+          "smtp_port": 587,
+          "smtp_to": "",
+          "smtp_user": "",
+          "webhook_enabled": true,
+          "webhook_url": ""
+        },
+        "raw": "{\"email_enabled\":false,\"smtp_host\":\"\",\"smtp_port\":587,\"smtp_user\":\"\",\"smtp_pass\":\"secret-pw\",\"smtp_from\":\"\",\"smtp_to\":\"\",\"webhook_enabled\":true,\"webhook_url\":\"\",\"check_pool_health\":false,\"check_smart\":false,\"check_capacity\":false,\"capacity_pct\":85,\"check_scrub\":false,\"cooldown_hours\":4}"
+      },
+      "stub": null
+    }
+  },
+  {
+    "name": "test_webhook_no_url",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?error=활성화된+채널이+없습니다"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": {
+          "capacity_pct": 85,
+          "check_capacity": false,
+          "check_pool_health": false,
+          "check_scrub": false,
+          "check_smart": false,
+          "cooldown_hours": 4,
+          "email_enabled": false,
+          "smtp_from": "",
+          "smtp_host": "",
+          "smtp_pass": "secret-pw",
+          "smtp_port": 587,
+          "smtp_to": "",
+          "smtp_user": "",
+          "webhook_enabled": true,
+          "webhook_url": ""
+        },
+        "raw": "{\"email_enabled\":false,\"smtp_host\":\"\",\"smtp_port\":587,\"smtp_user\":\"\",\"smtp_pass\":\"secret-pw\",\"smtp_from\":\"\",\"smtp_to\":\"\",\"webhook_enabled\":true,\"webhook_url\":\"\",\"check_pool_health\":false,\"check_smart\":false,\"check_capacity\":false,\"capacity_pct\":85,\"check_scrub\":false,\"cooldown_hours\":4}"
+      },
+      "stub": null
+    }
+  },
+  {
+    "name": "save_numbers",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/alerts?success=설정+저장+완료"
+        ]
+      }
+    },
+    "db": {
+      "meta": {
+        "parsed": {
+          "capacity_pct": -5,
+          "check_capacity": false,
+          "check_pool_health": false,
+          "check_scrub": false,
+          "check_smart": false,
+          "cooldown_hours": 99999999999,
+          "email_enabled": false,
+          "smtp_from": "",
+          "smtp_host": "",
+          "smtp_pass": "secret-pw",
+          "smtp_port": 465,
+          "smtp_to": "",
+          "smtp_user": "",
+          "webhook_enabled": false,
+          "webhook_url": ""
+        },
+        "raw": "{\"email_enabled\":false,\"smtp_host\":\"\",\"smtp_port\":465,\"smtp_user\":\"\",\"smtp_pass\":\"secret-pw\",\"smtp_from\":\"\",\"smtp_to\":\"\",\"webhook_enabled\":false,\"webhook_url\":\"\",\"check_pool_health\":false,\"check_smart\":false,\"check_capacity\":false,\"capacity_pct\":-5,\"check_scrub\":false,\"cooldown_hours\":99999999999}"
+      },
+      "stub": null
+    }
+  },
+  {
+    "name": "page_corrupt_meta",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "text/html; charset=utf-8"
+        ]
+      },
+      "body": "\u003c!DOCTYPE html\u003e\u003chtml lang=\"ko\"\u003e\u003chead\u003e\u003cmeta charset=\"UTF-8\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\u003ctitle\u003e알림 설정 — pfortainer\u003c/title\u003e\u003cscript\u003eif (window.top !== window.self) document.documentElement.classList.add('embedded');\u003c/script\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\"\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css\" rel=\"stylesheet\"\u003e\u003cstyle\u003e :root { --sidebar-bg: #1a2332; --sidebar-w: 220px; --header-bg: #1f2d3d; --nav-text: #b3c0d1; --nav-active: #2d4263; --content-bg: #f0f2f5; } body { margin: 0; background: var(--content-bg); } /* /desktop 창(iframe) 안에서는 사이드바·상단바 숨김 */ html.embedded .sidebar, html.embedded .topbar { display: none !important; } html.embedded .main { margin-left: 0; } @media (max-width: 767px) { .desktop-link { display: none; } } .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; } .sidebar-logo { padding: 1.1rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.07); } .sidebar-logo a { color: #fff; font-size: 1.05rem; font-weight: 700; text-decoration: none; } .sidebar-section-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: .7rem 1rem .25rem; background: none; border: none; cursor: pointer; font-size: .67rem; text-transform: uppercase; color: rgba(255,255,255,.28); letter-spacing: .09em; transition: color .15s; } .sidebar-section-btn:hover { color: rgba(255,255,255,.5); } .sidebar-section-btn .chv { font-size: .65rem; transition: transform .2s; } .sidebar-section-btn.collapsed .chv { transform: rotate(-90deg); } .sidebar .nav-link { color: var(--nav-text); padding: 0.5rem 0.85rem; font-size: 0.86rem; display: flex; align-items: center; gap: 0.55rem; border-radius: 5px; margin: 1px 8px; transition: background .12s, color .12s; } .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,0.07); } .sidebar .nav-link.active { color: #fff; background: var(--nav-active); } .sidebar \u003e .nav-collapse { overflow: hidden; } .sidebar-footer { margin-top: auto; padding: 0.75rem 1rem; border-top: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; } .sidebar-nav-scroll { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.1) transparent; } .main { margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-height: 100vh; } .topbar { background: var(--header-bg); padding: 0.7rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; border-bottom: 1px solid rgba(255,255,255,0.07); } .topbar .title { color: #fff; font-size: 0.95rem; font-weight: 500; margin: 0; } .content { flex: 1; padding: 1.5rem; } .badge-running { background: #28a745 !important; } .badge-exited, .badge-stopped { background: #dc3545 !important; } .badge-paused { background: #ffc107 !important; color: #212529 !important; } .badge-created { background: #6c757d !important; } .badge-restarting{ background: #17a2b8 !important; } .stat-card { background: #fff; border-radius: 8px; padding: 1.2rem 1.4rem; border: 1px solid rgba(0,0,0,0.07); } .stat-card .num { font-size: 2rem; font-weight: 700; line-height: 1; margin-bottom: .2rem; } .stat-card .lbl { font-size: .75rem; color: #6c757d; text-transform: uppercase; letter-spacing: .05em; } .card-table { background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.08); } .card-table .ct-header { padding: .75rem 1rem; border-bottom: 1px solid #e9ecef; display: flex; align-items: center; justify-content: space-between; } .card-table table { margin-bottom: 0; font-size: .875rem; } .card-table thead th { background: #f8f9fa; border-bottom: 2px solid #e9ecef; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #6c757d; white-space: nowrap; padding: .6rem .75rem; } .card-table tbody tr:hover { background: #fafbfc; } .card-table td { vertical-align: middle; padding: .6rem .75rem; } .cname { font-weight: 500; color: #1a73e8; text-decoration: none; } .cname:hover { text-decoration: underline; } .mono { font-family: 'SF Mono','Fira Code',monospace; font-size: .82rem; color: #6c757d; } .ptag { display: inline-block; background: #e8f0fe; color: #1a73e8; padding: 1px 7px; border-radius: 3px; font-size: .76rem; font-family: monospace; margin: 1px; } \u003c/style\u003e\u003c/head\u003e\u003cbody\u003e\u003cnav class=\"sidebar\"\u003e\u003cdiv class=\"sidebar-logo\"\u003e\u003ca href=\"/appjail\"\u003e\u003ci class=\"bi bi-grid-3x3-gap-fill me-2\" style=\"color:#4d9eff\"\u003e\u003c/i\u003epfortainer\u003c/a\u003e\u003ca href=\"/desktop\" class=\"desktop-link\" title=\"데스크탑 모드\" style=\"float:right;font-weight:400;opacity:.6\"\u003e\u003ci class=\"bi bi-window-stack\"\u003e\u003c/i\u003e\u003c/a\u003e\u003c/div\u003e\u003cdiv class=\"sidebar-nav-scroll\"\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-app\" aria-expanded=\"false\"\u003e\u003cspan\u003e앱\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-app\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/appjail\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-hdd-stack\"\u003e\u003c/i\u003e AppJail\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/containers\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-boxes\"\u003e\u003c/i\u003e Containers\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/files\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-folder2-open\"\u003e\u003c/i\u003e 파일매니저\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-system\" aria-expanded=\"false\"\u003e\u003cspan\u003e시스템\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-system\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/system\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-pc-display\"\u003e\u003c/i\u003e 시스템\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/metrics\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-activity\"\u003e\u003c/i\u003e 주요 메트릭\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/storage\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-hdd-network\"\u003e\u003c/i\u003e 스토리지\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/filesystem\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-diagram-3\"\u003e\u003c/i\u003e ZFS 데이터셋\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/snapshots\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-camera\"\u003e\u003c/i\u003e 스케줄 / 스냅샷\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/replications\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-arrow-repeat\"\u003e\u003c/i\u003e 복제\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/network\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-ethernet\"\u003e\u003c/i\u003e 네트워크\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/diagnostics\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-terminal\"\u003e\u003c/i\u003e 진단/로그\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-shares\" aria-expanded=\"false\"\u003e\u003cspan\u003e공유\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-shares\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/shares\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-folder-fill\"\u003e\u003c/i\u003e 공유 관리\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003cbutton class=\"sidebar-section-btn \" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-admin\" aria-expanded=\"true\"\u003e\u003cspan\u003e관리자\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse show\" id=\"nav-admin\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/alerts\" class=\"nav-link active\"\u003e\u003ci class=\"bi bi-bell\"\u003e\u003c/i\u003e 알림 설정\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/admin/users\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-people\"\u003e\u003c/i\u003e 사용자 관리\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"sidebar-footer\"\u003e\u003ca href=\"/profile\" style=\"display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:rgba(255,255,255,.55);text-decoration:none;margin-bottom:.3rem;padding:0 .85rem\" onmouseover=\"this.style.color='#fff'\" onmouseout=\"this.style.color='rgba(255,255,255,.55)'\"\u003e\u003ci class=\"bi bi-person-circle\"\u003e\u003c/i\u003eviewer1 \u003cspan class=\"badge bg-secondary ms-auto\" style=\"font-size:.65rem\"\u003eviewer\u003c/span\u003e\u003c/a\u003e\u003ca href=\"/logout\" class=\"nav-link text-muted px-0\" style=\"margin:0\"\u003e\u003ci class=\"bi bi-box-arrow-right\"\u003e\u003c/i\u003e\u003cspan style=\"font-size:.8rem\"\u003e로그아웃\u003c/span\u003e\u003c/a\u003e\u003c/div\u003e\u003c/nav\u003e\u003cdiv class=\"main\"\u003e\u003cdiv class=\"topbar\"\u003e\u003cspan class=\"title\"\u003e알림 설정\u003c/span\u003e\u003cspan style=\"color:rgba(255,255,255,.4);font-size:.78rem\"\u003e\u003ci class=\"bi bi-circle-fill me-1\" style=\"color:#28a745;font-size:.45rem;vertical-align:middle\"\u003e\u003c/i\u003ePodman \u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"content\"\u003e\u003cform method=\"post\" action=\"/alerts\" id=\"alertForm\"\u003e\u003cdiv class=\"row g-3\"\u003e\u003cdiv class=\"col-12 col-xl-6\"\u003e\u003cdiv class=\"card-table h-100\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-envelope me-1\"\u003e\u003c/i\u003e이메일 (SMTP)\u003c/span\u003e\u003cdiv class=\"form-check form-switch mb-0\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"email_enabled\" value=\"1\" id=\"emailEnabled\" onchange=\"toggleSection('emailFields', this.checked)\"\u003e\u003clabel class=\"form-check-label small\" for=\"emailEnabled\"\u003e활성화\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"p-3\" id=\"emailFields\" style=\"opacity:.5;pointer-events:none\"\u003e\u003cdiv class=\"row g-2 mb-2\"\u003e\u003cdiv class=\"col-8\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003eSMTP 서버\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_host\" class=\"form-control form-control-sm\" placeholder=\"smtp.gmail.com\" value=\"\"\u003e\u003c/div\u003e\u003cdiv class=\"col-4\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e포트\u003c/label\u003e\u003cinput type=\"number\" name=\"smtp_port\" class=\"form-control form-control-sm\" value=\"587\"\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e사용자명\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_user\" class=\"form-control form-control-sm\" placeholder=\"user@gmail.com\" value=\"\" autocomplete=\"username\"\u003e\u003c/div\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e 비밀번호 \u003c/label\u003e\u003cinput type=\"password\" name=\"smtp_pass\" class=\"form-control form-control-sm\" placeholder=\"앱 비밀번호\" autocomplete=\"current-password\"\u003e\u003c/div\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e발신 주소 (From)\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_from\" class=\"form-control form-control-sm\" placeholder=\"pfortainer@yourdomain.com (빈칸=사용자명 사용)\" value=\"\"\u003e\u003c/div\u003e\u003cdiv class=\"mb-0\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e수신 주소 (To)\u003c/label\u003e\u003cinput type=\"text\" name=\"smtp_to\" class=\"form-control form-control-sm\" placeholder=\"admin@yourdomain.com\" value=\"\"\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-xl-6\"\u003e\u003cdiv class=\"card-table h-100\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-lightning me-1\"\u003e\u003c/i\u003e웹훅 (Webhook)\u003c/span\u003e\u003cdiv class=\"form-check form-switch mb-0\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"webhook_enabled\" value=\"1\" id=\"webhookEnabled\" onchange=\"toggleSection('webhookFields', this.checked)\"\u003e\u003clabel class=\"form-check-label small\" for=\"webhookEnabled\"\u003e활성화\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"p-3\" id=\"webhookFields\" style=\"opacity:.5;pointer-events:none\"\u003e\u003cdiv class=\"mb-2\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e웹훅 URL\u003c/label\u003e\u003cinput type=\"url\" name=\"webhook_url\" class=\"form-control form-control-sm\" placeholder=\"https://hooks.slack.com/... 또는 Discord webhook URL\" value=\"\"\u003e\u003c/div\u003e\u003cdiv class=\"text-muted mt-2\" style=\"font-size:.78rem\"\u003e\u003cstrong\u003e전송 페이로드 (JSON)\u003c/strong\u003e\u003cpre class=\"mt-1 p-2 rounded\" style=\"background:#1e2a3a;color:#b3e5fc;font-size:.76rem;overflow:auto\"\u003e{ \"event\": \"pool_health\", \"target\": \"zdata\", \"message\": \"[pfortainer] ZFS 풀 경보: zdata (DEGRADED)\", \"timestamp\": \"2026-06-28T10:00:00Z\", \"source\": \"pfortainer\" }\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-xl-8\"\u003e\u003cdiv class=\"card-table\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-shield-check me-1\"\u003e\u003c/i\u003e알림 규칙\u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"p-3\"\u003e\u003cdiv class=\"row g-3\"\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_pool_health\" value=\"1\" id=\"chkPool\" checked\u003e\u003clabel class=\"form-check-label\" for=\"chkPool\"\u003e\u003cstrong\u003eZFS 풀 상태 이상\u003c/strong\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003eONLINE 외 상태 (DEGRADED, FAULTED 등)\u003c/div\u003e\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_smart\" value=\"1\" id=\"chkSmart\" checked\u003e\u003clabel class=\"form-check-label\" for=\"chkSmart\"\u003e\u003cstrong\u003eSMART 상태 이상\u003c/strong\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003eSMART health = FAILED\u003c/div\u003e\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_scrub\" value=\"1\" id=\"chkScrub\" checked\u003e\u003clabel class=\"form-check-label\" for=\"chkScrub\"\u003e\u003cstrong\u003e스크럽 오류\u003c/strong\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003e스크럽 완료 후 복구 불가 오류 발생 시\u003c/div\u003e\u003c/label\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-sm-6\"\u003e\u003cdiv class=\"form-check mb-1\"\u003e\u003cinput class=\"form-check-input\" type=\"checkbox\" name=\"check_capacity\" value=\"1\" id=\"chkCap\" checked\u003e\u003clabel class=\"form-check-label\" for=\"chkCap\"\u003e\u003cstrong\u003e풀 용량 임계치\u003c/strong\u003e\u003c/label\u003e\u003c/div\u003e\u003cdiv class=\"input-group input-group-sm\" style=\"max-width:180px\"\u003e\u003cinput type=\"number\" name=\"capacity_pct\" class=\"form-control\" value=\"85\" min=\"50\" max=\"99\"\u003e\u003cspan class=\"input-group-text\"\u003e% 이상 시 알림\u003c/span\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 col-xl-4\"\u003e\u003cdiv class=\"card-table h-100\"\u003e\u003cdiv class=\"ct-header\"\u003e\u003cspan class=\"fw-semibold\" style=\"font-size:.88rem\"\u003e\u003ci class=\"bi bi-clock me-1\"\u003e\u003c/i\u003e반복 방지 (쿨다운)\u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"p-3\"\u003e\u003clabel class=\"form-label small fw-semibold text-muted mb-1\"\u003e알림 재발송 최소 간격\u003c/label\u003e\u003cdiv class=\"input-group input-group-sm\" style=\"max-width:160px\"\u003e\u003cinput type=\"number\" name=\"cooldown_hours\" class=\"form-control\" value=\"4\" min=\"1\" max=\"168\"\u003e\u003cspan class=\"input-group-text\"\u003e시간\u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"text-muted mt-2\" style=\"font-size:.78rem\"\u003e 동일한 이벤트/대상에 대해 설정된 시간 내 중복 발송하지 않습니다. \u003c/div\u003e\u003chr class=\"my-3\"\u003e\u003cdiv class=\"text-muted\" style=\"font-size:.78rem\"\u003e\u003cstrong\u003e체크 주기\u003c/strong\u003e: 5분마다 자동 확인\u003cbr\u003e\u003cstrong\u003e체크 항목\u003c/strong\u003e: 풀 상태, SMART, 용량, 스크럽 결과 \u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e\u003cdiv class=\"col-12 d-flex gap-2\"\u003e\u003cbutton type=\"submit\" class=\"btn btn-primary\"\u003e\u003ci class=\"bi bi-save me-1\"\u003e\u003c/i\u003e설정 저장 \u003c/button\u003e\u003cbutton type=\"button\" class=\"btn btn-outline-secondary\" onclick=\"sendTest()\"\u003e\u003ci class=\"bi bi-send me-1\"\u003e\u003c/i\u003e테스트 발송 \u003c/button\u003e\u003c/div\u003e\u003c/div\u003e\u003c/form\u003e\u003cscript\u003e function toggleSection(id, enabled) { var el = document.getElementById(id); el.style.opacity = enabled ? '1' : '.5'; el.style.pointerEvents = enabled ? '' : 'none'; } function sendTest() { // Save current settings first, then POST to /alerts/test var form = document.getElementById('alertForm'); var data = new FormData(form); fetch('/alerts', { method: 'POST', body: data }).finally(function() { var f = document.createElement('form'); f.method = 'post'; f.action = '/alerts/test'; document.body.appendChild(f); f.submit(); }); } \u003c/script\u003e\u003c/div\u003e\u003c/div\u003e\u003cscript src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js\"\u003e\u003c/script\u003e\u003cscript\u003e document.addEventListener('DOMContentLoaded', function() { var sections = ['nav-app', 'nav-system', 'nav-shares', 'nav-admin']; sections.forEach(function(id) { var el = document.getElementById(id); if (!el) return; var hasActive = el.querySelector('.nav-link.active'); if (!hasActive) { var stored = localStorage.getItem('pf-' + id); if (stored === 'closed') { el.classList.remove('show'); var btn = el.previousElementSibling; while (btn \u0026\u0026 btn.tagName !== 'BUTTON') btn = btn.previousElementSibling; if (btn) btn.classList.add('collapsed'); } } el.addEventListener('hide.bs.collapse', function() { localStorage.setItem('pf-' + id, 'closed'); }); el.addEventListener('show.bs.collapse', function() { localStorage.setItem('pf-' + id, 'open'); }); }); }); \u003c/script\u003e\u003c/body\u003e\u003c/html\u003e"
+    },
+    "db": {
+      "meta": {
+        "parsed": null,
+        "raw": "{broken"
+      },
+      "stub": null
+    }
+  }
+]

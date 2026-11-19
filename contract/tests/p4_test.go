@@ -187,21 +187,7 @@ func TestSchedules(t *testing.T) {
 	r := newRunner(t, a)
 	r.m.Re(`(auto|daily|pre)-\d{8}-\d{6}`, "$1-<ts>")
 	diskOrder(r.m)
-	// 페이지의 "MM-DD HH:MM"(KST) 중 지금·지금+1일 근처 값(마지막 실행, 알 수 없는 주기의 다음 실행)
-	r.m.Func(func(s string) string {
-		kst := time.FixedZone("KST", 9*3600)
-		now := time.Now()
-		for _, off := range []struct {
-			base time.Duration
-			tag  string
-		}{{0, "<now>"}, {24 * time.Hour, "<now+1d>"}} {
-			for d := -2; d <= 2; d++ {
-				ts := now.Add(off.base + time.Duration(d)*time.Minute).In(kst).Format("01-02 15:04")
-				s = strings.ReplaceAll(s, ts, off.tag)
-			}
-		}
-		return s
-	})
+	r.m.Func(nearNowTimes)
 	c := a.Client(h.Cookie("operator1", "operator"))
 	F := func(name, path string, kv ...string) { r.addDB(name, c.PostForm(t, path, kv...), schedRows(t, a)) }
 	F("create_ok", "/schedules", "type", "snapshot", "target", "zdata/apps", "frequency", "daily", "prefix", " daily ", "retention", " 14 ")
@@ -501,3 +487,20 @@ func TestDiagnostics(t *testing.T) {
 }
 
 func itoa(i int) string { return strings.TrimSpace(strings.Replace(string(rune('0'+i/100))+string(rune('0'+i/10%10))+string(rune('0'+i%10)), "\x00", "", -1)) }
+
+// nearNowTimes: 페이지의 "MM-DD HH:MM"(KST) 중 지금·지금+1일 근처 값을 치환한다
+// (마지막 실행 시각, 알 수 없는 주기의 다음 실행 시각).
+func nearNowTimes(s string) string {
+	kst := time.FixedZone("KST", 9*3600)
+	now := time.Now()
+	for _, off := range []struct {
+		base time.Duration
+		tag  string
+	}{{0, "<now>"}, {24 * time.Hour, "<now+1d>"}} {
+		for d := -2; d <= 2; d++ {
+			ts := now.Add(off.base + time.Duration(d)*time.Minute).In(kst).Format("01-02 15:04")
+			s = strings.ReplaceAll(s, ts, off.tag)
+		}
+	}
+	return s
+}

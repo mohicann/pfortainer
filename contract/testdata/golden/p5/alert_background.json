@@ -1,0 +1,111 @@
+{
+  "first_round_webhooks": [
+    {
+      "method": "POST",
+      "uri": "/alert",
+      "host": "\u003cSTUB\u003e",
+      "content_type": "application/json",
+      "body": {
+        "event": "pool_capacity",
+        "message": "[pfortainer] 풀 용량 경보: zdata (13%)",
+        "source": "pfortainer",
+        "target": "zdata",
+        "timestamp": "\u003crfc3339\u003e"
+      }
+    },
+    {
+      "method": "POST",
+      "uri": "/alert",
+      "host": "\u003cSTUB\u003e",
+      "content_type": "application/json",
+      "body": {
+        "event": "pool_health",
+        "message": "[pfortainer] ZFS 풀 경보: zbak (DEGRADED)",
+        "source": "pfortainer",
+        "target": "zbak",
+        "timestamp": "\u003crfc3339\u003e"
+      }
+    },
+    {
+      "method": "POST",
+      "uri": "/alert",
+      "host": "\u003cSTUB\u003e",
+      "content_type": "application/json",
+      "body": {
+        "event": "scrub_error",
+        "message": "[pfortainer] ZFS 스크럽 에러: zdata",
+        "source": "pfortainer",
+        "target": "zdata",
+        "timestamp": "\u003crfc3339\u003e"
+      }
+    },
+    {
+      "method": "POST",
+      "uri": "/alert",
+      "host": "\u003cSTUB\u003e",
+      "content_type": "application/json",
+      "body": {
+        "event": "smart_health",
+        "message": "[pfortainer] SMART 경보: ada1 (FAILED!)",
+        "source": "pfortainer",
+        "target": "ada1",
+        "timestamp": "\u003crfc3339\u003e"
+      }
+    },
+    {
+      "method": "POST",
+      "uri": "/alert",
+      "host": "\u003cSTUB\u003e",
+      "content_type": "application/json",
+      "body": {
+        "event": "smart_unknown",
+        "message": "[pfortainer] SMART 조회 실패: ada2",
+        "source": "pfortainer",
+        "target": "ada2",
+        "timestamp": "\u003crfc3339\u003e"
+      }
+    }
+  ],
+  "history_after_first": [
+    {
+      "event_type": "pool_capacity",
+      "target": "zbak"
+    },
+    {
+      "event_type": "pool_capacity",
+      "target": "zdata"
+    },
+    {
+      "event_type": "pool_capacity",
+      "target": "zdata"
+    },
+    {
+      "event_type": "pool_health",
+      "target": "zbak"
+    },
+    {
+      "event_type": "scrub_error",
+      "target": "zdata"
+    },
+    {
+      "event_type": "smart_health",
+      "target": "ada1"
+    },
+    {
+      "event_type": "smart_unknown",
+      "target": "ada2"
+    }
+  ],
+  "hostd_paths": [
+    "GET /smart-scan",
+    "GET /smart?dev=ada0",
+    "GET /smart?dev=ada1",
+    "GET /smart?dev=ada2",
+    "GET /smart?dev=ada3",
+    "GET /smart?dev=ada4",
+    "GET /smart?dev=nvme0",
+    "GET /zpool-list",
+    "GET /zpool-status"
+  ],
+  "later_rounds_webhooks": null
+}
