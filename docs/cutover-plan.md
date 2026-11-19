@@ -46,3 +46,11 @@
 |---|---|---|---|
 | 11-19 15:44 | 18.8MB | 0 | 전환 직후 |
 | 11-19 사용자 확인 | — | 0 | 로그인한 화면 정상(사용자 브라우저 확인) |
+
+## 단계 B 실행 기록 (관찰 생략 — 사용자 결정: 회원 서비스가 아니라서 바로 전환)
+- **2026-11-19 15:48 fbnas hostd가 Go(`/zdata/apps/pfortainer/bin/pfortainer -hostd`)로 운영 중.** 앱·hostd 모두 Go.
+- 호스트 rc.d `pfortainer_hostd`에 스위치(`/usr/local/etc/pfortainer_hostd.bin`, pfortainer-rs dca2621), 이전 rc.d `/tmp/pfortainer_hostd.rc.pre-go`
+- 확인: RSS 17.8MB(Rust 29.5MB), 소켓 재생성·jail에서 보임, zpool-list·appjail/list·smb/status·fs/stat·metrics/host 200,
+  앱 로그인 200·앱 ERROR 0·메트릭 5초 기록 계속
+- 롤백: `rm /usr/local/etc/pfortainer_hostd.bin && service pfortainer_hostd restart` (Rust 바이너리 `.rust-pre-go`도 보관)
+- 재부팅 검증은 하지 않음(부팅 경로: 스위치 파일이 가리키는 Go 바이너리가 없으면 prestart가 실패해 hostd만 안 뜸 — 부팅 자체엔 영향 없음)
