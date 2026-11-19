@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}{{ d.info.name }} — pfortainer{% endblock %}
+{% block pagetitle %}{{ d.info.name }}{% endblock %}
+{% macro list_table(title, icon, t) %}
+<div class="card-table mb-3">
+  <div class="ct-header">
+    <span class="fw-semibold" style="font-size:.88rem">
+      <i class="bi {{ icon }} me-1"></i>{{ title }}
+      <span class="badge bg-secondary ms-1">{{ t.rows.len() }}</span>
+    </span>
+  </div>
+  {% if !t.error.is_empty() %}
+  <div class="p-3 text-danger" style="font-size:.85rem">{{ t.error }}</div>
+  {% else if t.rows.is_empty() %}
+  <div class="p-3 text-muted" style="font-size:.85rem">항목 없음</div>
+  {% else %}
+  <div class="table-responsive">
+  <table class="table mb-0" style="font-size:.8rem">
+    <thead><tr>{% for h in t.headers %}<th>{{ h }}</th>{% endfor %}</tr></thead>
+    <tbody>
+      {% for r in t.rows %}
+      <tr>{% for c in r %}<td class="mono" style="word-break:break-all">{{ c }}</td>{% endfor %}</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="/appjail" class="text-decoration-none text-muted" style="font-size:.85rem">
+    <i class="bi bi-arrow-left"></i> Jail 목록으로
+  </a>
+</div>
+
+{% if !error.is_empty() %}
+<div class="alert alert-danger py-2 mb-3"><i class="bi bi-exclamation-triangle me-1"></i>{{ error }}</div>
+{% endif %}
+{% if !success.is_empty() %}
+<div class="alert alert-success py-2 mb-3"><i class="bi bi-check-circle me-1"></i>{{ success }}</div>
+{% endif %}
+
+<div class="card-table mb-3">
+  <div class="ct-header">
+    <span class="fw-semibold" style="font-size:.95rem">
+      <i class="bi bi-box-seam me-1"></i>{{ d.info.name }}
+      {% if d.info.running %}<span class="badge badge-running ms-2">실행 중</span>
+      {% else %}<span class="badge bg-secondary ms-2">중지됨</span>{% endif %}
+    </span>
+    <div class="btn-group btn-group-sm">
+      {% if d.info.running %}
+      <form method="post" action="/appjail/{{ d.info.name }}/restart" class="d-inline"
+            onsubmit="return confirm({% if d.info.name == "pfortainer" %}'이 관리 화면이 들어 있는 jail입니다. 재시작하는 동안(약 10초) 화면이 끊깁니다. 계속할까요?'{% else %}'jail \'{{ d.info.name }}\' 을(를) 재시작하시겠습니까?'{% endif %})">
+        <input type="hidden" name="back" value="detail">
+        <button class="btn btn-outline-secondary"><i class="bi bi-arrow-repeat"></i> 재시작</button>
+      </form>
+      {% if d.info.name != "pfortainer" %}
+      <form method="post" action="/appjail/{{ d.info.name }}/stop" class="d-inline"
+            onsubmit="return confirm('jail \'{{ d.info.name }}\' 을(를) 중지하시겠습니까?')">
+        <input type="hidden" name="back" value="detail">
+        <button class="btn btn-outline-warning"><i class="bi bi-stop-fill"></i> 중지</button>
+      </form>
+      {% endif %}
+      {% else %}
+      <form method="post" action="/appjail/{{ d.info.name }}/start" class="d-inline">
+        <input type="hidden" name="back" value="detail">
+        <button class="btn btn-outline-success"><i class="bi bi-play-fill"></i> 시작</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  <table class="table mb-0" style="font-size:.875rem">
+    <tbody>
+      <tr><th style="width:160px">IP (ajnet)</th><td class="mono">{% if !d.info.ip.is_empty() %}{{ d.info.ip }}{% else %}<span class="text-muted">—</span>{% endif %}</td></tr>
+      <tr><th>포트</th><td class="mono">{% if !d.info.ports.is_empty() %}{{ d.info.ports }}{% else %}<span class="text-muted">—</span>{% endif %}</td></tr>
+      <tr><th>종류 / 버전</th><td class="mono">{{ d.info.jail_type }} · {{ d.info.version }}</td></tr>
+      <tr><th>부팅 자동시작</th><td>{% if d.info.boot %}<span class="badge bg-primary bg-opacity-75">on</span>{% else %}<span class="badge bg-secondary">off</span>{% endif %} <span class="text-muted ms-2" style="font-size:.8rem">우선순위 {{ d.info.priority }}</span></td></tr>
+      <tr><th>생성</th><td class="mono">{{ d.info.created }}</td></tr>
+      <tr><th>경로</th><td class="mono">{{ d.path }}</td></tr>
+      <tr><th>디스크 사용량</th><td class="mono">{{ d.dataset }} — used {{ d.zfs_used }} / refer {{ d.zfs_refer }}</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+{% call list_table("마운트 (fstab)", "bi-hdd-network", d.fstab) %}{% endcall %}
+{% call list_table("포트 포워딩 (expose)", "bi-diagram-3", d.expose) %}{% endcall %}
+{% call list_table("헬스체크", "bi-heart-pulse", d.healthcheck) %}{% endcall %}
+
+<div class="card-table mb-3">
+  <div class="ct-header">
+    <span class="fw-semibold" style="font-size:.88rem">
+      <i class="bi bi-list-task me-1"></i>프로세스
+      <span class="badge bg-secondary ms-1">{{ d.processes.len() }}</span>
+    </span>
+  </div>
+  {% if d.processes.is_empty() %}
+  <div class="p-4 text-center text-muted">
+    <i class="bi bi-list-task" style="font-size:2rem;opacity:.3"></i>
+    <p class="mt-2 mb-0">{% if d.info.running %}프로세스 없음{% else %}jail이 중지되어 있습니다{% endif %}</p>
+  </div>
+  {% else %}
+  <table class="table mb-0" style="font-size:.85rem">
+    <thead><tr><th>PID</th><th>사용자</th><th>%CPU</th><th>RSS</th><th>명령어</th></tr></thead>
+    <tbody>
+      {% for p in d.processes %}
+      <tr>
+        <td class="mono">{{ p.pid }}</td>
+        <td class="mono text-muted">{{ p.user }}</td>
+        <td class="mono">{{ p.pcpu }}</td>
+        <td class="mono">{{ p.rss }}</td>
+        <td class="mono" style="word-break:break-all">{{ p.command }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+
+<div class="card-table">
+  <div class="ct-header"><span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-file-earmark-text me-1"></i>template.conf (jail 파라미터)</span></div>
+  <pre class="p-3 mb-0" style="font-size:.78rem;white-space:pre-wrap;word-break:break-all">{{ d.template_conf }}</pre>
+</div>
+
+{% endblock %}

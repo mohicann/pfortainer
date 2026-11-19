@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}네트워크 — pfortainer{% endblock %}
+{% block pagetitle %}네트워크{% endblock %}
+{% block content %}
+
+{% if !error.is_empty() %}
+<div class="alert alert-danger py-2 mb-3"><i class="bi bi-exclamation-triangle me-1"></i>{{ error }}</div>
+{% endif %}
+
+<div class="row g-2 mb-3">
+  {% if interfaces.is_empty() %}
+  <div class="col-12">
+    <div class="alert alert-secondary py-2">인터페이스 정보를 가져올 수 없습니다.</div>
+  </div>
+  {% else %}
+  {% for i in interfaces %}
+  <div class="col-12 col-md-6 col-xl-4">
+    <div class="card h-100" style="border:1px solid rgba(0,0,0,.09);border-radius:8px;background:#fff">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <i class="bi bi-ethernet" style="font-size:1.1rem;color:#4d9eff"></i>
+          <span class="fw-semibold mono" style="font-size:.95rem">{{ i.name }}</span>
+          {% if i.up %}
+            {% if i.status == "active" %}
+              <span class="badge bg-success ms-auto" style="font-size:.68rem">active</span>
+            {% else %}
+              <span class="badge bg-warning text-dark ms-auto" style="font-size:.68rem">UP</span>
+            {% endif %}
+          {% else %}
+            <span class="badge bg-secondary ms-auto" style="font-size:.68rem">DOWN</span>
+          {% endif %}
+        </div>
+
+        {% if !i.mac.is_empty() %}
+        <div class="mb-1" style="font-size:.8rem">
+          <span class="text-muted">MAC</span>
+          <span class="mono ms-2">{{ i.mac }}</span>
+        </div>
+        {% endif %}
+
+        {% for addr in i.inet %}
+        <div class="mb-1" style="font-size:.82rem">
+          <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 mono">{{ addr }}</span>
+        </div>
+        {% endfor %}
+
+        {% for addr6 in i.inet6 %}
+        {% if !addr6.contains("fe80::") %}
+        <div class="mb-1" style="font-size:.78rem">
+          <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 mono" style="font-size:.72rem">{{ addr6 }}</span>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        {% if !i.media.is_empty() %}
+        <div class="mt-2 text-muted" style="font-size:.73rem">{{ i.media }}</div>
+        {% endif %}
+
+        {% if i.mtu > 0 %}
+        <div class="text-muted" style="font-size:.73rem">MTU {{ i.mtu }}</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-xl-8">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-diagram-2 me-1"></i>라우팅 테이블</span>
+      </div>
+      <pre style="margin:0;padding:1rem;font-size:.75rem;background:#0d1117;color:#c9d1d9;border-radius:0 0 8px 8px;overflow-x:auto;white-space:pre">{{ routes }}</pre>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-4">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-globe me-1"></i>DNS 서버</span>
+      </div>
+      <div class="p-3">
+        {% if dns.is_empty() %}
+          <span class="text-muted" style="font-size:.85rem">/etc/resolv.conf 없음</span>
+        {% else %}
+          {% for d in dns %}
+          <div class="mono mb-1" style="font-size:.85rem">{{ d }}</div>
+          {% endfor %}
+        {% endif %}
+        <div class="text-muted mt-2" style="font-size:.73rem">/etc/resolv.conf</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

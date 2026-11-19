@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>pfortainer 데스크탑</title>
+<script>
+  // 좁은 화면(모바일)에서는 기존 사이드바 화면으로. ?force=1이면 그대로 데스크탑
+  if (matchMedia('(max-width: 767px)').matches && !new URLSearchParams(location.search).has('force')) {
+    location.replace('/appjail');
+  }
+</script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+{% raw %}
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  body {
+    background: radial-gradient(ellipse at 70% 80%, #2b4c9b 0%, #14214d 45%, #0a1030 100%);
+    color: #fff; user-select: none;
+  }
+
+  /* ── 상단바 ── */
+  #topbar {
+    position: fixed; top: 0; left: 0; right: 0; height: 40px; z-index: 100000;
+    display: flex; align-items: center; gap: 6px; padding: 0 10px;
+    background: rgba(10, 16, 40, .55); backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255,255,255,.08); font-size: 12px;
+  }
+  #topbar .tb-btn {
+    height: 28px; min-width: 28px; padding: 0 8px; border-radius: 6px; border: 0;
+    background: transparent; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    font-size: 12px;
+  }
+  #topbar .tb-btn:hover { background: rgba(255,255,255,.12); }
+  #topbar .tb-btn.active { background: rgba(255,255,255,.18); }
+  #taskbar { display: flex; gap: 4px; flex: 1; overflow: hidden; }
+  #taskbar .tb-btn.minimized { opacity: .55; }
+  #widgets { display: flex; gap: 14px; align-items: center; color: rgba(255,255,255,.85); font-variant-numeric: tabular-nums; }
+  #widgets .w { display: flex; flex-direction: column; line-height: 1.1; font-size: 10px; align-items: flex-end; }
+  #widgets .w b { font-size: 12px; font-weight: 600; }
+  #clock { font-size: 12px; min-width: 70px; text-align: right; }
+
+  /* ── 바탕화면 아이콘 ── */
+  #icons { position: absolute; top: 56px; left: 16px; right: 0; bottom: 16px; pointer-events: none; }
+  .icon {
+    position: absolute; width: 104px; height: 112px; pointer-events: auto;
+    transition: left .15s, top .15s;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 8px;
+    padding: 8px 4px; border-radius: 10px; cursor: default; text-align: center;
+  }
+  .icon:hover { background: rgba(255,255,255,.08); }
+  .icon.selected { background: rgba(120,160,255,.28); }
+  .icon.dragging { transition: none; opacity: .75; z-index: 5; }
+  .icon .img {
+    width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,.35);
+  }
+  .icon span { font-size: 12px; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+
+  /* ── 창 ── */
+  .win {
+    position: absolute; display: flex; flex-direction: column; min-width: 360px; min-height: 220px;
+    background: #f4f6fa; color: #222; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 18px 50px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.2);
+  }
+  .win.inactive { box-shadow: 0 10px 30px rgba(0,0,0,.3), 0 0 0 1px rgba(0,0,0,.2); }
+  .win.inactive .titlebar { color: #888; }
+  .win.maximized { border-radius: 0; }
+  .win.hidden { display: none; }
+  .titlebar {
+    height: 38px; flex-shrink: 0; display: flex; align-items: center; padding: 0 12px;
+    background: linear-gradient(#eceff4, #dfe3ea); border-bottom: 1px solid #cdd2da; cursor: default;
+    font-size: 13px; font-weight: 600; position: relative;
+  }
+  .titlebar .title { position: absolute; left: 0; right: 0; text-align: center; pointer-events: none; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .lights { display: flex; gap: 8px; z-index: 1; }
+  .lights button { width: 13px; height: 13px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; font-size: 9px; line-height: 13px; color: transparent; }
+  .lights:hover button { color: rgba(0,0,0,.55); }
+  .lights .close { background: #ff5f57; }
+  .lights .min { background: #febc2e; }
+  .lights .max { background: #28c840; }
+  .win.inactive .lights button { background: #c9ccd2; }
+  .win-body { flex: 1; position: relative; overflow: auto; }
+  .win-body iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #f0f2f5; }
+  /* 드래그 중엔 iframe이 포인터 이벤트를 먹지 않게 */
+  body.dragging iframe { pointer-events: none; }
+  .rs { position: absolute; z-index: 2; }
+  .rs.n { top: -3px; left: 8px; right: 8px; height: 6px; cursor: ns-resize; }
+  .rs.s { bottom: -3px; left: 8px; right: 8px; height: 6px; cursor: ns-resize; }
+  .rs.e { right: -3px; top: 8px; bottom: 8px; width: 6px; cursor: ew-resize; }
+  .rs.w { left: -3px; top: 8px; bottom: 8px; width: 6px; cursor: ew-resize; }
+  .rs.ne { top: -3px; right: -3px; width: 12px; height: 12px; cursor: nesw-resize; }
+  .rs.nw { top: -3px; left: -3px; width: 12px; height: 12px; cursor: nwse-resize; }
+  .rs.se { bottom: -3px; right: -3px; width: 12px; height: 12px; cursor: nwse-resize; }
+  .rs.sw { bottom: -3px; left: -3px; width: 12px; height: 12px; cursor: nesw-resize; }
+
+  /* ── 작업 관리자 앱 ── */
+  .tm { display: flex; height: 100%; }
+  .tm-side { width: 170px; background: #e9ecf2; padding: 10px; flex-shrink: 0; }
+  .tm-side div { padding: 8px 10px; border-radius: 6px; font-size: 13px; color: #1f5fd6; background: #d9e3f7; font-weight: 600; }
+  .tm-main { flex: 1; padding: 16px 20px; overflow: auto; background: #fff; }
+  .tm h4 { margin: 0 0 10px; font-size: 14px; }
+  .tm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .tm-card { background: #f6f8fb; border-radius: 10px; padding: 14px 18px; font-size: 13px; }
+  .tm-row { display: flex; justify-content: space-between; padding: 6px 0; color: #666; }
+  .tm-row b { color: #222; font-variant-numeric: tabular-nums; }
+  .ring { display: flex; align-items: center; gap: 24px; }
+  .ring svg { width: 110px; height: 110px; }
+  .tm table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px; }
+  .tm th { text-align: left; background: #f6f8fb; padding: 10px 14px; font-weight: 600; }
+  .tm td { padding: 10px 14px; border-bottom: 1px solid #eef0f4; font-variant-numeric: tabular-nums; }
+  .spark { width: 100%; height: 60px; display: block; }
+  .bar { height: 8px; background: #e6e9ef; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+  .bar > div { height: 100%; background: #4d7cff; transition: width .4s; }
+  .muted { color: #999; font-size: 11px; }
+</style>
+{% endraw %}
+</head>
+<body>
+
+<div id="topbar">
+  <button class="tb-btn" title="기존 화면으로" onclick="location.href='/appjail'"><i class="bi bi-grid-3x3-gap-fill" style="color:#4d9eff"></i></button>
+  <div id="taskbar"></div>
+  <div id="widgets">
+    <div class="w"><b id="wg-cpu">–</b>CPU</div>
+    <div class="w"><b id="wg-ram">–</b>RAM</div>
+    <div class="w"><b id="wg-net">–</b>NET ↓/↑</div>
+    <div id="clock"></div>
+    <span style="opacity:.6"><i class="bi bi-person-circle"></i> {{ current_user.username }}</span>
+  </div>
+</div>
+
+<div id="icons"></div>
+
+<script>
+// 메트릭 차트 이름(zfspool.zdata/zboot, net.igc0)은 DB 컬럼명 그대로라 실제 이름은 설정에서 받음
+const CFG = { pool1: "{{ pool1 }}", pool2: "{{ pool2 }}", net: "{{ net_iface }}" };
+const SERVER_PREFS = {{ prefs_json|safe }};
+</script>
+
+{% raw %}
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// 데스크탑 설정: 사용자별로 서버(config.db)에 저장 → 어느 PC에서나 같은 배치
+//   { icons: {appId:{col,row}}, geom: {appId:{x,y,w,h}}, open: [appId...] }
+// 바뀌면 1초 모아서 PUT, 페이지를 떠날 때 남은 변경은 keepalive로 보냄
+// ─────────────────────────────────────────────────────────────────────────────
+const Prefs = {
+  data: (SERVER_PREFS && typeof SERVER_PREFS === 'object') ? SERVER_PREFS : {},
+  timer: null,
+  get(k, def) { return this.data[k] ?? def; },
+  set(k, v) {
+    if (JSON.stringify(this.data[k]) === JSON.stringify(v)) return;   // 안 바뀌면 저장 안 함
+    this.data[k] = v;
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.flush(), 1000);
+  },
+  flush() {
+    clearTimeout(this.timer);
+    this.timer = null;
+    return fetch('/api/desktop/prefs', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(this.data), keepalive: true,
+    }).then(r => { if (!r.ok) console.error('prefs save', r.status); })
+      .catch(e => console.error('prefs save', e));
+  },
+};
+addEventListener('pagehide', () => { if (Prefs.timer) Prefs.flush(); });
+// 예전(브라우저 저장) 배치가 있으면 처음 한 번 서버로 옮김
+(function migrateLocal() {
+  if (Object.keys(Prefs.data).length) return;
+  const read = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch (_) { return null; } };
+  const icons = read('pf-desktop-icons'), geom = read('pf-desktop-geom'), open = read('pf-desktop-open');
+  if (icons) Prefs.data.icons = icons;
+  if (geom) Prefs.data.geom = geom;
+  if (open) Prefs.data.open = open;
+  if (icons || geom || open) {
+    Prefs.flush();
+    ['pf-desktop-icons', 'pf-desktop-geom', 'pf-desktop-open'].forEach(k => localStorage.removeItem(k));
+  }
+})();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 앱 레지스트리: native = 이 페이지에서 직접 그리는 앱, url = 기존 페이지를 iframe으로
+// ─────────────────────────────────────────────────────────────────────────────
+const APPS = {
+  taskmgr:  { title: '작업 관리자', icon: 'bi-activity',       bg: '#2b3448', fg: '#5ac8fa', native: TaskManager, w: 900, h: 640 },
+  appjail:  { title: 'AppJail',     icon: 'bi-hdd-stack',      bg: '#3d7bf7', url: '/appjail' },
+  containers:{ title: '컨테이너',   icon: 'bi-boxes',          bg: '#1d9bf0', url: '/containers' },
+  files:    { title: '파일',        icon: 'bi-folder-fill',    bg: '#f5b400', url: '/files' },
+  storage:  { title: '스토리지',    icon: 'bi-hdd-network',    bg: '#4b5563', url: '/storage' },
+  zfs:      { title: 'ZFS 데이터셋', icon: 'bi-diagram-3',     bg: '#7c3aed', url: '/filesystem' },
+  snapshots:{ title: '스냅샷',      icon: 'bi-camera',         bg: '#ec4899', url: '/snapshots' },
+  repl:     { title: '복제',        icon: 'bi-arrow-repeat',   bg: '#16a34a', url: '/replications' },
+  network:  { title: '네트워크',    icon: 'bi-ethernet',       bg: '#0ea5e9', url: '/network' },
+  shares:   { title: '공유',        icon: 'bi-folder-symlink', bg: '#f97316', url: '/shares' },
+  metrics:  { title: '메트릭',      icon: 'bi-graph-up',       bg: '#ef4444', url: '/metrics' },
+  diag:     { title: '진단/로그',   icon: 'bi-terminal',       bg: '#111827', url: '/diagnostics' },
+  alerts:   { title: '알림 설정',   icon: 'bi-bell-fill',      bg: '#eab308', url: '/alerts' },
+  users:    { title: '사용자',      icon: 'bi-people-fill',    bg: '#6366f1', url: '/admin/users' },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 창 관리자
+// ─────────────────────────────────────────────────────────────────────────────
+const WM = {
+  wins: new Map(),       // id -> { el, app, minimized, maximized, prev, cleanup }
+  z: 10,
+  seq: 0,
+  TOP: 40,               // 상단바 높이
+
+  open(appId) {
+    // 이미 열려 있으면 앞으로 가져오기 (앱당 창 1개)
+    for (const [id, w] of this.wins) if (w.app === appId) { this.restore(id); return; }
+    const app = APPS[appId];
+    const id = 'w' + (++this.seq);
+    const saved = (this.loadGeom()[appId]) || {};
+    const n = this.wins.size;
+    const g = {
+      x: saved.x ?? 180 + n * 28, y: saved.y ?? 70 + n * 28,
+      w: saved.w ?? app.w ?? 1000, h: saved.h ?? app.h ?? 680,
+    };
+    // 브라우저 창보다 크면 화면 안에 맞춤
+    g.w = Math.min(g.w, innerWidth - 40);
+    g.h = Math.min(g.h, innerHeight - this.TOP - 20);
+    g.x = Math.max(10, Math.min(g.x, innerWidth - g.w - 10));
+    g.y = Math.max(this.TOP + 6, Math.min(g.y, innerHeight - g.h - 10));
+    const el = document.createElement('div');
+    el.className = 'win';
+    el.innerHTML = `
+      <div class="titlebar">
+        <div class="lights">
+          <button class="close" title="닫기">×</button>
+          <button class="min" title="최소화">–</button>
+          <button class="max" title="최대화">+</button>
+        </div>
+        <div class="title"><i class="bi ${app.icon}"></i>${app.title}</div>
+      </div>
+      <div class="win-body"></div>
+      ${['n','s','e','w','ne','nw','se','sw'].map(d => `<div class="rs ${d}" data-dir="${d}"></div>`).join('')}`;
+    document.body.appendChild(el);
+    const w = { el, app: appId, minimized: false, maximized: false, prev: null, cleanup: null };
+    this.wins.set(id, w);
+    this.setGeom(el, this.clamp(g));
+
+    const body = el.querySelector('.win-body');
+    if (app.native) {
+      w.cleanup = app.native(body);
+    } else {
+      // 브라우저는 새로고침·뒤로가기 때 이름 없는 동적 iframe의 이전 내용을 "위치 순서"로
+      // 복원하므로, 창 구성이 바뀌면 다른 앱의 페이지(예: 스토리지 창에 /appjail)가 들어갈 수 있다.
+      // → 앱별 고유 name을 붙이고, 넣은 뒤 location.replace로 앱 URL을 강제로 연다.
+      const f = document.createElement('iframe');
+      f.name = 'pf-app-' + appId;
+      // iframe 안을 클릭해도 창이 앞으로 오게
+      f.addEventListener('load', () => {
+        try { f.contentWindow.addEventListener('pointerdown', () => this.focus(id)); } catch (_) {}
+      });
+      body.appendChild(f);
+      f.contentWindow.location.replace(app.url);
+    }
+
+    el.addEventListener('pointerdown', () => this.focus(id));
+    el.querySelector('.close').onclick = (e) => { e.stopPropagation(); this.close(id); };
+    el.querySelector('.min').onclick   = (e) => { e.stopPropagation(); this.minimize(id); };
+    el.querySelector('.max').onclick   = (e) => { e.stopPropagation(); this.toggleMax(id); };
+    const tb = el.querySelector('.titlebar');
+    tb.addEventListener('dblclick', () => this.toggleMax(id));
+    tb.addEventListener('pointerdown', (e) => { if (!e.target.closest('.lights')) this.drag(id, e); });
+    el.querySelectorAll('.rs').forEach(h => h.addEventListener('pointerdown', (e) => this.resize(id, e, h.dataset.dir)));
+
+    this.focus(id);
+    this.renderTaskbar();
+  },
+
+  close(id) {
+    const w = this.wins.get(id);
+    if (!w) return;
+    if (w.cleanup) w.cleanup();
+    w.el.remove();
+    this.wins.delete(id);
+    this.renderTaskbar();
+  },
+
+  focus(id) {
+    const w = this.wins.get(id);
+    if (!w) return;
+    if (w.el.style.zIndex != this.z) w.el.style.zIndex = ++this.z;
+    for (const [oid, o] of this.wins) o.el.classList.toggle('inactive', oid !== id);
+    this.active = id;
+    this.renderTaskbar();
+  },
+
+  minimize(id) {
+    const w = this.wins.get(id);
+    w.minimized = true;
+    w.el.classList.add('hidden');
+    this.active = null;
+    this.renderTaskbar();
+  },
+
+  restore(id) {
+    const w = this.wins.get(id);
+    w.minimized = false;
+    w.el.classList.remove('hidden');
+    this.focus(id);
+  },
+
+  toggleMax(id) {
+    const w = this.wins.get(id);
+    if (w.maximized) {
+      this.setGeom(w.el, w.prev);
+    } else {
+      w.prev = this.getGeom(w.el);
+      this.setGeom(w.el, { x: 0, y: this.TOP, w: innerWidth, h: innerHeight - this.TOP });
+    }
+    w.maximized = !w.maximized;
+    w.el.classList.toggle('maximized', w.maximized);
+  },
+
+  // 공통 포인터 추적: 이동량(dx, dy)을 콜백으로 넘김
+  track(e, onMove, onEnd) {
+    e.preventDefault();
+    const sx = e.clientX, sy = e.clientY;
+    document.body.classList.add('dragging');
+    const move = (ev) => onMove(ev.clientX - sx, ev.clientY - sy);
+    const up = () => {
+      document.body.classList.remove('dragging');
+      removeEventListener('pointermove', move);
+      removeEventListener('pointerup', up);
+      onEnd && onEnd();
+    };
+    addEventListener('pointermove', move);
+    addEventListener('pointerup', up);
+  },
+
+  drag(id, e) {
+    const w = this.wins.get(id);
+    let g0 = this.getGeom(w.el);
+    if (w.maximized) {
+      // 최대화 상태에서 끌면 원래 크기로 돌아가며 커서 아래로
+      const ratio = (e.clientX) / innerWidth;
+      w.maximized = false; w.el.classList.remove('maximized');
+      g0 = { ...w.prev, x: e.clientX - w.prev.w * ratio, y: this.TOP };
+      this.setGeom(w.el, g0);
+    }
+    this.track(e,
+      (dx, dy) => this.setGeom(w.el, this.clamp({ ...g0, x: g0.x + dx, y: g0.y + dy })),
+      () => this.saveGeom(w));
+  },
+
+  resize(id, e, dir) {
+    e.stopPropagation();
+    const w = this.wins.get(id);
+    if (w.maximized) return;
+    const g0 = this.getGeom(w.el);
+    const MINW = 360, MINH = 220;
+    this.track(e, (dx, dy) => {
+      const g = { ...g0 };
+      if (dir.includes('e')) g.w = Math.max(MINW, g0.w + dx);
+      if (dir.includes('s')) g.h = Math.max(MINH, g0.h + dy);
+      if (dir.includes('w')) { g.w = Math.max(MINW, g0.w - dx); g.x = g0.x + (g0.w - g.w); }
+      if (dir.includes('n')) {
+        g.h = Math.max(MINH, g0.h - dy); g.y = g0.y + (g0.h - g.h);
+        if (g.y < this.TOP) { g.h -= this.TOP - g.y; g.y = this.TOP; }
+      }
+      this.setGeom(w.el, g);
+    }, () => this.saveGeom(w));
+  },
+
+  // 제목줄이 화면 밖으로 사라지지 않도록
+  clamp(g) {
+    return { ...g,
+      x: Math.min(Math.max(g.x, 80 - g.w), innerWidth - 80),
+      y: Math.min(Math.max(g.y, this.TOP), innerHeight - 38) };
+  },
+  getGeom(el) { return { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight }; },
+  setGeom(el, g) { Object.assign(el.style, { left: g.x + 'px', top: g.y + 'px', width: g.w + 'px', height: g.h + 'px' }); },
+
+  loadGeom() { return Prefs.get('geom', {}); },
+  saveGeom(w) {
+    Prefs.set('geom', { ...this.loadGeom(), [w.app]: this.getGeom(w.el) });
+    this.saveSession();
+  },
+  // 열려 있던 앱 목록 기억 → 새로고침해도 복원
+  saveSession() {
+    if (this.restoring) return;   // 시작할 때 창을 다시 여는 중에는 저장 안 함
+    Prefs.set('open', [...this.wins.values()].map(w => w.app));
+  },
+
+  renderTaskbar() {
+    const bar = document.getElementById('taskbar');
+    bar.innerHTML = '';
+    for (const [id, w] of this.wins) {
+      const app = APPS[w.app];
+      const b = document.createElement('button');
+      b.className = 'tb-btn' + (id === this.active && !w.minimized ? ' active' : '') + (w.minimized ? ' minimized' : '');
+      b.innerHTML = `<i class="bi ${app.icon}"></i>${app.title}`;
+      b.onclick = () => {
+        if (w.minimized) this.restore(id);
+        else if (id === this.active) this.minimize(id);
+        else this.focus(id);
+      };
+      bar.appendChild(b);
+    }
+    this.saveSession();
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 바탕화면 아이콘
+// ─────────────────────────────────────────────────────────────────────────────
+// 아이콘은 격자 칸(col,row)에 놓이고, 끌어서 옮기면 가장 가까운 칸에 맞춘다.
+// 그 칸에 다른 아이콘이 있으면 서로 자리를 바꾼다. 위치는 서버(Prefs.icons)에 저장.
+const Icons = {
+  CW: 110, CH: 118,            // 칸 크기 (아이콘 104×112 + 간격 6)
+  els: {},                     // appId -> element
+  pos: {},                     // appId -> {col,row} (화면에 보이는 위치)
+
+  rows() { return Math.max(1, Math.floor((innerHeight - 56 - 16 + 6) / this.CH)); },
+  cols() { return Math.max(1, Math.floor((innerWidth - 16 + 6) / this.CW)); },
+  key(p) { return p.col + ',' + p.row; },
+
+  // 저장된 위치를 화면 안으로 맞추고, 없거나 겹치면 세로 우선으로 빈칸에 넣는다
+  layout() {
+    const saved = Prefs.get('icons', {});
+    const R = this.rows(), C = this.cols(), used = new Set();
+    const pending = [];
+    for (const id of Object.keys(APPS)) {
+      const s = saved[id];
+      if (s && s.col < C && s.row < R && !used.has(this.key(s))) {
+        this.pos[id] = { col: s.col, row: s.row }; used.add(this.key(s));
+      } else pending.push(id);
+    }
+    let n = 0;
+    for (const id of pending) {
+      let p;
+      do { p = { col: Math.floor(n / R), row: n % R }; n++; } while (used.has(this.key(p)));
+      this.pos[id] = p; used.add(this.key(p));
+    }
+    for (const id of Object.keys(APPS)) this.place(id);
+  },
+  place(id) {
+    const p = this.pos[id], el = this.els[id];
+    el.style.left = p.col * this.CW + 'px';
+    el.style.top = p.row * this.CH + 'px';
+  },
+  // 화면이 좁아 임시로 옮겨 보여주는 아이콘은 저장값을 덮지 않도록, 저장된 값 위에 이번 변경만 반영
+  save(...ids) {
+    const saved = { ...Prefs.get('icons', {}) };
+    for (const id of ids) saved[id] = { ...this.pos[id] };
+    Prefs.set('icons', saved);
+  },
+
+  drag(id, e) {
+    if (e.button !== 0) return;
+    const el = this.els[id], from = this.pos[id];
+    const x0 = from.col * this.CW, y0 = from.row * this.CH;
+    let moved = false;
+    WM.track(e, (dx, dy) => {
+      if (!moved && Math.hypot(dx, dy) < 4) return;   // 클릭·더블클릭과 구분
+      moved = true;
+      el.classList.add('dragging');
+      el.style.left = x0 + dx + 'px';
+      el.style.top = y0 + dy + 'px';
+    }, () => {
+      el.classList.remove('dragging');
+      if (!moved) return;
+      el.dataset.justDragged = '1';                    // 드래그 직후 click 무시
+      setTimeout(() => delete el.dataset.justDragged, 0);
+      const to = {
+        col: Math.min(this.cols() - 1, Math.max(0, Math.round(el.offsetLeft / this.CW))),
+        row: Math.min(this.rows() - 1, Math.max(0, Math.round(el.offsetTop / this.CH))),
+      };
+      const other = Object.keys(this.pos).find(k => k !== id && this.key(this.pos[k]) === this.key(to));
+      if (other) { this.pos[other] = { ...from }; this.place(other); }
+      this.pos[id] = to;
+      this.place(id);
+      other ? this.save(id, other) : this.save(id);
+    });
+  },
+
+  render() {
+    const box = document.getElementById('icons');
+    const clearSel = () => box.querySelectorAll('.selected').forEach(x => x.classList.remove('selected'));
+    for (const [id, app] of Object.entries(APPS)) {
+      const d = document.createElement('div');
+      d.className = 'icon';
+      d.innerHTML = `<div class="img" style="background:${app.bg};color:${app.fg || '#fff'}"><i class="bi ${app.icon}"></i></div><span>${app.title}</span>`;
+      d.addEventListener('pointerdown', (e) => { clearSel(); d.classList.add('selected'); this.drag(id, e); });
+      d.ondblclick = () => { if (!d.dataset.justDragged) WM.open(id); };
+      this.els[id] = d;
+      box.appendChild(d);
+    }
+    document.body.addEventListener('pointerdown', (e) => { if (!e.target.closest('.icon')) clearSel(); });
+    this.layout();
+  },
+};
+Icons.render();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 지표 스토어: 한 번 가져와서 상단바 위젯과 작업 관리자가 같이 구독
+// (/api/metrics/data: 5초 수집, data[0]이 최신, RAM은 MiB, NET/IO는 KB/s)
+// ─────────────────────────────────────────────────────────────────────────────
+const Metrics = {
+  subs: new Set(),
+  last: null,
+  subscribe(fn) { this.subs.add(fn); if (this.last) fn(this.last); return () => this.subs.delete(fn); },
+  async nd(chart, after = -15, points = 0) {
+    const r = await fetch(`/api/metrics/data?chart=${chart}&after=${after}&points=${points}`);
+    if (r.status === 401 || r.redirected) { location.href = '/login'; throw new Error('auth'); }
+    if (!r.ok) throw new Error(chart + ' ' + r.status);
+    return r.json();
+  },
+  async poll() {
+    const charts = ['system.cpu', 'system.cputemp', 'system.ram', 'system.load', 'net.igc0', 'net.tailscale0',
+                    'system.io', 'zfspool.zdata', 'zfspool.zboot', 'ipv4.tcpsock'];
+    const hist = ['system.cpu', 'net.igc0', 'system.io'];
+    const res = await Promise.allSettled([
+      ...charts.map(c => this.nd(c)),
+      ...hist.map(c => this.nd(c, -300, 60)),   // 최근 5분 스파크라인
+    ]);
+    const m = { hist: {} };
+    charts.forEach((c, i) => { const r = res[i]; m[c] = r.status === 'fulfilled' && r.value.data[0] ? r.value.data[0].map(Math.abs) : null; });
+    hist.forEach((c, i) => { const r = res[charts.length + i]; m.hist[c] = r.status === 'fulfilled' ? [...r.value.data].reverse() : []; });
+    this.last = m;
+    this.subs.forEach(fn => fn(m));
+  },
+  start() { this.poll().catch(console.error); setInterval(() => this.poll().catch(console.error), 5000); },
+};
+
+const fmtKB = (kb) => kb == null ? '–' : kb < 1024 ? kb.toFixed(1) + ' KB/s' : (kb / 1024).toFixed(1) + ' MB/s';
+const fmtMiB = (m) => m < 1024 ? m.toFixed(0) + ' MB' : (m / 1024).toFixed(1) + ' GB';
+const sum = (a) => a.reduce((x, y) => x + y, 0);
+function ramInfo(row) {           // [ts, free, active, inactive, wired]
+  const total = sum(row.slice(1)), used = total - row[1];
+  return { total, used, pct: total ? used / total * 100 : 0 };
+}
+
+// 상단바 위젯
+Metrics.subscribe((m) => {
+  if (m['system.cpu']) document.getElementById('wg-cpu').textContent = sum(m['system.cpu'].slice(1)).toFixed(0) + '%';
+  if (m['system.ram']) document.getElementById('wg-ram').textContent = ramInfo(m['system.ram']).pct.toFixed(0) + '%';
+  if (m['net.igc0']) document.getElementById('wg-net').textContent = fmtKB(m['net.igc0'][1]) + ' / ' + fmtKB(m['net.igc0'][2]);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 네이티브 앱: 작업 관리자. body에 그리고, 창이 닫힐 때 호출될 정리 함수를 반환
+// ─────────────────────────────────────────────────────────────────────────────
+function TaskManager(body) {
+  body.innerHTML = `
+  <div class="tm">
+    <div class="tm-side"><div><i class="bi bi-display"></i> 실행 상태</div></div>
+    <div class="tm-main">
+      <div class="tm-grid">
+        <div><h4>상태</h4><div class="tm-card">
+          <div class="tm-row">CPU 온도 <b data-k="temp">–</b></div>
+          <div class="tm-row">CPU 사용률 <b data-k="cpu">–</b></div>
+          <div class="tm-row">Load (1/5/15) <b data-k="load">–</b></div>
+          <div class="tm-row">TCP 연결 <b data-k="tcp">–</b></div>
+          <svg class="spark" data-spark="system.cpu" viewBox="0 0 300 60" preserveAspectRatio="none"></svg>
+          <div class="muted">CPU 최근 5분</div>
+        </div></div>
+        <div><h4>메모리</h4><div class="tm-card ring">
+          <svg viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="48" fill="none" stroke="#e6ecf8" stroke-width="10"/>
+            <circle data-k="ring" cx="60" cy="60" r="48" fill="none" stroke="#2f6bff" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="301.6" transform="rotate(-90 60 60)"
+              style="transition: stroke-dashoffset .5s"/>
+            <text data-k="ramPct" x="60" y="66" text-anchor="middle" font-size="20" fill="#222">–</text>
+          </svg>
+          <div style="flex:1">
+            <div class="tm-row">사용됨 <b data-k="ramUsed">–</b></div>
+            <div class="tm-row">총계 <b data-k="ramTotal">–</b></div>
+          </div>
+        </div></div>
+      </div>
+
+      <h4>네트워크</h4>
+      <table>
+        <tr><th>인터페이스</th><th>업로드</th><th>다운로드</th></tr>
+        <tr><td>${CFG.net} (LAN)</td><td data-k="igcTx">–</td><td data-k="igcRx">–</td></tr>
+        <tr><td>tailscale0</td><td data-k="tsTx">–</td><td data-k="tsRx">–</td></tr>
+      </table>
+      <svg class="spark" data-spark="net.igc0" viewBox="0 0 300 60" preserveAspectRatio="none" style="margin:-10px 0 20px"></svg>
+
+      <h4>스토리지</h4>
+      <div class="tm-grid">
+        <div class="tm-card"><b>${CFG.pool1}</b> <span class="muted" data-k="zdataTxt"></span><div class="bar"><div data-k="zdataBar" style="width:0"></div></div></div>
+        <div class="tm-card"><b>${CFG.pool2}</b> <span class="muted" data-k="zbootTxt"></span><div class="bar"><div data-k="zbootBar" style="width:0"></div></div></div>
+      </div>
+      <div class="tm-card">
+        <div class="tm-row">디스크 읽기 <b data-k="rd">–</b></div>
+        <div class="tm-row">디스크 쓰기 <b data-k="wr">–</b></div>
+        <svg class="spark" data-spark="system.io" viewBox="0 0 300 60" preserveAspectRatio="none"></svg>
+      </div>
+    </div>
+  </div>`;
+  const $ = (k) => body.querySelector(`[data-k="${k}"]`);
+  const set = (k, v) => { const e = $(k); if (e) e.textContent = v; };
+
+  function spark(chart, rows) {
+    const svg = body.querySelector(`[data-spark="${chart}"]`);
+    if (!svg || rows.length < 2) return;
+    // 각 행의 값 합계(시리즈 여러 개면 위아래 두 줄로)
+    const series = rows[0].length - 1 > 2 ? [rows.map(r => sum(r.slice(1).map(Math.abs)))]
+                                          : [1, 2].filter(i => i < rows[0].length).map(i => rows.map(r => Math.abs(r[i])));
+    const max = Math.max(1, ...series.flat());
+    const colors = ['#2f6bff', '#ff8a3d'];
+    svg.innerHTML = series.map((s, si) => {
+      const pts = s.map((v, i) => `${(i / (s.length - 1) * 300).toFixed(1)},${(58 - v / max * 54).toFixed(1)}`).join(' ');
+      return `<polyline points="${pts}" fill="none" stroke="${colors[si]}" stroke-width="1.6"/>`;
+    }).join('');
+  }
+
+  const unsub = Metrics.subscribe((m) => {
+    const cpu = m['system.cpu'], t = m['system.cputemp'], ram = m['system.ram'], ld = m['system.load'];
+    if (t) set('temp', t[1] > 0 ? t[1].toFixed(0) + ' °C' : '–');
+    if (cpu) set('cpu', sum(cpu.slice(1)).toFixed(1) + ' %');
+    if (ld) set('load', ld.slice(1).map(v => v.toFixed(2)).join(' / '));
+    if (m['ipv4.tcpsock']) set('tcp', m['ipv4.tcpsock'][1].toFixed(0));
+    if (ram) {
+      const r = ramInfo(ram);
+      set('ramPct', r.pct.toFixed(0) + '%');
+      set('ramUsed', fmtMiB(r.used)); set('ramTotal', fmtMiB(r.total));
+      $('ring').setAttribute('stroke-dashoffset', (301.6 * (1 - r.pct / 100)).toFixed(1));
+    }
+    if (m['net.igc0']) { set('igcRx', fmtKB(m['net.igc0'][1])); set('igcTx', fmtKB(m['net.igc0'][2])); }
+    if (m['net.tailscale0']) { set('tsRx', fmtKB(m['net.tailscale0'][1])); set('tsTx', fmtKB(m['net.tailscale0'][2])); }
+    if (m['system.io']) { set('rd', fmtKB(m['system.io'][1])); set('wr', fmtKB(m['system.io'][2])); }
+    for (const p of ['zdata', 'zboot']) {
+      const r = m['zfspool.' + p];          // [ts, pct, usedMiB, totalMiB]
+      if (!r) continue;
+      set(p + 'Txt', `${fmtMiB(r[2])} / ${fmtMiB(r[3])} (${r[1].toFixed(1)}%)`);
+      $(p + 'Bar').style.width = r[1].toFixed(1) + '%';
+    }
+    for (const c of Object.keys(m.hist)) spark(c, m.hist[c]);
+  });
+  return unsub;   // 창 닫을 때 구독 해제
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 시작
+// ─────────────────────────────────────────────────────────────────────────────
+function tickClock() {
+  const d = new Date();
+  document.getElementById('clock').textContent = d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+}
+tickClock(); setInterval(tickClock, 10000);
+Metrics.start();
+
+let reopen = Prefs.get('open', null);
+if (!Array.isArray(reopen)) reopen = ['taskmgr'];   // 처음 한 번만 작업 관리자를 띄움
+WM.restoring = true;
+reopen.filter(a => APPS[a]).forEach(a => WM.open(a));
+WM.restoring = false;
+
+// 창 크기 변경 시 최대화된 창 맞추기
+addEventListener('resize', () => {
+  Icons.layout();
+  for (const w of WM.wins.values()) if (w.maximized) WM.setGeom(w.el, { x: 0, y: WM.TOP, w: innerWidth, h: innerHeight - WM.TOP });
+});
+</script>
+{% endraw %}
+</body>
+</html>

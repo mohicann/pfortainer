@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}AppJail — pfortainer{% endblock %}
+{% block pagetitle %}AppJail{% endblock %}
+{% block content %}
+
+{% if !error.is_empty() %}
+<div class="alert alert-danger py-2 mb-3"><i class="bi bi-exclamation-triangle me-1"></i>{{ error }}</div>
+{% endif %}
+{% if !success.is_empty() %}
+<div class="alert alert-success py-2 mb-3"><i class="bi bi-check-circle me-1"></i>{{ success }}</div>
+{% endif %}
+
+<div class="d-flex align-items-center gap-2 mb-3">
+  {% if agent_mode == "host-socket" %}
+    <span class="badge bg-secondary"><i class="bi bi-hdd-rack me-1"></i>host agent 경유</span>
+  {% else %}
+    <span class="badge bg-secondary"><i class="bi bi-terminal me-1"></i>local exec</span>
+  {% endif %}
+  <span class="text-muted" style="font-size:.8rem">jail은 각 레포의 <code>deploy/appjail/Makejail</code>로 만듭니다 — 여기서는 상태 확인과 시작·중지·재시작만 합니다.</span>
+</div>
+
+<div class="card-table">
+  <div class="ct-header">
+    <span class="fw-semibold" style="font-size:.88rem">
+      <i class="bi bi-hdd-stack me-1"></i>Jail 목록
+      <span class="badge bg-secondary ms-1">{{ jails.len() }}</span>
+    </span>
+  </div>
+  {% if jails.is_empty() %}
+  <div class="p-4 text-center text-muted">
+    <i class="bi bi-hdd-stack" style="font-size:2rem;opacity:.3"></i>
+    <p class="mt-2 mb-0">jail이 없습니다.</p>
+  </div>
+  {% else %}
+  <div class="table-responsive">
+  <table class="table mb-0" style="font-size:.875rem">
+    <thead><tr>
+      <th>이름</th><th>상태</th><th>IP</th><th>포트</th><th>종류</th><th>버전</th>
+      <th>자동시작</th><th>우선순위</th><th>생성</th><th class="text-end">작업</th>
+    </tr></thead>
+    <tbody>
+      {% for j in jails %}
+      <tr>
+        <td class="fw-semibold mono"><i class="bi bi-box-seam me-1 text-primary"></i><a href="/appjail/{{ j.name }}" class="text-reset text-decoration-none">{{ j.name }}</a></td>
+        <td>
+          {% if j.running %}<span class="badge badge-running"><i class="bi bi-check-circle me-1"></i>실행 중</span>
+          {% else %}<span class="badge bg-secondary">중지됨</span>{% endif %}
+        </td>
+        <td class="mono" style="font-size:.82rem">{% if !j.ip.is_empty() %}{{ j.ip }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+        <td class="mono" style="font-size:.8rem">{% if !j.ports.is_empty() %}{{ j.ports }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+        <td class="mono text-muted" style="font-size:.8rem">{{ j.jail_type }}</td>
+        <td class="mono text-muted" style="font-size:.8rem">{{ j.version }}</td>
+        <td>{% if j.boot %}<span class="badge bg-primary bg-opacity-75">on</span>{% else %}<span class="badge bg-secondary">off</span>{% endif %}</td>
+        <td class="mono text-muted" style="font-size:.8rem">{{ j.priority }}</td>
+        <td class="mono text-muted" style="font-size:.78rem">{{ j.created }}</td>
+        <td class="text-end">
+          <div class="btn-group btn-group-sm">
+            {% if j.running %}
+            <form method="post" action="/appjail/{{ j.name }}/restart" class="d-inline"
+                  onsubmit="return confirm({% if j.name == "pfortainer" %}'이 관리 화면이 들어 있는 jail입니다. 재시작하는 동안(약 10초) 화면이 끊깁니다. 계속할까요?'{% else %}'jail \'{{ j.name }}\' 을(를) 재시작하시겠습니까?'{% endif %})">
+              <button class="btn btn-outline-secondary" title="재시작"><i class="bi bi-arrow-repeat"></i></button>
+            </form>
+            {% if j.name != "pfortainer" %}
+            <form method="post" action="/appjail/{{ j.name }}/stop" class="d-inline"
+                  onsubmit="return confirm('jail \'{{ j.name }}\' 을(를) 중지하시겠습니까?')">
+              <button class="btn btn-outline-warning" title="중지"><i class="bi bi-stop-fill"></i></button>
+            </form>
+            {% endif %}
+            {% else %}
+            <form method="post" action="/appjail/{{ j.name }}/start" class="d-inline">
+              <button class="btn btn-outline-success" title="시작"><i class="bi bi-play-fill"></i></button>
+            </form>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

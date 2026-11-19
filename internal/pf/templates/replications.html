@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}ZFS 복제 — pfortainer{% endblock %}
+{% block pagetitle %}ZFS 복제{% endblock %}
+{% block content %}
+
+{% if !error.is_empty() %}
+<div class="alert alert-danger py-2 mb-3"><i class="bi bi-exclamation-triangle me-1"></i>{{ error }}</div>
+{% endif %}
+{% if !success.is_empty() %}
+<div class="alert alert-success py-2 mb-3"><i class="bi bi-check-circle me-1"></i>{{ success }}</div>
+{% endif %}
+
+{% if agent_mode != "host-socket" %}
+<div class="alert alert-warning py-2 mb-3" style="font-size:.85rem">
+  <i class="bi bi-exclamation-triangle me-1"></i>host-socket 모드가 아닙니다. 복제 실행은 host agent 연결 시에만 가능합니다.
+</div>
+{% endif %}
+
+<div class="row g-3">
+
+  {# ── 태스크 목록 ── #}
+  <div class="col-12 col-xl-8">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem">
+          <i class="bi bi-arrow-repeat me-1"></i>복제 태스크
+          <span class="badge bg-secondary ms-1">{{ tasks.len() }}</span>
+        </span>
+      </div>
+      {% if tasks.is_empty() %}
+      <div class="p-4 text-center text-muted">
+        <i class="bi bi-arrow-repeat" style="font-size:2rem;opacity:.3"></i>
+        <p class="mt-2 mb-0">등록된 복제 태스크가 없습니다.</p>
+      </div>
+      {% else %}
+      <table class="table mb-0" style="font-size:.875rem">
+        <thead>
+          <tr><th>이름</th><th>소스</th><th>대상</th><th>스케줄</th><th>보존</th><th>마지막 실행</th><th>상태</th><th class="text-end">작업</th></tr>
+        </thead>
+        <tbody>
+          {% for t in tasks %}
+          <tr class="{% if !t.enabled %}opacity-50{% endif %}">
+            <td class="fw-semibold">
+              {{ t.name }}
+              {% if t.recursive %}<span class="badge bg-info text-dark ms-1" style="font-size:.68rem">-R</span>{% endif %}
+            </td>
+            <td class="mono" style="font-size:.8rem">{{ t.source_dataset }}</td>
+            <td class="mono" style="font-size:.8rem">
+              {% if t.target_path.contains(":") %}
+                <i class="bi bi-globe me-1 text-muted"></i>{{ t.target_path }}
+              {% else %}
+                <i class="bi bi-hdd me-1 text-muted"></i>{{ t.target_path }}
+              {% endif %}
+            </td>
+            <td style="font-size:.82rem">
+              {% if t.schedule == "manual" %}<span class="text-muted">수동</span>
+              {% else if t.schedule == "hourly" %}<span class="badge bg-light text-dark border">매시간</span>
+              {% else if t.schedule == "daily" %}<span class="badge bg-light text-dark border">매일</span>
+              {% else if t.schedule == "weekly" %}<span class="badge bg-light text-dark border">매주</span>
+              {% else %}{{ t.schedule }}{% endif %}
+            </td>
+            <td style="font-size:.8rem" class="text-muted">
+              {% if t.retention > 0 %}{{ t.retention }}개{% else %}안 함{% endif %}
+            </td>
+            <td style="font-size:.8rem">
+              {% if !t.last_run_fmt.is_empty() %}
+                <span class="text-muted">{{ t.last_run_fmt }}</span>
+                {% if !t.last_snapshot.is_empty() %}<div class="mono text-muted" style="font-size:.72rem">@{{ t.last_snapshot }}</div>{% endif %}
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if t.last_status == "ok" %}
+                <span class="badge bg-success"><i class="bi bi-check"></i> 성공</span>
+              {% else if t.last_status == "error" %}
+                <span class="badge bg-danger" title="{{ t.last_error }}"><i class="bi bi-x"></i> 실패</span>
+              {% else %}
+                <span class="badge bg-secondary">미실행</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <div class="btn-group btn-group-sm">
+                <form method="post" action="/replications/{{ t.id }}/run"
+                      onsubmit="return confirm('복제를 지금 실행합니까?\n데이터 크기에 따라 시간이 걸릴 수 있습니다.')">
+                  <button class="btn btn-outline-primary" title="지금 실행">
+                    <i class="bi bi-play-fill"></i>
+                  </button>
+                </form>
+                <form method="post" action="/replications/{{ t.id }}/toggle">
+                  {% if t.enabled %}
+                    <input type="hidden" name="enabled" value="0">
+                    <button class="btn btn-outline-secondary" title="비활성화">
+                      <i class="bi bi-pause-fill"></i>
+                    </button>
+                  {% else %}
+                    <input type="hidden" name="enabled" value="1">
+                    <button class="btn btn-outline-success" title="활성화">
+                      <i class="bi bi-play"></i>
+                    </button>
+                  {% endif %}
+                </form>
+                <form method="post" action="/replications/{{ t.id }}/delete"
+                      onsubmit="return confirm('복제 태스크 \'{{ t.name }}\' 을(를) 삭제하시겠습니까?')">
+                  <button class="btn btn-outline-danger" title="삭제">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% if t.last_status == "error" && !t.last_error.is_empty() %}
+          <tr class="{% if !t.enabled %}opacity-50{% endif %}">
+            <td colspan="8" class="py-1">
+              <div class="alert alert-danger py-1 px-2 mb-0 mono" style="font-size:.75rem">
+                <i class="bi bi-exclamation-circle me-1"></i>{{ t.last_error }}
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ── 추가 폼 ── #}
+  <div class="col-12 col-xl-4">
+    <div class="card-table">
+      <div class="ct-header">
+        <span class="fw-semibold" style="font-size:.88rem"><i class="bi bi-plus-circle me-1"></i>복제 태스크 추가</span>
+      </div>
+      <div class="p-3">
+        <form method="post" action="/replications">
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">태스크 이름</label>
+            <input type="text" name="name" class="form-control form-control-sm" placeholder="media-backup" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">소스 데이터셋</label>
+            <input type="text" name="source_dataset" class="form-control form-control-sm"
+                   placeholder="zdata/media" required>
+            <div class="form-text" style="font-size:.73rem">스냅샷이 있는 ZFS 데이터셋</div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">대상 경로</label>
+            <input type="text" name="target_path" class="form-control form-control-sm"
+                   placeholder="zbackup/media 또는 user@host:pool/media" required>
+            <div class="form-text" style="font-size:.73rem">
+              로컬: <code>pool/dataset</code><br>
+              원격: <code>user@host:pool/dataset</code>
+            </div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">스케줄</label>
+            <select name="schedule" class="form-select form-select-sm">
+              <option value="manual">수동만</option>
+              <option value="daily">매일</option>
+              <option value="weekly">매주</option>
+              <option value="hourly">매시간</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-muted mb-1">대상 쪽 보존 개수</label>
+            <input type="number" name="retention" class="form-control form-control-sm" value="14" min="0">
+            <div class="form-text" style="font-size:.73rem">복제 성공 후 대상(target_path)의 오래된 스냅샷을 이 개수만 남기고 정리합니다. 0이면 정리 안 함</div>
+          </div>
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="recursive" value="1" id="replRecurse">
+              <label class="form-check-label small" for="replRecurse">재귀 복제 (-R, 자식 데이터셋 포함)</label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm w-100">
+            <i class="bi bi-plus-lg me-1"></i>추가
+          </button>
+        </form>
+        <hr class="my-3">
+        <div class="text-muted" style="font-size:.78rem">
+          <strong>동작 방식:</strong><br>
+          소스 데이터셋의 최신 스냅샷을 <code>zfs send | zfs receive</code>로 대상에 전송합니다.
+          이전 스냅샷이 있으면 <strong>증분 전송</strong>(변경분만), 없으면 전체 전송합니다.<br><br>
+          <strong>원격 복제 전제조건:</strong><br>
+          호스트 root의 SSH 키가 대상 서버에 등록되어 있어야 합니다.
+          <pre class="mt-1 p-2 rounded mb-0" style="background:#1e2a3a;color:#b3e5fc;font-size:.72rem">ssh-copy-id root@대상호스트</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

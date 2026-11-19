@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}{{ c.name }} — pfortainer{% endblock %}
+{% block pagetitle %}{{ c.name }}{% endblock %}
+{% block content %}
+<div class="mb-3">
+  <a href="/containers" class="text-decoration-none text-muted" style="font-size:.85rem">
+    <i class="bi bi-arrow-left"></i> 컨테이너 목록으로
+  </a>
+</div>
+{% if inspect_failed %}
+<div class="alert alert-warning py-2 mb-3" style="font-size:.85rem">
+  <i class="bi bi-exclamation-triangle"></i>
+  Podman inspect API 오류로 일부 정보(환경 변수, 마운트, 네트워크 상세 등)를 불러올 수 없습니다.
+</div>
+{% endif %}
+
+<div class="card-table mb-3">
+  <div class="ct-header">
+    <span class="fw-semibold" style="font-size:.95rem">
+      {{ c.name }}
+      <span class="badge badge-{{ c.state }} ms-2">{{ c.status }}</span>
+    </span>
+    <div class="btn-group btn-group-sm" id="detailActions" role="group" data-id="{{ c.id }}">
+      <button type="button" class="btn btn-outline-secondary" data-action="start"><i class="bi bi-play-fill"></i> 시작</button>
+      <button type="button" class="btn btn-outline-secondary" data-action="stop"><i class="bi bi-stop-fill"></i> 정지</button>
+      <button type="button" class="btn btn-outline-secondary" data-action="kill"><i class="bi bi-x-octagon"></i> Kill</button>
+      <button type="button" class="btn btn-outline-secondary" data-action="restart"><i class="bi bi-arrow-clockwise"></i> 재시작</button>
+      <button type="button" class="btn btn-outline-secondary" data-action="pause"><i class="bi bi-pause-fill"></i> 일시정지</button>
+      <button type="button" class="btn btn-outline-secondary" data-action="resume"><i class="bi bi-play-circle"></i> 재개</button>
+      <button type="button" class="btn btn-outline-danger" data-action="remove"><i class="bi bi-trash"></i> 삭제</button>
+    </div>
+  </div>
+  <table class="table mb-0">
+    <tbody>
+      <tr><th style="width:160px">ID</th><td><span class="mono">{{ c.id }}</span></td></tr>
+      <tr><th>이미지</th><td>{{ c.image }}</td></tr>
+      <tr><th>명령어</th><td><span class="mono">{{ c.command }}</span></td></tr>
+      <tr><th>생성일</th><td>{{ c.created }}</td></tr>
+      {% if !c.started_at.is_empty() %}<tr><th>시작 시각</th><td>{{ c.started_at }}</td></tr>{% endif %}
+      {% if !c.finished_at.is_empty() %}<tr><th>종료 시각</th><td>{{ c.finished_at }}</td></tr>{% endif %}
+      <tr><th>PID</th><td>{{ c.pid }}</td></tr>
+      <tr><th>종료 코드</th><td>{{ c.exit_code }}</td></tr>
+      <tr><th>재시작 횟수</th><td>{{ c.restart_count }}</td></tr>
+      <tr><th>재시작 정책</th><td>{% if !c.restart_policy.is_empty() %}{{ c.restart_policy }}{% else %}<span class="text-muted">-</span>{% endif %}</td></tr>
+      <tr><th>네트워크 모드</th><td>{{ c.network_mode }}</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card-table h-100">
+      <div class="ct-header"><span class="fw-semibold" style="font-size:.88rem">포트</span></div>
+      <div class="p-3">
+        {% if c.ports.is_empty() %}
+          <span class="text-muted" style="font-size:.85rem">포트 없음</span>
+        {% else %}
+          {% for p in c.ports %}<span class="ptag">{{ p }}</span>{% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card-table h-100">
+      <div class="ct-header"><span class="fw-semibold" style="font-size:.88rem">네트워크</span></div>
+      <table class="table table-sm mb-0">
+        <thead><tr><th>이름</th><th>IP 주소</th><th>게이트웨이</th><th>MAC</th></tr></thead>
+        <tbody>
+          {% if c.networks.is_empty() %}
+          <tr><td colspan="4" class="text-center text-muted py-3">네트워크 없음</td></tr>
+          {% else %}
+          {% for n in c.networks %}
+          <tr>
+            <td>{{ n.name }}</td>
+            <td><span class="mono">{{ n.ip_address }}</span></td>
+            <td><span class="mono">{{ n.gateway }}</span></td>
+            <td><span class="mono">{{ n.mac_address }}</span></td>
+          </tr>
+          {% endfor %}
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card-table h-100">
+      <div class="ct-header"><span class="fw-semibold" style="font-size:.88rem">마운트</span></div>
+      <table class="table table-sm mb-0">
+        <thead><tr><th>타입</th><th>소스</th><th>대상</th><th>모드</th></tr></thead>
+        <tbody>
+          {% if c.mounts.is_empty() %}
+          <tr><td colspan="4" class="text-center text-muted py-3">마운트 없음</td></tr>
+          {% else %}
+          {% for m in c.mounts %}
+          <tr>
+            <td>{{ m.kind }}</td>
+            <td><span class="mono">{{ m.source }}</span></td>
+            <td><span class="mono">{{ m.destination }}</span></td>
+            <td>{% if m.rw %}rw{% else %}ro{% endif %}</td>
+          </tr>
+          {% endfor %}
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card-table h-100">
+      <div class="ct-header"><span class="fw-semibold" style="font-size:.88rem">환경 변수</span></div>
+      <div class="p-3" style="max-height:260px; overflow:auto">
+        {% if c.env.is_empty() %}
+          <span class="text-muted" style="font-size:.85rem">환경 변수 없음</span>
+        {% else %}
+          {% for e in c.env %}<div class="mono" style="font-size:.8rem">{{ e }}</div>{% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card-table h-100">
+      <div class="ct-header"><span class="fw-semibold" style="font-size:.88rem">레이블</span></div>
+      <div class="p-3" style="max-height:260px; overflow:auto">
+        {% if c.labels.is_empty() %}
+          <span class="text-muted" style="font-size:.85rem">레이블 없음</span>
+        {% else %}
+          {% for (k, v) in c.labels %}<div class="mono" style="font-size:.8rem">{{ k }}={{ v }}</div>{% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const group = document.getElementById('detailActions');
+  const id = group.dataset.id;
+
+  const actionLabels = {
+    start: '시작', stop: '정지', kill: '강제 종료(kill)',
+    restart: '재시작', pause: '일시정지', resume: '재개', remove: '삭제',
+  };
+  const confirmActions = new Set(['stop', 'kill', 'restart', 'remove']);
+
+  group.querySelectorAll('button').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const action = btn.dataset.action;
+
+      if (confirmActions.has(action)) {
+        if (!confirm(`이 컨테이너를 ${actionLabels[action]}하시겠습니까?`)) return;
+      }
+
+      try {
+        const res = await fetch(`/containers/${id}/${action}`, { method: 'POST' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          alert(data.error || '작업에 실패했습니다.');
+          return;
+        }
+      } catch (err) {
+        alert(err.message);
+        return;
+      }
+
+      if (action === 'remove') {
+        location.href = '/containers';
+      } else {
+        location.reload();
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}

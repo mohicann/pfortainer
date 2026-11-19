@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block title %}시스템 정보 — pfortainer{% endblock %}
+{% block pagetitle %}시스템 정보{% endblock %}
+{% block content %}
+<style>
+  .info-card {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.08);
+    overflow: hidden;
+    height: 100%;
+  }
+  .info-card-header {
+    padding: .6rem 1rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    font-size: .72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: #495057;
+  }
+  .info-table { width: 100%; font-size: .875rem; border-collapse: collapse; }
+  .info-table tr { border-bottom: 1px solid #f0f2f5; }
+  .info-table tr:last-child { border-bottom: none; }
+  .info-table th {
+    padding: .48rem 1rem;
+    width: 8rem;
+    color: #6c757d;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .info-table td { padding: .48rem 1rem; }
+  .pbar-label {
+    display: flex; justify-content: space-between;
+    font-size: .79rem; margin-bottom: 3px;
+  }
+  .pbar-label span:first-child { color: #6c757d; }
+  .pbar-label span:last-child  { font-weight: 600; }
+</style>
+
+<div class="row g-3">
+
+  <div class="col-md-6">
+    <div class="info-card">
+      <div class="info-card-header"><i class="bi bi-hdd-network me-2"></i>호스트</div>
+      <table class="info-table">
+        <tr><th>호스트명</th><td>{{ s.hostname }}</td></tr>
+        <tr><th>운영체제</th><td>{{ s.os }}</td></tr>
+        <tr><th>커널</th><td>{{ s.kernel }}</td></tr>
+        <tr><th>아키텍처</th><td>{{ s.arch }}</td></tr>
+        <tr><th>업타임</th><td>{{ s.uptime }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="info-card">
+      <div class="info-card-header"><i class="bi bi-cpu me-2"></i>CPU</div>
+      <table class="info-table">
+        <tr><th>코어 수</th><td>{{ s.cpus }}개</td></tr>
+      </table>
+      <div class="px-3 pt-2 pb-3">
+        <div class="mb-2">
+          <div class="pbar-label"><span>사용자(user)</span><span id="cpu-user-val">{{ s.cpu_user }}%</span></div>
+          <div class="progress" style="height:7px">
+            <div id="cpu-user-bar" class="progress-bar bg-primary" style="width:{{ s.cpu_user }}%"></div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <div class="pbar-label"><span>시스템(sys)</span><span id="cpu-sys-val">{{ s.cpu_system }}%</span></div>
+          <div class="progress" style="height:7px">
+            <div id="cpu-sys-bar" class="progress-bar bg-warning" style="width:{{ s.cpu_system }}%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="pbar-label"><span>유휴(idle)</span><span id="cpu-idle-val">{{ s.cpu_idle }}%</span></div>
+          <div class="progress" style="height:7px">
+            <div id="cpu-idle-bar" class="progress-bar bg-success" style="width:{{ s.cpu_idle }}%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="info-card">
+      <div class="info-card-header"><i class="bi bi-memory me-2"></i>메모리</div>
+      <div class="px-3 pt-2 pb-1">
+        <div class="pbar-label">
+          <span id="mem-label">사용 {{ s.mem_used }} / {{ s.mem_total }}</span>
+          <span id="mem-pct">{{ s.mem_used_pct }}%</span>
+        </div>
+        <div class="progress mb-3" style="height:10px">
+          <div id="mem-bar" class="progress-bar {% if s.mem_used_pct > 85 %}bg-danger{% else if s.mem_used_pct > 70 %}bg-warning{% else %}bg-info{% endif %}"
+               style="width:{{ s.mem_used_pct }}%"></div>
+        </div>
+      </div>
+      <table class="info-table">
+        <tr><th>전체</th><td>{{ s.mem_total }}</td></tr>
+        <tr><th>사용</th><td id="mem-used">{{ s.mem_used }}</td></tr>
+        <tr><th>여유</th><td id="mem-free">{{ s.mem_free }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="info-card">
+      <div class="info-card-header"><i class="bi bi-arrow-left-right me-2"></i>스왑</div>
+      {% if s.has_swap %}
+      <div class="px-3 pt-2 pb-1">
+        <div class="pbar-label">
+          <span id="swap-label">사용 {{ s.swap_used }} / {{ s.swap_total }}</span>
+          <span id="swap-pct">{{ s.swap_used_pct }}%</span>
+        </div>
+        <div class="progress mb-3" style="height:10px">
+          <div id="swap-bar" class="progress-bar bg-secondary" style="width:{{ s.swap_used_pct }}%"></div>
+        </div>
+      </div>
+      <table class="info-table">
+        <tr><th>전체</th><td>{{ s.swap_total }}</td></tr>
+        <tr><th>사용</th><td id="swap-used">{{ s.swap_used }}</td></tr>
+        <tr><th>여유</th><td id="swap-free">{{ s.swap_free }}</td></tr>
+      </table>
+      {% else %}
+      <div class="d-flex align-items-center justify-content-center text-muted"
+           style="height:120px;font-size:.87rem">
+        <i class="bi bi-dash-circle me-2"></i>스왑 없음
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="info-card">
+      <div class="info-card-header"><i class="bi bi-box-seam me-2"></i>Podman</div>
+      <table class="info-table">
+        <tr><th>버전</th><td>{{ s.podman_version }}</td></tr>
+        <tr><th>API 버전</th><td>{{ s.podman_api }}</td></tr>
+        <tr><th>Go 버전</th><td>{{ s.go_version }}</td></tr>
+        <tr><th>플랫폼</th><td>{{ s.os_arch }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="info-card">
+      <div class="info-card-header"><i class="bi bi-boxes me-2"></i>컨테이너 &amp; 이미지</div>
+      <table class="info-table">
+        <tr><th>전체</th><td>{{ s.container_total }}개</td></tr>
+        <tr><th>실행 중</th><td><span class="badge badge-running">{{ s.container_running }}</span></td></tr>
+        <tr><th>정지</th><td><span class="badge badge-stopped">{{ s.container_stopped }}</span></td></tr>
+        {% if s.container_paused > 0 %}
+        <tr><th>일시정지</th><td><span class="badge badge-paused">{{ s.container_paused }}</span></td></tr>
+        {% endif %}
+        <tr><th>이미지</th><td>{{ s.image_count }}개</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="info-card">
+      <div class="info-card-header"><i class="bi bi-device-hdd me-2"></i>스토리지</div>
+      <table class="info-table">
+        <tr><th>드라이버</th><td class="mono">{{ s.graph_driver }}</td></tr>
+        <tr><th>그래프 루트</th><td class="mono">{{ s.graph_root }}</td></tr>
+        <tr><th>런 루트</th><td class="mono">{{ s.run_root }}</td></tr>
+        <tr><th>볼륨 경로</th><td class="mono">{{ s.volume_path }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function setBar(barId, valId, pct) {
+  document.getElementById(barId).style.width = pct + '%';
+  document.getElementById(valId).textContent = pct + '%';
+}
+
+function memBarClass(pct) {
+  if (pct > 85) return 'progress-bar bg-danger';
+  if (pct > 70) return 'progress-bar bg-warning';
+  return 'progress-bar bg-info';
+}
+
+function pollStats() {
+  fetch('/api/system/stats')
+    .then(function(r) { return r.json(); })
+    .then(function(s) {
+      setBar('cpu-user-bar',  'cpu-user-val',  s.cpuUser);
+      setBar('cpu-sys-bar',   'cpu-sys-val',   s.cpuSystem);
+      setBar('cpu-idle-bar',  'cpu-idle-val',  s.cpuIdle);
+
+      var memBar = document.getElementById('mem-bar');
+      memBar.style.width = s.memUsedPct + '%';
+      memBar.className = memBarClass(s.memUsedPct);
+      document.getElementById('mem-label').textContent = '사용 ' + s.memUsed + ' / ' + s.memTotal;
+      document.getElementById('mem-pct').textContent   = s.memUsedPct + '%';
+      document.getElementById('mem-used').textContent  = s.memUsed;
+      document.getElementById('mem-free').textContent  = s.memFree;
+
+      if (s.hasSwap) {
+        document.getElementById('swap-bar').style.width         = s.swapUsedPct + '%';
+        document.getElementById('swap-label').textContent       = '사용 ' + s.swapUsed + ' / ' + s.swapTotal;
+        document.getElementById('swap-pct').textContent         = s.swapUsedPct + '%';
+        document.getElementById('swap-used').textContent        = s.swapUsed;
+        document.getElementById('swap-free').textContent        = s.swapFree;
+      }
+    })
+    .catch(function() {});
+}
+
+setInterval(pollStats, 3000);
+</script>
+{% endblock %}

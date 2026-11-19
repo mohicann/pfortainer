@@ -2,3 +2,4 @@
 /pfortainer
 /pfortainer-freebsd
 *.exe
+bin/
