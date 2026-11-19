@@ -8,7 +8,7 @@
 
 ```sh
 # Rust 빌드(테스트 훅 포함, 451a6bc 이후)
-(cd ../pfortainer-rs && cargo build --release)
+(cd ../pfortainer-rs && cargo build --release)   # 골든은 인증 수정(fix(auth)) 이후 기준
 
 go test ./contract/...                       # SUT = Rust (기본)
 go test ./contract/... -update               # 골든 다시 기록 — SUT가 Rust일 때만 허용
@@ -60,7 +60,7 @@ Go 구현도 같은 env를 같은 뜻으로 받아야 한다.
 | hostd `metrics/host` net 키 순서, tcp_estab 값 | HashMap, 실행 호스트 값 | JSON 재직렬화, 값 마스킹 |
 | compose 출력의 stdout/stderr 줄 순서 | 동시 읽기 | log 줄 정렬 |
 | 병렬 hostd/Podman 호출 순서 | 동시 요청 | 기록 요청 정렬 |
-| 지금 시각에서 나온 값 | 실행 시각 | `<now>`, `next_run_time(freq, base)` 식, `auto-<ts>`, `<rfc3339>`, `<today>`, KST "MM-DD HH:MM" 근처 값 |
+| 지금 시각에서 나온 값 | 실행 시각 | `<now>`, `next_run_time(freq, base)` 식, 화면의 `<next_run(freq)>`, `auto-<ts>`, `<rfc3339>`, `<today>`, KST "MM-DD HH:MM" 근처 값 |
 | 임시 경로·포트 | 실행마다 다름 | `<ROOT>` `<DIR>` `<HOST>` `<STUB>` |
 | bcrypt 해시·TOTP 비밀값·pre-auth 만료 | 무작위 | `<bcrypt $2b$12>` 등 |
 
@@ -84,9 +84,9 @@ P7은 지금 Rust↔Rust로 녹색이다. Go가 생기면 `SUT_BIN`/`OTHER_BIN`�
 
 ## KNOWN-BUG (Rust 현재 동작 — 계약에 그대로 고정, 수정은 별도 결정)
 
-1. **[보안] viewer 묶음 7개 핸들러에 인증 없음** — `/api/files/list`, `/api/files/download`(hostd root로 임의 파일 읽기),
-   `/api/diag/host-log`, `/api/diag/cmd`, `/api/diag/local-log`, `/api/system/stats`, `/api/metrics/data`.
-   운영 fbnas:11000에서 익명 `GET /api/files/list?path=/zdata` 200 확인(2026-11-19).
+1. ~~[보안] viewer 묶음 7개 핸들러에 인증 없음~~ — **수정됨(pfortainer-rs fix(auth), 2026-11-19)**. `/api/files/list`·`download`·
+   `/api/diag/*`·`/api/system/stats`·`/api/metrics/data`가 익명으로 열려 있었음(운영 확인). 이제 302 /login.
+   권한표에 "공개·리다이렉트 경로 외에는 익명·위조 쿠키가 핸들러(hostd/Podman 호출)에 닿지 않음" 불변식을 넣어 회귀를 막는다.
 2. 세션 쿠키가 무상태(`username:role` 서명) — DB에서 역할 변경·삭제해도 기존 쿠키 8시간 유효, DB에 없는 사용자도 통과.
 3. pfpreauth 쿠키가 TOTP 성공 뒤에도 만료(5분)까지 재사용 가능.
 4. 컨테이너 id에 URI 불가 문자(공백 등)가 있으면 hyperlocal panic → 응답 없이 연결 끊김.

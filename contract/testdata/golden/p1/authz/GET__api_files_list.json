@@ -6,21 +6,21 @@
     "podman_calls": 0
   },
   "anon": {
-    "status": 200,
-    "content_type": "application/json",
-    "hostd_calls": 1,
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
     "podman_calls": 0
   },
   "bad_sig": {
-    "status": 200,
-    "content_type": "application/json",
-    "hostd_calls": 1,
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
     "podman_calls": 0
   },
   "empty_user": {
-    "status": 200,
-    "content_type": "application/json",
-    "hostd_calls": 1,
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
     "podman_calls": 0
   },
   "ghost_admin": {
@@ -36,15 +36,15 @@
     "podman_calls": 0
   },
   "other_secret": {
-    "status": 200,
-    "content_type": "application/json",
-    "hostd_calls": 1,
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
     "podman_calls": 0
   },
   "unknown_role": {
-    "status": 200,
-    "content_type": "application/json",
-    "hostd_calls": 1,
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
     "podman_calls": 0
   },
   "viewer": {

@@ -137,6 +137,16 @@ func TestAuthzMatrix(t *testing.T) {
 				cell.Podman = len(a.Podman.Take())
 				cells[c.Name] = cell
 			}
+			// 불변식: 공개 라우트(/login 등)와 리다이렉트 전용 경로 말고는 익명·위조 쿠키가
+			// 핸들러에 닿지 않는다(2026-11-19 익명 접근 버그 회귀 방지).
+			if r.Layer != "public" && r.Path != "/" && r.Path != "/bastille" {
+				for _, name := range []string{"anon", "bad_sig", "other_secret", "unknown_role", "empty_user"} {
+					c := cells[name]
+					if c.Status != 302 || c.Location != "/login" || c.Hostd != 0 || c.Podman != 0 {
+						t.Errorf("%s %s: %s 자격이 막히지 않음: %+v", r.Method, r.Path, name, c)
+					}
+				}
+			}
 			h.Golden(t, "p1/authz/"+h.Slug(r.Method+"_"+r.Path), cells)
 		})
 	}

@@ -7,23 +7,20 @@
     "podman_calls": 0
   },
   "anon": {
-    "status": 400,
-    "content_type": "text/plain; charset=utf-8",
-    "body": "unknown chart: cpu",
+    "status": 302,
+    "location": "/login",
     "hostd_calls": 0,
     "podman_calls": 0
   },
   "bad_sig": {
-    "status": 400,
-    "content_type": "text/plain; charset=utf-8",
-    "body": "unknown chart: cpu",
+    "status": 302,
+    "location": "/login",
     "hostd_calls": 0,
     "podman_calls": 0
   },
   "empty_user": {
-    "status": 400,
-    "content_type": "text/plain; charset=utf-8",
-    "body": "unknown chart: cpu",
+    "status": 302,
+    "location": "/login",
     "hostd_calls": 0,
     "podman_calls": 0
   },
@@ -42,16 +39,14 @@
     "podman_calls": 0
   },
   "other_secret": {
-    "status": 400,
-    "content_type": "text/plain; charset=utf-8",
-    "body": "unknown chart: cpu",
+    "status": 302,
+    "location": "/login",
     "hostd_calls": 0,
     "podman_calls": 0
   },
   "unknown_role": {
-    "status": 400,
-    "content_type": "text/plain; charset=utf-8",
-    "body": "unknown chart: cpu",
+    "status": 302,
+    "location": "/login",
     "hostd_calls": 0,
     "podman_calls": 0
   },

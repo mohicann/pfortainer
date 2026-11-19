@@ -7,23 +7,20 @@
     "podman_calls": 0
   },
   "anon": {
-    "status": 500,
-    "content_type": "text/plain; charset=utf-8",
-    "body": "No such file or directory (os error 2)",
+    "status": 302,
+    "location": "/login",
     "hostd_calls": 0,
     "podman_calls": 0
   },
   "bad_sig": {
-    "status": 500,
-    "content_type": "text/plain; charset=utf-8",
-    "body": "No such file or directory (os error 2)",
+    "status": 302,
+    "location": "/login",
     "hostd_calls": 0,
     "podman_calls": 0
   },
   "empty_user": {
-    "status": 500,
-    "content_type": "text/plain; charset=utf-8",
-    "body": "No such file or directory (os error 2)",
+    "status": 302,
+    "location": "/login",
     "hostd_calls": 0,
     "podman_calls": 0
   },
@@ -42,16 +39,14 @@
     "podman_calls": 0
   },
   "other_secret": {
-    "status": 500,
-    "content_type": "text/plain; charset=utf-8",
-    "body": "No such file or directory (os error 2)",
+    "status": 302,
+    "location": "/login",
     "hostd_calls": 0,
     "podman_calls": 0
   },
   "unknown_role": {
-    "status": 500,
-    "content_type": "text/plain; charset=utf-8",
-    "body": "No such file or directory (os error 2)",
+    "status": 302,
+    "location": "/login",
     "hostd_calls": 0,
     "podman_calls": 0
   },

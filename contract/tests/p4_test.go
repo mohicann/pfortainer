@@ -495,6 +495,11 @@ func itoa(i int) string {
 func nearNowTimes(s string) string {
 	kst := time.FixedZone("KST", 9*3600)
 	now := time.Now()
+	// 주기별 다음 실행 시각(시·날짜에 따라 바뀜). 일요일엔 weekly와 daily가 같은 값이라 daily가 먼저 바뀐다.
+	for _, f := range []string{"hourly", "daily", "weekly", "monthly"} {
+		ts := time.Unix(nextRunTime(f, now.Unix()), 0).In(kst).Format("01-02 15:04")
+		s = strings.ReplaceAll(s, ts, "<next_run("+f+")>")
+	}
 	for _, off := range []struct {
 		base time.Duration
 		tag  string
