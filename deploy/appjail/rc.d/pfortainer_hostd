@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# PROVIDE: pfortainer_hostd
+# REQUIRE: LOGIN zfs
+# BEFORE: appjail
+# KEYWORD: shutdown
+#
+# pfortainer root 권한 host agent(호스트에서 실행). 바이너리는 jail 안에서 빌드한
+# 체크아웃의 bin/pfortainer를 그대로 쓴다(같은 FreeBSD 15.1).
+# 소켓 /var/run/pfortainer-rs/host.sock → jail의 /run/pfortainer-rs에 nullfs(폴더 이름은 Rust 시절 그대로).
+#
+# 설치 (호스트 root):
+#   install -m 755 deploy/appjail/rc.d/pfortainer_hostd /usr/local/etc/rc.d/
+#   sysrc pfortainer_hostd_enable=YES && service pfortainer_hostd start
+
+. /etc/rc.subr
+
+name=pfortainer_hostd
+rcvar=pfortainer_hostd_enable
+
+load_rc_config $name
+
+: ${pfortainer_hostd_enable:=NO}
+: ${pfortainer_hostd_bin:=/zdata/apps/pfortainer/bin/pfortainer}
+: ${pfortainer_hostd_rundir:=/var/run/pfortainer-rs}
+
+pidfile="/var/run/${name}.pid"
+child_pidfile="/var/run/${name}.child.pid"
+procname="/usr/sbin/daemon"
+command="/usr/sbin/daemon"
+command_args="-f -r -R 5 -P ${pidfile} -p ${child_pidfile} -t ${name} -o /var/log/${name}.log /usr/bin/env HOSTD_SOCKET=${pfortainer_hostd_rundir}/host.sock ${pfortainer_hostd_bin} -hostd"
+
+start_precmd="${name}_prestart"
+pfortainer_hostd_prestart()
+{
+	install -d -m 750 ${pfortainer_hostd_rundir}
+	rm -f ${pfortainer_hostd_rundir}/host.sock
+	[ -x "${pfortainer_hostd_bin}" ] || { echo "${pfortainer_hostd_bin} 없음 — jail 안에서 먼저 빌드"; return 1; }
+}
+
+run_rc_command "$1"

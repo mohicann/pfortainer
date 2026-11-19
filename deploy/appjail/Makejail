@@ -1,0 +1,37 @@
+# fbnas(FreeBSD 15.1 + AppJail) — pfortainer(Go) 웹앱 jail `pfortainer`
+# root 권한이 필요한 작업은 호스트의 hostd(rc.d/pfortainer_hostd)가 하고, 앱은 그 소켓만 쓴다.
+#
+# 만들기/다시 만들기 (호스트 root, 이 폴더에서):
+#   appjail makejail -j pfortainer -f Makejail
+# 전제 (README 참고): 체크아웃 /zdata/apps/pfortainer, 그 안의 .env(600)와 data/,
+#   호스트 podman_service(/var/run/podman/podman.sock)·pfortainer_hostd(/var/run/pfortainer-rs/host.sock)
+
+OPTION start
+OPTION overwrite=force
+OPTION type=thick
+OPTION boot
+OPTION priority=30
+OPTION tzdata=Asia/Seoul
+OPTION resolv_conf=/usr/local/etc/appjail/resolv.conf
+
+OPTION virtualnet=ajnet:<random> default address:10.0.0.13
+OPTION nat
+OPTION expose=11000 "descr:pfortainer"
+OPTION expose=11000 "descr:pfortainer (tailscale)" ext_if:tailscale0 on_if:tailscale0
+
+OPTION fstab=/zdata/apps/pfortainer /opt/pfortainer
+OPTION fstab=/var/run/pfortainer-rs /run/pfortainer-rs
+OPTION fstab=/var/run/podman /run/podman
+
+OPTION healthcheck="health_cmd:jail:fetch -qo /dev/null http://127.0.0.1:11000/login" "recover_cmd:jail:service pfortainer restart" interval:60 start_period:120 retries:3
+
+PKG ca_root_nss go git
+
+CMD mkdir -p /usr/local/etc/rc.d
+COPY rc.d/pfortainer /usr/local/etc/rc.d/pfortainer
+CMD chmod 755 /usr/local/etc/rc.d/pfortainer
+
+CMD cd /opt/pfortainer && env GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.directory GIT_CONFIG_VALUE_0='*' go build -o bin/pfortainer ./cmd/pfortainer
+
+SYSRC pfortainer_enable=YES
+SERVICE pfortainer start

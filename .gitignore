@@ -3,3 +3,4 @@
 /pfortainer-freebsd
 *.exe
 bin/
+data/

@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# PROVIDE: pfortainer
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
+#
+# pfortainer 웹앱(Go, jail `pfortainer` 안). 설정은 /opt/pfortainer/.env(작업 폴더의 .env를 읽는다).
+# daemon -P: 감독 프로세스 pidfile 기준이라 stop/restart가 감독까지 내린다.
+
+. /etc/rc.subr
+
+name=pfortainer
+rcvar=pfortainer_enable
+
+load_rc_config $name
+
+: ${pfortainer_enable:=NO}
+: ${pfortainer_dir:=/opt/pfortainer}
+
+pidfile="/var/run/${name}.pid"
+child_pidfile="/var/run/${name}.child.pid"
+procname="/usr/sbin/daemon"
+command="/usr/sbin/daemon"
+command_args="-f -r -R 5 -P ${pidfile} -p ${child_pidfile} -t ${name} -o /var/log/${name}.log ${pfortainer_dir}/bin/pfortainer"
+pfortainer_chdir="${pfortainer_dir}"
+
+run_rc_command "$1"
