@@ -30,3 +30,8 @@ podman 200 /v5.0.0/libpod/containers/json?all=true
 podman 200 /v5.0.0/libpod/info
 podman 200 /v5.0.0/libpod/containers/17f4688b30722916e8a38fece386fa3bded5c39e9f8d9019bc40349ede0a8669/json
 podman 404 /v5.0.0/libpod/containers/nope/json
+hostd 200 /smart?dev=ada1
+hostd 200 /smart?dev=ada2
+hostd 200 /smart?dev=ada3
+hostd 200 /smart?dev=ada4
+hostd 200 /smart?dev=nda0

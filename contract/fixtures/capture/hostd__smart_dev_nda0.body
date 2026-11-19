@@ -1,0 +1,4 @@
+smartctl 7.5 2025-04-30 r5714 [FreeBSD 15.1-RELEASE amd64] (local build)
+Copyright (C) 2002-25, Bruce Allen, Christian Franke, www.smartmontools.org
+
+Smartctl open device: /dev/nda0 failed: INQUIRY failed

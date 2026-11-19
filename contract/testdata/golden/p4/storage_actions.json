@@ -1,0 +1,771 @@
+[
+  {
+    "name": "fs_create_ok",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/dataset",
+          "content_type": "application/json",
+          "body": {
+            "path": "zdata/apps/new-ds_1.x:y"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "fs_create_empty",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "상위 데이터셋과 이름을 모두 입력하세요."
+        }
+      }
+    }
+  },
+  {
+    "name": "fs_create_bad_char",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "데이터셋 이름에 사용할 수 없는 문자가 포함되어 있습니다. (허용: 영문·숫자·-·_·.·:)"
+        }
+      }
+    }
+  },
+  {
+    "name": "fs_create_unicode",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "데이터셋 이름에 사용할 수 없는 문자가 포함되어 있습니다. (허용: 영문·숫자·-·_·.·:)"
+        }
+      }
+    }
+  },
+  {
+    "name": "fs_create_bad_parent",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/dataset",
+          "content_type": "application/json",
+          "body": {
+            "path": "zdata/../x/ok"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "fs_create_number_field",
+    "snap": {
+      "status": 422,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "Failed to deserialize the JSON body into the target type: parent: invalid type: integer `1`, expected a string at line 1 column 11"
+    }
+  },
+  {
+    "name": "fs_create_not_json",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "Failed to parse the request body as JSON: expected value at line 1 column 1"
+    }
+  },
+  {
+    "name": "fs_delete_ok",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/dataset/delete",
+          "content_type": "application/json",
+          "body": {
+            "name": "zdata/apps/old"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "fs_delete_pool",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "최상위 풀은 삭제할 수 없습니다."
+        }
+      }
+    }
+  },
+  {
+    "name": "fs_delete_empty",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "최상위 풀은 삭제할 수 없습니다."
+        }
+      }
+    }
+  },
+  {
+    "name": "snap_create_ok",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/snapshot",
+          "content_type": "application/json",
+          "body": {
+            "dataset": "zdata/apps",
+            "snapname": "manual-1"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "snap_create_empty",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "dataset and snapname required"
+        }
+      }
+    }
+  },
+  {
+    "name": "snap_create_bad",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/snapshot",
+          "content_type": "application/json",
+          "body": {
+            "dataset": "zdata/apps",
+            "snapname": "a b"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "snap_create_at",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/snapshot",
+          "content_type": "application/json",
+          "body": {
+            "dataset": "zdata/apps",
+            "snapname": "x@y"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "snap_delete_ok",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/snapshot/delete",
+          "content_type": "application/json",
+          "body": {
+            "name": "zdata/apps@manual-1"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "snap_delete_no_at",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/snapshot/delete",
+          "content_type": "application/json",
+          "body": {
+            "name": "zdata/apps"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "snap_rollback_ok",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/rollback",
+          "content_type": "application/json",
+          "body": {
+            "name": "zdata/apps@manual-1"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "snap_rollback_bad",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/rollback",
+          "content_type": "application/json",
+          "body": {
+            "name": ""
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "snap_clone_ok",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/clone",
+          "content_type": "application/json",
+          "body": {
+            "name": "zdata/apps@manual-1",
+            "target": "zdata/apps-clone"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "snap_clone_bad_target",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/clone",
+          "content_type": "application/json",
+          "body": {
+            "name": "zdata/apps@manual-1",
+            "target": "zdata/a b"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "smart_test_ok",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "output": ""
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/smart/test",
+          "content_type": "application/json",
+          "body": {
+            "device": "ada0",
+            "type": "short"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "smart_test_dev_path",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "output": ""
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/smart/test",
+          "content_type": "application/json",
+          "body": {
+            "device": "/dev/ada0",
+            "type": "long"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "smart_test_bad_type",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "output": ""
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/smart/test",
+          "content_type": "application/json",
+          "body": {
+            "device": "ada0",
+            "type": "rm"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "smart_test_bad_dev",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "output": ""
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/smart/test",
+          "content_type": "application/json",
+          "body": {
+            "device": "sda;rm",
+            "type": "short"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "smart_test_missing_field",
+    "snap": {
+      "status": 422,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "Failed to deserialize the JSON body into the target type: missing field `test_type` at line 1 column 17"
+    }
+  },
+  {
+    "name": "smart_test_output",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "output": "Testing has begun.\nPlease wait 2 minutes."
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/smart/test",
+          "content_type": "application/json",
+          "body": {
+            "device": "ada1",
+            "type": "short"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "fs_create_hostd_err",
+    "snap": {
+      "status": 409,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "cannot do it: dataset is busy"
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/dataset",
+          "content_type": "application/json",
+          "body": {
+            "path": "zdata/x"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "fs_delete_hostd_err",
+    "snap": {
+      "status": 409,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "cannot do it: dataset is busy"
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/dataset/delete",
+          "content_type": "application/json",
+          "body": {
+            "name": "zdata/x"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "snap_create_hostd_err",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "cannot do it: dataset is busy"
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/snapshot",
+          "content_type": "application/json",
+          "body": {
+            "dataset": "zdata/apps",
+            "snapname": "s"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "snap_delete_hostd_err",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "cannot do it: dataset is busy"
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/snapshot/delete",
+          "content_type": "application/json",
+          "body": {
+            "name": "zdata/apps@s"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "snap_rollback_hostd_err",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "cannot do it: dataset is busy"
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/rollback",
+          "content_type": "application/json",
+          "body": {
+            "name": "zdata/apps@s"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "snap_clone_hostd_err",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "cannot do it: dataset is busy"
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/zfs/clone",
+          "content_type": "application/json",
+          "body": {
+            "name": "zdata/apps@s",
+            "target": "zdata/c"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "smart_test_hostd_err",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "cannot do it: dataset is busy"
+        }
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/smart/test",
+          "content_type": "application/json",
+          "body": {
+            "device": "ada0",
+            "type": "short"
+          }
+        }
+      ]
+    }
+  }
+]

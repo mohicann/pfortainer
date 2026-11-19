@@ -1,0 +1,50 @@
+[
+  {
+    "name": "nohostd_fs_create",
+    "snap": {
+      "status": 409,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "host agent unavailable (socket not found)"
+        }
+      }
+    }
+  },
+  {
+    "name": "nohostd_snap_create",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "host agent unavailable (socket not found)"
+        }
+      }
+    }
+  },
+  {
+    "name": "nohostd_smart",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "host agent unavailable (socket not found)"
+        }
+      }
+    }
+  }
+]

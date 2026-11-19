@@ -144,6 +144,10 @@ func BodyValue(h http.Header, body []byte, m *Masker) any {
 		return nil
 	}
 	ct := h.Get("Content-Type")
+	if strings.Contains(ct, "html") {
+		// 공백 정규화 뒤에 마스크(정렬 규칙이 태그 사이 공백에 영향받지 않게)
+		return m.Apply(NormHTML(string(body)))
+	}
 	text := m.Apply(string(body))
 	switch {
 	case strings.Contains(ct, "json") && !strings.Contains(ct, "ndjson"):
