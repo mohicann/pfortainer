@@ -1,0 +1,12 @@
+
+요청 213건(경로 71 × 3회), 차이 0건
+지연 A(Rust) p50 1.392489ms p95 657.348359ms max 1.10823663s / B(Go) p50 1.691734ms p95 654.244668ms max 1.108938795s
+느린 경로(A 기준 상위 8):
+  /appjail/audio                                               A 1.108s     B 1.109s
+  /appjail/audio                                               A 1.096s     B 1.096s
+  /appjail/audio                                               A 1.086s     B 1.086s
+  /appjail/pfortainer                                          A 1.067s     B 1.067s
+  /appjail/pfortainer                                          A 1.008s     B 1.009s
+  /appjail/cloudreve                                           A 1.003s     B 1.003s
+  /appjail/pfortainer                                          A 994ms      B 995ms
+  /appjail/cloudreve                                           A 969ms      B 969ms

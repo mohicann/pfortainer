@@ -1,0 +1,48 @@
+DIFF /smart?dev=ada3 (A 200 5274바이트, B 200 5274바이트) @2907
+  A: "  Always       -       0\n  7 Seek_Error_Rate         0x000f   089   060   045    Pre-fail  Always       -       714505686\n  9 Power_On_Hours          0x0032   097   097   000    Old_age   Always       -       3500\n 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail  "
+  B: "  Always       -       0\n  7 Seek_Error_Rate         0x000f   089   060   045    Pre-fail  Always       -       714505683\n  9 Power_On_Hours          0x0032   097   097   000    Old_age   Always       -       3500\n 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail  "
+DIFF /smart?dev=ada3 (A 200 5274바이트, B 200 5274바이트) @2907
+  A: "  Always       -       0\n  7 Seek_Error_Rate         0x000f   089   060   045    Pre-fail  Always       -       714505713\n  9 Power_On_Hours          0x0032   097   097   000    Old_age   Always       -       3500\n 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail  "
+  B: "  Always       -       0\n  7 Seek_Error_Rate         0x000f   089   060   045    Pre-fail  Always       -       714505716\n  9 Power_On_Hours          0x0032   097   097   000    Old_age   Always       -       3500\n 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail  "
+DIFF /smart?dev=ada4 (A 200 5454바이트, B 200 5454바이트) @4566
+  A: "ys       -       0\n240 Head_Flying_Hours       0x0000   100   253   000    Old_age   Offline      -       3832h+32m+49.320s\n241 Total_LBAs_Written      0x0000   100   253   000    Old_age   Offline      -       7067958328\n242 Total_LBAs_Read         0x0000   100   253   000    Ol"
+  B: "ys       -       0\n240 Head_Flying_Hours       0x0000   100   253   000    Old_age   Offline      -       3832h+32m+49.342s\n241 Total_LBAs_Written      0x0000   100   253   000    Old_age   Offline      -       7067958328\n242 Total_LBAs_Read         0x0000   100   253   000    Ol"
+DIFF /smart?dev=ada4 (A 200 5454바이트, B 200 5454바이트) @4566
+  A: "ys       -       0\n240 Head_Flying_Hours       0x0000   100   253   000    Old_age   Offline      -       3832h+32m+49.563s\n241 Total_LBAs_Written      0x0000   100   253   000    Old_age   Offline      -       7067958328\n242 Total_LBAs_Read         0x0000   100   253   000    Ol"
+  B: "ys       -       0\n240 Head_Flying_Hours       0x0000   100   253   000    Old_age   Offline      -       3832h+32m+49.586s\n241 Total_LBAs_Written      0x0000   100   253   000    Old_age   Offline      -       7067958328\n242 Total_LBAs_Read         0x0000   100   253   000    Ol"
+DIFF /smart?dev=ada3 (A 200 5274바이트, B 200 5274바이트) @2907
+  A: "  Always       -       0\n  7 Seek_Error_Rate         0x000f   089   060   045    Pre-fail  Always       -       714506145\n  9 Power_On_Hours          0x0032   097   097   000    Old_age   Always       -       3500\n 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail  "
+  B: "  Always       -       0\n  7 Seek_Error_Rate         0x000f   089   060   045    Pre-fail  Always       -       714506148\n  9 Power_On_Hours          0x0032   097   097   000    Old_age   Always       -       3500\n 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail  "
+DIFF /smart?dev=ada3 (A 200 5274바이트, B 200 5274바이트) @2907
+  A: "  Always       -       0\n  7 Seek_Error_Rate         0x000f   089   060   045    Pre-fail  Always       -       714506178\n  9 Power_On_Hours          0x0032   097   097   000    Old_age   Always       -       3500\n 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail  "
+  B: "  Always       -       0\n  7 Seek_Error_Rate         0x000f   089   060   045    Pre-fail  Always       -       714506175\n  9 Power_On_Hours          0x0032   097   097   000    Old_age   Always       -       3500\n 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail  "
+DIFF /smart?dev=ada4 (A 200 5454바이트, B 200 5454바이트) @4566
+  A: "ys       -       0\n240 Head_Flying_Hours       0x0000   100   253   000    Old_age   Offline      -       3832h+32m+55.645s\n241 Total_LBAs_Written      0x0000   100   253   000    Old_age   Offline      -       7067959656\n242 Total_LBAs_Read         0x0000   100   253   000    Ol"
+  B: "ys       -       0\n240 Head_Flying_Hours       0x0000   100   253   000    Old_age   Offline      -       3832h+32m+55.667s\n241 Total_LBAs_Written      0x0000   100   253   000    Old_age   Offline      -       7067959656\n242 Total_LBAs_Read         0x0000   100   253   000    Ol"
+DIFF /smart?dev=ada4 (A 200 5454바이트, B 200 5454바이트) @4565
+  A: "ays       -       0\n240 Head_Flying_Hours       0x0000   100   253   000    Old_age   Offline      -       3832h+32m+55.910s\n241 Total_LBAs_Written      0x0000   100   253   000    Old_age   Offline      -       7067959656\n242 Total_LBAs_Read         0x0000   100   253   000    O"
+  B: "ays       -       0\n240 Head_Flying_Hours       0x0000   100   253   000    Old_age   Offline      -       3832h+32m+55.888s\n241 Total_LBAs_Written      0x0000   100   253   000    Old_age   Offline      -       7067959656\n242 Total_LBAs_Read         0x0000   100   253   000    O"
+DIFF /smart?dev=ada3 (A 200 5274바이트, B 200 5274바이트) @2906
+  A: "l  Always       -       0\n  7 Seek_Error_Rate         0x000f   089   060   045    Pre-fail  Always       -       714506578\n  9 Power_On_Hours          0x0032   097   097   000    Old_age   Always       -       3500\n 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail "
+  B: "l  Always       -       0\n  7 Seek_Error_Rate         0x000f   089   060   045    Pre-fail  Always       -       714506581\n  9 Power_On_Hours          0x0032   097   097   000    Old_age   Always       -       3500\n 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail "
+DIFF /smart?dev=ada3 (A 200 5274바이트, B 200 5274바이트) @2906
+  A: "l  Always       -       0\n  7 Seek_Error_Rate         0x000f   089   060   045    Pre-fail  Always       -       714506608\n  9 Power_On_Hours          0x0032   097   097   000    Old_age   Always       -       3500\n 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail "
+  B: "l  Always       -       0\n  7 Seek_Error_Rate         0x000f   089   060   045    Pre-fail  Always       -       714506611\n  9 Power_On_Hours          0x0032   097   097   000    Old_age   Always       -       3500\n 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail "
+DIFF /smart?dev=ada4 (A 200 5454바이트, B 200 5454바이트) @4566
+  A: "ys       -       0\n240 Head_Flying_Hours       0x0000   100   253   000    Old_age   Offline      -       3832h+33m+02.158s\n241 Total_LBAs_Written      0x0000   100   253   000    Old_age   Offline      -       7067962680\n242 Total_LBAs_Read         0x0000   100   253   000    Ol"
+  B: "ys       -       0\n240 Head_Flying_Hours       0x0000   100   253   000    Old_age   Offline      -       3832h+33m+02.180s\n241 Total_LBAs_Written      0x0000   100   253   000    Old_age   Offline      -       7067962680\n242 Total_LBAs_Read         0x0000   100   253   000    Ol"
+DIFF /smart?dev=ada4 (A 200 5454바이트, B 200 5454바이트) @4566
+  A: "ys       -       0\n240 Head_Flying_Hours       0x0000   100   253   000    Old_age   Offline      -       3832h+33m+02.412s\n241 Total_LBAs_Written      0x0000   100   253   000    Old_age   Offline      -       7067962688\n242 Total_LBAs_Read         0x0000   100   253   000    Ol"
+  B: "ys       -       0\n240 Head_Flying_Hours       0x0000   100   253   000    Old_age   Offline      -       3832h+33m+02.434s\n241 Total_LBAs_Written      0x0000   100   253   000    Old_age   Offline      -       7067962688\n242 Total_LBAs_Read         0x0000   100   253   000    Ol"
+
+요청 150건(경로 50 × 3회), 차이 12건
+지연 A(Rust) p50 8.040138ms p95 973.179281ms max 1.12144499s / B(Go) p50 9.660158ms p95 914.693426ms max 1.054968597s
+느린 경로(A 기준 상위 8):
+  /appjail/detail?name=audio                                   A 1.121s     B 1.055s
+  /appjail/detail?name=audio                                   A 1.113s     B 1.048s
+  /appjail/detail?name=audio                                   A 1.098s     B 1.041s
+  /appjail/detail?name=pfortainer                              A 1.016s     B 959ms
+  /appjail/detail?name=pfortainer                              A 1.015s     B 960ms
+  /appjail/detail?name=pfortainer                              A 1.013s     B 963ms
+  /appjail/detail?name=cloudreve                               A 977ms      B 923ms
+  /appjail/detail?name=cloudreve                               A 974ms      B 919ms
