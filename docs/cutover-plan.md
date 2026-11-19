@@ -64,3 +64,8 @@
 - GitHub: mohicann/pfortainer-rs README에 보관 안내 후 **archive**, deploy key 2개 삭제(bastille·appjail), fbnas의 옛 키·SSH 별칭 삭제
 - 확인: 외부 `/login` 200·익명 API 302, 앱 ERROR 0, 메트릭 기록 계속, healthcheck healthy, RSS 앱 24.3MB·hostd 22.0MB
 - 남긴 것: 스냅샷 `zdata/apps@pre-go-pf-20261119-1543`(Rust 체크아웃·데이터 그대로 들어 있음 — 되돌릴 유일한 경로), `data/config.db.bak-20261118-112255`(사용자가 나중에 지우기로 한 것)
+
+## 재부팅 검증 (2026-11-19 16:02, 사용자 요청)
+- `shutdown -r now` 16:02:55 → SSH 16:04:20(약 85초) → pfortainer `/login` 16:04:48 응답
+- hostd(Go)가 jail보다 먼저 떠 소켓 재생성(16:04:23), jail 안에서 hostd·podman 소켓 보임, 앱(Go) 메트릭 360개 복원·기록 재개, ERROR 0
+- LAN·tailnet 11000 200, 익명 API 302, appjail healthcheck healthy(16:07, start_period 뒤). audio 8080·cloudreve 3040·immich 2283 모두 200, 풀 3개 ONLINE
