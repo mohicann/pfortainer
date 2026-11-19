@@ -81,7 +81,15 @@ type Hostd struct {
 // StartHostd: shim을 PATH 맨 앞(유일)에 두고 hostd를 띄운다.
 func StartHostd(t testing.TB, rules map[string]ShimRule) *Hostd {
 	t.Helper()
-	bin := requireBin(t)
+	return StartHostdBin(t, "", rules)
+}
+
+// StartHostdBin: 바이너리를 지정해 hostd를 띄운다(빈 문자열이면 SUT_BIN).
+func StartHostdBin(t testing.TB, bin string, rules map[string]ShimRule) *Hostd {
+	t.Helper()
+	if bin == "" {
+		bin = requireBin(t)
+	}
 	shim := buildShim(t)
 	dir := ShortTempDir(t)
 	hd := &Hostd{t: t, Dir: dir, Root: filepath.Join(dir, "root"), Sock: filepath.Join(dir, "h.sock"), ShimDir: filepath.Join(dir, "shim"), rules: map[string]ShimRule{}, logs: &safeBuf{}}

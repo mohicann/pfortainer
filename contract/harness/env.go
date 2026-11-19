@@ -56,3 +56,12 @@ func requireBin(t testing.TB) string {
 	}
 	return bin
 }
+
+// OtherBin: 호환 테스트(P7)의 상대 구현. 기본은 Rust(→ Rust↔Rust로도 녹색이어야 함).
+// Go 구현이 생기면 SUT_BIN=Go, OTHER_BIN=Rust(또는 반대)로 교차 실행한다.
+func OtherBin() string {
+	if v := os.Getenv("OTHER_BIN"); v != "" {
+		return v
+	}
+	return RustBin()
+}

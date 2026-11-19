@@ -46,6 +46,8 @@ audio-server와 다른 점:
 
 ## 3. 계약 테스트 설계 (`contract/`, Go 저장소 안)
 
+> **2026-11-19 P0~P7 완료** — 실제 구현·결과·KNOWN-BUG는 [contract-tests.md](contract-tests.md). 아래는 처음 설계.
+
 ### 3.1 하네스
 ```
 contract/harness/

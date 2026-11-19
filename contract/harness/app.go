@@ -26,6 +26,8 @@ type AppOpts struct {
 	NoPodman    bool              // Podman 소켓을 만들지 않음
 	BeforeStart func(a *App)      // DB 사전 작성 등(기동 전)
 	Scheduler   bool              // 스케줄러 켜기(기본 끔)
+	HostdSocket string            // 가짜 대신 실제 hostd 소켓에 연결(P7)
+	Bin         string            // 앱 바이너리(기본 SUT_BIN)
 }
 
 // App: 실행 중인 앱 인스턴스.
@@ -126,6 +128,9 @@ func mergeEnv(base []string, extra map[string]string) []string {
 func StartApp(t testing.TB, opts AppOpts) *App {
 	t.Helper()
 	bin := requireBin(t)
+	if opts.Bin != "" {
+		bin = opts.Bin
+	}
 	dir := ShortTempDir(t)
 	a := &App{t: t, Dir: dir, Root: filepath.Join(dir, "root"), logs: &safeBuf{}}
 	os.MkdirAll(a.Root, 0o755)
@@ -135,7 +140,9 @@ func StartApp(t testing.TB, opts AppOpts) *App {
 	a.MetricsDB = filepath.Join(dir, "metrics.db")
 	hsock := filepath.Join(dir, "h.sock")
 	psock := filepath.Join(dir, "p.sock")
-	if !opts.NoHostd {
+	if opts.HostdSocket != "" {
+		hsock = opts.HostdSocket
+	} else if !opts.NoHostd {
 		a.Hostd = NewFakeSock(t, hsock, HostdDefault)
 	}
 	if !opts.NoPodman {
