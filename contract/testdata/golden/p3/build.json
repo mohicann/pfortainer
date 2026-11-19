@@ -1,0 +1,272 @@
+[
+  {
+    "name": "ok_with_tag",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/x-ndjson"
+        ],
+        "X-Accel-Buffering": [
+          "no"
+        ]
+      },
+      "body": "{\"line\":\"STEP 1/2: FROM alpine\",\"type\":\"log\"}\n{\"line\":\"STEP 2/2: RUN echo hi\",\"type\":\"log\"}\n{\"line\":\"hi\",\"type\":\"log\"}\n{\"line\":\"abc: Pulling fs layer [==\u003e   ] 1MB/3MB\",\"type\":\"log\"}\n{\"line\":\"Done\",\"type\":\"log\"}\n{\"line\":\"split across frames\",\"type\":\"log\"}\n{\"line\":\"COMMIT myimg\",\"type\":\"log\"}\n{\"type\":\"done\",\"line\":\"0\"}\n",
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/build?t=my%2Fimg%3A1%20%2B%20x",
+          "content_type": "application/x-tar",
+          "body": {
+            "tar": [
+              {
+                "content": "FROM alpine\nRUN echo hi\n",
+                "format": "GNU",
+                "gid": 0,
+                "gname": "",
+                "mode": "644",
+                "name": "Dockerfile",
+                "size": 24,
+                "typeflag": "0",
+                "uid": 0,
+                "uname": ""
+              }
+            ],
+            "total_len": 2048
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "ok_no_tag",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/x-ndjson"
+        ],
+        "X-Accel-Buffering": [
+          "no"
+        ]
+      },
+      "body": "{\"line\":\"STEP 1/2: FROM alpine\",\"type\":\"log\"}\n{\"line\":\"STEP 2/2: RUN echo hi\",\"type\":\"log\"}\n{\"line\":\"hi\",\"type\":\"log\"}\n{\"line\":\"abc: Pulling fs layer [==\u003e   ] 1MB/3MB\",\"type\":\"log\"}\n{\"line\":\"Done\",\"type\":\"log\"}\n{\"line\":\"split across frames\",\"type\":\"log\"}\n{\"line\":\"COMMIT myimg\",\"type\":\"log\"}\n{\"type\":\"done\",\"line\":\"0\"}\n",
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/build",
+          "content_type": "application/x-tar",
+          "body": {
+            "tar": [
+              {
+                "content": "FROM alpine\nRUN echo hi\n",
+                "format": "GNU",
+                "gid": 0,
+                "gname": "",
+                "mode": "644",
+                "name": "Dockerfile",
+                "size": 24,
+                "typeflag": "0",
+                "uid": 0,
+                "uname": ""
+              }
+            ],
+            "total_len": 2048
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "dockerfile_as_file",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/x-ndjson"
+        ],
+        "X-Accel-Buffering": [
+          "no"
+        ]
+      },
+      "body": "{\"line\":\"STEP 1/2: FROM alpine\",\"type\":\"log\"}\n{\"line\":\"STEP 2/2: RUN echo hi\",\"type\":\"log\"}\n{\"line\":\"hi\",\"type\":\"log\"}\n{\"line\":\"abc: Pulling fs layer [==\u003e   ] 1MB/3MB\",\"type\":\"log\"}\n{\"line\":\"Done\",\"type\":\"log\"}\n{\"line\":\"split across frames\",\"type\":\"log\"}\n{\"line\":\"COMMIT myimg\",\"type\":\"log\"}\n{\"type\":\"done\",\"line\":\"0\"}\n",
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/build",
+          "content_type": "application/x-tar",
+          "body": {
+            "tar": [
+              {
+                "content": "FROM busybox\n",
+                "format": "GNU",
+                "gid": 0,
+                "gname": "",
+                "mode": "644",
+                "name": "Dockerfile",
+                "size": 13,
+                "typeflag": "0",
+                "uid": 0,
+                "uname": ""
+              }
+            ],
+            "total_len": 2048
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "empty_dockerfile",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "Dockerfile 내용이 없습니다"
+    }
+  },
+  {
+    "name": "urlencoded_body",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "Invalid `boundary` for `multipart/form-data` request"
+    }
+  },
+  {
+    "name": "bad_multipart",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "요청 파싱 실패: Error parsing `multipart/form-data` request"
+    }
+  },
+  {
+    "name": "stream_error",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/x-ndjson"
+        ],
+        "X-Accel-Buffering": [
+          "no"
+        ]
+      },
+      "body": "{\"line\":\"STEP 1/1: FROM nope\",\"type\":\"log\"}\n{\"line\":\"pull failed: not found\",\"type\":\"error\"}\n{\"line\":\"after error\",\"type\":\"log\"}\n{\"line\":\"podman: pull failed: not found\",\"type\":\"error\"}\n{\"type\":\"done\",\"line\":\"1\"}\n",
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/build",
+          "content_type": "application/x-tar",
+          "body": {
+            "tar": [
+              {
+                "content": "FROM alpine\nRUN echo hi\n",
+                "format": "GNU",
+                "gid": 0,
+                "gname": "",
+                "mode": "644",
+                "name": "Dockerfile",
+                "size": 24,
+                "typeflag": "0",
+                "uid": 0,
+                "uname": ""
+              }
+            ],
+            "total_len": 2048
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "stream_garbage",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/x-ndjson"
+        ],
+        "X-Accel-Buffering": [
+          "no"
+        ]
+      },
+      "body": "{\"line\":\"ok\",\"type\":\"log\"}\n{\"line\":\"podman: podman build 스트림 오류: expected value at line 1 column 1\",\"type\":\"error\"}\n{\"type\":\"done\",\"line\":\"1\"}\n",
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/build",
+          "content_type": "application/x-tar",
+          "body": {
+            "tar": [
+              {
+                "content": "FROM alpine\nRUN echo hi\n",
+                "format": "GNU",
+                "gid": 0,
+                "gname": "",
+                "mode": "644",
+                "name": "Dockerfile",
+                "size": 24,
+                "typeflag": "0",
+                "uid": 0,
+                "uname": ""
+              }
+            ],
+            "total_len": 2048
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "http_500",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/x-ndjson"
+        ],
+        "X-Accel-Buffering": [
+          "no"
+        ]
+      },
+      "body": "{\"line\":\"podman: podman build 실패 (HTTP 500): {\\\"message\\\":\\\"build exploded\\\"}\",\"type\":\"error\"}\n{\"type\":\"done\",\"line\":\"1\"}\n",
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/build",
+          "content_type": "application/x-tar",
+          "body": {
+            "tar": [
+              {
+                "content": "FROM alpine\nRUN echo hi\n",
+                "format": "GNU",
+                "gid": 0,
+                "gname": "",
+                "mode": "644",
+                "name": "Dockerfile",
+                "size": 24,
+                "typeflag": "0",
+                "uid": 0,
+                "uname": ""
+              }
+            ],
+            "total_len": 2048
+          }
+        }
+      ]
+    }
+  }
+]

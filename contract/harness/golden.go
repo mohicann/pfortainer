@@ -47,7 +47,10 @@ func Golden(t testing.TB, name string, v any) {
 		t.Fatalf("골든 없음 %s (Rust로 -update 먼저): %v\n--- got ---\n%s", p, err, got)
 	}
 	if string(want) != string(got) {
-		t.Errorf("골든 불일치 %s\n%s", name, LineDiff(string(want), string(got)))
+		gp := filepath.Join(os.TempDir(), "pf-golden-got", name+".json")
+		os.MkdirAll(filepath.Dir(gp), 0o755)
+		os.WriteFile(gp, got, 0o644)
+		t.Errorf("골든 불일치 %s (받은 값: %s)\n%s", name, gp, LineDiff(string(want), string(got)))
 	}
 }
 

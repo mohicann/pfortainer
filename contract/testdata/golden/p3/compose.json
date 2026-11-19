@@ -1,0 +1,118 @@
+[
+  {
+    "name": "ok",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/x-ndjson"
+        ],
+        "X-Accel-Buffering": [
+          "no"
+        ]
+      },
+      "body": "{\"type\":\"log\",\"line\":\"podman-compose version 1\"}\n{\"type\":\"log\",\"line\":\"creating web\"}\n{\"type\":\"done\",\"line\":\"0\"}\n",
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/compose-up",
+          "content_type": "text/plain",
+          "body": "services:\n  web:\n    image: nginx\n"
+        }
+      ]
+    }
+  },
+  {
+    "name": "compose_as_file",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/x-ndjson"
+        ],
+        "X-Accel-Buffering": [
+          "no"
+        ]
+      },
+      "body": "{\"type\":\"log\",\"line\":\"podman-compose version 1\"}\n{\"type\":\"log\",\"line\":\"creating web\"}\n{\"type\":\"done\",\"line\":\"0\"}\n",
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/compose-up",
+          "content_type": "text/plain",
+          "body": "services: {}\n"
+        }
+      ]
+    }
+  },
+  {
+    "name": "empty",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "docker-compose.yml 내용이 없습니다"
+    }
+  },
+  {
+    "name": "no_field",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "docker-compose.yml 내용이 없습니다"
+    }
+  },
+  {
+    "name": "hostd_500",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/x-ndjson"
+        ],
+        "X-Accel-Buffering": [
+          "no"
+        ]
+      },
+      "body": "{\"line\":\"hostd 연결 실패: 500 Internal Server Error: podman-compose not installed\",\"type\":\"error\"}\n{\"line\":\"1\",\"type\":\"done\"}\n",
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/compose-up",
+          "content_type": "text/plain",
+          "body": "services:\n  web:\n    image: nginx\n"
+        }
+      ]
+    }
+  },
+  {
+    "name": "hostd_400_empty",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/x-ndjson"
+        ],
+        "X-Accel-Buffering": [
+          "no"
+        ]
+      },
+      "body": "{\"line\":\"hostd 연결 실패: 400 Bad Request: \",\"type\":\"error\"}\n{\"line\":\"1\",\"type\":\"done\"}\n",
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/compose-up",
+          "content_type": "text/plain",
+          "body": "services:\n  web:\n    image: nginx\n"
+        }
+      ]
+    }
+  }
+]

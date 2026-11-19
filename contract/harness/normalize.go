@@ -26,6 +26,44 @@ var snapHeaders = []string{"Content-Type", "Location", "Set-Cookie", "Allow", "C
 type Masker struct {
 	pairs []struct{ re *regexp.Regexp; rep string }
 	lits  []struct{ from, to string }
+	funcs []func(string) string
+}
+
+// Func: 임의 후처리(정규식으로 안 되는 정렬 등).
+func (m *Masker) Func(f func(string) string) *Masker {
+	m.funcs = append(m.funcs, f)
+	return m
+}
+
+// SortAdjacent: 정규식에 맞는 조각이 연달아 나오는 구간을 정렬한다
+// (Rust HashMap 순회 순서처럼 정해지지 않은 순서를 비교에서 뺄 때).
+func SortAdjacent(pattern string) func(string) string {
+	re := regexp.MustCompile(pattern)
+	return func(s string) string {
+		locs := re.FindAllStringIndex(s, -1)
+		if len(locs) < 2 {
+			return s
+		}
+		var b strings.Builder
+		last := 0
+		for i := 0; i < len(locs); {
+			j := i
+			for j+1 < len(locs) && locs[j+1][0] == locs[j][1] {
+				j++
+			}
+			b.WriteString(s[last:locs[i][0]])
+			parts := make([]string, 0, j-i+1)
+			for k := i; k <= j; k++ {
+				parts = append(parts, s[locs[k][0]:locs[k][1]])
+			}
+			sort.Strings(parts)
+			b.WriteString(strings.Join(parts, ""))
+			last = locs[j][1]
+			i = j + 1
+		}
+		b.WriteString(s[last:])
+		return b.String()
+	}
 }
 
 func (m *Masker) Lit(from, to string) *Masker {
@@ -52,6 +90,9 @@ func (m *Masker) Apply(s string) string {
 	}
 	for _, p := range m.pairs {
 		s = p.re.ReplaceAllString(s, p.rep)
+	}
+	for _, f := range m.funcs {
+		s = f(s)
 	}
 	return s
 }

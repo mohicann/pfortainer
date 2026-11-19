@@ -72,7 +72,9 @@ func (c *Client) Do(t testing.TB, r Req) *Resp {
 	start := time.Now()
 	resp, err := c.hc.Do(req)
 	if err != nil {
-		t.Fatalf("%s %s: %v", r.Method, r.Path, err)
+		// 서버가 응답 없이 연결을 끊은 경우(핸들러 panic 등) — 계약의 일부로 기록한다.
+		t.Logf("%s %s: 전송 오류 %v", r.Method, r.Path, err)
+		return &Resp{Status: 0, Header: http.Header{}, Body: []byte("<connection closed without response>"), Elapsed: time.Since(start)}
 	}
 	defer resp.Body.Close()
 	b, _ := io.ReadAll(resp.Body)

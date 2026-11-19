@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "headers": {
+    "Content-Type": [
+      "application/x-ndjson"
+    ],
+    "X-Accel-Buffering": [
+      "no"
+    ]
+  },
+  "body": "{\"line\":\"podman-compose 실행 실패: No such file or directory (os error 2)\",\"type\":\"error\"}\n{\"line\":\"1\",\"type\":\"done\"}\n"
+}

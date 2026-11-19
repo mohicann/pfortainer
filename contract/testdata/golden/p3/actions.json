@@ -1,0 +1,338 @@
+[
+  {
+    "name": "start",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/containers/abc/start"
+        }
+      ]
+    }
+  },
+  {
+    "name": "stop",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/containers/abc/stop"
+        }
+      ]
+    }
+  },
+  {
+    "name": "restart",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/containers/abc/restart"
+        }
+      ]
+    }
+  },
+  {
+    "name": "kill",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/containers/abc/kill"
+        }
+      ]
+    }
+  },
+  {
+    "name": "pause",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/containers/abc/pause"
+        }
+      ]
+    }
+  },
+  {
+    "name": "resume",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/containers/abc/unpause"
+        }
+      ]
+    }
+  },
+  {
+    "name": "remove",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "podman": [
+        {
+          "method": "DELETE",
+          "path": "/containers/abc"
+        }
+      ]
+    }
+  },
+  {
+    "name": "unpause",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "알 수 없는 작업입니다."
+        }
+      }
+    }
+  },
+  {
+    "name": "bogus",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "알 수 없는 작업입니다."
+        }
+      }
+    }
+  },
+  {
+    "name": "start_304",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      },
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/containers/abc/start"
+        }
+      ]
+    }
+  },
+  {
+    "name": "start_404",
+    "snap": {
+      "status": 409,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "컨테이너를 찾을 수 없습니다."
+        }
+      },
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/containers/abc/start"
+        }
+      ]
+    }
+  },
+  {
+    "name": "start_409",
+    "snap": {
+      "status": 409,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "현재 상태에서는 이 작업을 수행할 수 없습니다: already running"
+        }
+      },
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/containers/abc/start"
+        }
+      ]
+    }
+  },
+  {
+    "name": "start_500_plain",
+    "snap": {
+      "status": 409,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "raw failure"
+        }
+      },
+      "podman": [
+        {
+          "method": "POST",
+          "path": "/containers/abc/start"
+        }
+      ]
+    }
+  },
+  {
+    "name": "remove_409",
+    "snap": {
+      "status": 409,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "실행 중인 컨테이너는 삭제할 수 없습니다. 먼저 정지(stop) 후 다시 시도해주세요."
+        }
+      },
+      "podman": [
+        {
+          "method": "DELETE",
+          "path": "/containers/abc"
+        }
+      ]
+    }
+  },
+  {
+    "name": "remove_500_empty_message",
+    "snap": {
+      "status": 409,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "error": "{\"message\":\"\",\"response\":500}"
+        }
+      },
+      "podman": [
+        {
+          "method": "DELETE",
+          "path": "/containers/abc"
+        }
+      ]
+    }
+  },
+  {
+    "name": "encoded_id",
+    "snap": {
+      "status": 0,
+      "body": "\u003cconnection closed without response\u003e"
+    }
+  },
+  {
+    "name": "get_method",
+    "snap": {
+      "status": 405,
+      "headers": {
+        "Allow": [
+          "POST"
+        ]
+      }
+    }
+  }
+]

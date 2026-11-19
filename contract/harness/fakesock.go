@@ -1,6 +1,9 @@
 package harness
 
 import (
+	"archive/tar"
+	"bytes"
+	"fmt"
 	"encoding/json"
 	"io"
 	"net"
@@ -79,7 +82,9 @@ func (f *FakeSock) Remove(key string) {
 func (f *FakeSock) serve(w http.ResponseWriter, r *http.Request) {
 	raw, _ := io.ReadAll(r.Body)
 	rec := Recorded{Method: r.Method, Path: r.RequestURI, ContentType: r.Header.Get("Content-Type")}
-	if len(raw) > 0 {
+	if strings.Contains(rec.ContentType, "x-tar") {
+		rec.Body = tarSummary(raw)
+	} else if len(raw) > 0 {
 		var v any
 		if json.Unmarshal(raw, &v) == nil {
 			rec.Body = v
@@ -159,4 +164,26 @@ func PodmanDefault(r *http.Request) Reply {
 	}
 	return Reply{Status: 404, ContentType: "application/json",
 		Body: `{"cause":"no such object","message":"fixture missing: ` + strings.ReplaceAll(r.RequestURI, `"`, `'`) + `","response":404}`}
+}
+
+// tarSummary: tar 본문을 비교 가능한 요약으로(mtime 제외).
+func tarSummary(raw []byte) any {
+	tr := tar.NewReader(bytes.NewReader(raw))
+	var out []map[string]any
+	for {
+		hd, err := tr.Next()
+		if err != nil {
+			if err.Error() != "EOF" {
+				out = append(out, map[string]any{"error": err.Error()})
+			}
+			break
+		}
+		b, _ := io.ReadAll(tr)
+		out = append(out, map[string]any{
+			"name": hd.Name, "size": hd.Size, "mode": fmt.Sprintf("%o", hd.Mode),
+			"typeflag": string(hd.Typeflag), "format": hd.Format.String(), "content": string(b),
+			"uid": hd.Uid, "gid": hd.Gid, "uname": hd.Uname, "gname": hd.Gname,
+		})
+	}
+	return map[string]any{"tar": out, "total_len": len(raw)}
 }
