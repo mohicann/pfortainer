@@ -34,3 +34,14 @@
 ## 정리 (B 뒤 2주, 확인받고)
 - Rust 바이너리·`.rust-pre-go`·`/tmp/pfortainer.rc.pre-go` 삭제, jail에서 rust 패키지 제거 여부, pfortainer-rs 저장소 archive, 옛 deploy key 정리
 - go2를 main으로 병합
+
+## 단계 A 실행 기록
+- **2026-11-19 15:43 fbnas 앱이 Go(99f6d5d, `/opt/pfortainer/bin/pfortainer`)로 운영 중.**
+- 기준선: 스냅샷 `zdata/apps@pre-go-pf-20261119-1543`, Rust 바이너리 `target/release/pfortainer.rust-pre-go`(sha256 4e92835b…, 원본과 같음)
+- 확인: 재시작 직후 RSS 18.8MB(Rust 22.8MB), 로그 ERROR 0(로그의 WARN 3줄은 11-17 Rust 때 것), 메트릭 WAL 5초마다 갱신,
+  외부(Mac)에서 `/login` 200·익명 `/api/files/list` 302·`/nope` 404, appjail healthcheck healthy
+- 롤백: `appjail cmd jexec pfortainer sh -c 'rm /usr/local/etc/pfortainer.bin && service pfortainer restart'`
+
+| 시각 | RSS | ERROR | 메모 |
+|---|---|---|---|
+| 11-19 15:44 | 18.8MB | 0 | 전환 직후 |
