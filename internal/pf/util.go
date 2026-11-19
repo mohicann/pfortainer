@@ -1,8 +1,11 @@
 package pf
 
 import (
+	"errors"
 	"net/url"
+	"os"
 	"strings"
+	"unicode/utf8"
 )
 
 func contains(s, sub string) bool { return strings.Contains(s, sub) }
@@ -22,3 +25,18 @@ func urlenc(s string) string {
 }
 
 var _ = url.QueryEscape
+
+func trimSpace(s string) string { return strings.TrimSpace(s) }
+
+func readFileString(p string) (string, error) {
+	b, err := os.ReadFile(p)
+	if err != nil {
+		return "", err
+	}
+	if !utf8.Valid(b) {
+		return "", &os.PathError{Op: "read", Path: p, Err: errInvalidUTF8}
+	}
+	return string(b), nil
+}
+
+var errInvalidUTF8 = errors.New("stream did not contain valid UTF-8")

@@ -731,3 +731,9 @@ func (c *ConfigDB) DueSchedules() ([]DbSchedule, error) {
 	}
 	return out, nil
 }
+
+func (c *ConfigDB) PruneAlertHistory(older time.Duration) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.db.Exec("DELETE FROM alert_history WHERE fired_at < ?", time.Now().Add(-older).Unix())
+}

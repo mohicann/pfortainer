@@ -38,6 +38,12 @@ func enc(b *strings.Builder, v reflect.Value) {
 		b.WriteString("null")
 		return
 	}
+	if v.CanInterface() {
+		if sj, ok := v.Interface().(interface{ SerdeJSON() string }); ok {
+			b.WriteString(sj.SerdeJSON())
+			return
+		}
+	}
 	switch x := v.Interface().(type) {
 	case RawJSON:
 		b.WriteString(string(x))
@@ -219,3 +225,6 @@ func normNumber(n JNumber) string {
 	f, _ := strconv.ParseFloat(n.Raw, 64)
 	return RyuF64(f)
 }
+
+// Float: 숫자 값.
+func (n JNumber) Float() float64 { f, _ := strconv.ParseFloat(n.Raw, 64); return f }
