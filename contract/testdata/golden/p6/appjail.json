@@ -1,0 +1,141 @@
+[
+  {
+    "name": "start",
+    "req": "POST /appjail/start {\"name\":\"audio\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "output": "[00:00:01] [ info  ] [audio] Starting audio..."
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "appjail",
+        "args": [
+          "start",
+          "audio"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "stop",
+    "req": "POST /appjail/stop {\"name\":\"audio\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "output": ""
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "appjail",
+        "args": [
+          "stop",
+          "audio"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "restart",
+    "req": "POST /appjail/restart {\"name\":\"audio\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "output": ""
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "appjail",
+        "args": [
+          "restart",
+          "audio"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "start_unknown",
+    "req": "POST /appjail/start {\"name\":\"nope\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "unknown jail"
+    }
+  },
+  {
+    "name": "start_bad_name",
+    "req": "POST /appjail/start {\"name\":\"../audio\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "unknown jail"
+    }
+  },
+  {
+    "name": "start_dash",
+    "req": "POST /appjail/start {\"name\":\"-x\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "unknown jail"
+    }
+  },
+  {
+    "name": "start_fails",
+    "req": "POST /appjail/start {\"name\":\"audio\"}",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "out[ error ] audio is already running"
+    },
+    "calls": [
+      {
+        "cmd": "appjail",
+        "args": [
+          "start",
+          "audio"
+        ]
+      }
+    ]
+  }
+]

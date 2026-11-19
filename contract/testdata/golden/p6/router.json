@@ -1,0 +1,72 @@
+[
+  {
+    "name": "unknown",
+    "req": "GET /nope ",
+    "snap": {
+      "status": 404
+    }
+  },
+  {
+    "name": "wrong_method",
+    "req": "GET /zfs/snapshot ",
+    "snap": {
+      "status": 405,
+      "headers": {
+        "Allow": [
+          "POST"
+        ]
+      }
+    }
+  },
+  {
+    "name": "wrong_method_post",
+    "req": "POST /zfs-list {}",
+    "snap": {
+      "status": 405,
+      "headers": {
+        "Allow": [
+          "GET,HEAD"
+        ]
+      }
+    }
+  },
+  {
+    "name": "bad_json",
+    "req": "POST /zfs/snapshot {",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "Failed to parse the request body as JSON: EOF while parsing an object at line 1 column 1"
+    }
+  },
+  {
+    "name": "json_wrong_type",
+    "req": "POST /zfs/snapshot {\"dataset\":1}",
+    "snap": {
+      "status": 422,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "Failed to deserialize the JSON body into the target type: dataset: invalid type: integer `1`, expected a string at line 1 column 12"
+    }
+  },
+  {
+    "name": "no_body",
+    "req": "POST /zfs/snapshot ",
+    "snap": {
+      "status": 415,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "Expected request with `Content-Type: application/json`"
+    }
+  }
+]

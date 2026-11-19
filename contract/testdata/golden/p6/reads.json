@@ -1,0 +1,1424 @@
+[
+  {
+    "name": "/sockstat",
+    "req": "GET /sockstat ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "USER     COMMAND      PID FD PROTO   LOCAL ADDRESS         FOREIGN ADDRESS      \nmohicann sshd-sessi 33936  9 stream  (not connected)       ??                   \nroot     sshd-sessi 33934  9 stream  (not connected)       ??                   \nmohicann sshd-sessi 49804  9 stream  (not connected)       ??                   \nroot     sshd-sessi 49802  9 stream  (not connected)       ??                   \nroot     pfortainer 14997  9 stream  /var/run/pfortainer-r ??                   \nroot     syslogd    26799  7 dgram   /var/run/log           \u003c-                  \nroot     syslogd    26799  9 dgram   /var/run/logpriv      ??                   \n1000     node       26361 41 tcp4    *:2283                *:*                  \n770      postgres   19978  8 stream  /tmp/.s.PGSQL.5432    ??                   \nroot     syslogd    19899  7 dgram   /var/run/log           \u003c-                  \nroot     syslogd    19899  9 dgram   /var/run/logpriv      ??                   \nroot     syslogd    13188  7 dgram   /var/run/log           \u003c-                  \nroot     syslogd    13188  9 dgram   /var/run/logpriv      ??                   \n1000     python3.12 12744  3 tcp4    *:3003                *:*                  \nroot     sshd        5345  6 tcp6    *:22                  *:*                  \nroot     sshd        5345  7 tcp4    *:22                  *:*                  \nroot     podman      5232  6 stream  /var/run/podman/podma ??                   \n1000     node        5209 82 tcp4    *:58846               *:*                  \nroot     conmon      5203  3 seqpack (not connected)       ??                   \nroot     conmon      5203 13 seqpack attach                ??                   \n1000     redis-serv  5179  6 tcp4    *:6379                *:*                  \nroot     conmon      5177  3 seqpack (not connected)       ??                   \nroot     conmon      5177 13 seqpack attach                ??                   \n1000     python3.12  5165  3 tcp4    *:3003                *:*                  \n1000     python3.12  5165  8 stream  /config/.gunicorn/gun ??                   \nroot     conmon      5163  3 seqpack (not connected)       ??                   \nroot     conmon      5163 13 seqpack attach                ??                   \n1000     postgres    5142  5 tcp6    *:5432                *:*                  \n1000     postgres    5142  6 tcp4    *:5432                *:*                  \n1000     postgres    5142  7 stream  /tmp/.s.PGSQL.5432    ??                   \nroot     conmon      5140  3 seqpack (not connected)       ??                   \nroot     conmon      5140 13 seqpack attach                ??                   \nntpd     ntpd        5037 20 udp6    *:123                 *:*                  \nntpd     ntpd        5037 21 udp4    *:123                 *:*                  \nntpd     ntpd        5037 22 udp6    [fe80::aab8:e0ff:fe03 *:*                  \nntpd     ntpd        5037 23 udp4    192.168.0.110:123     *:*                  \nntpd     ntpd        5037 24 udp6    [::1]:123             *:*                  \nntpd     ntpd        5037 25 udp6    [fe80::1%lo0]:123     *:*                  \nntpd     ntpd        5037 26 udp4    127.0.0.1:123         *:*                  \nntpd     ntpd        5037 30 udp4    100.70.120.35:123     *:*                  \nntpd     ntpd        5037 31 udp6    [fd7a:115c:a1e0::fd2b *:*                  \nntpd     ntpd        5037 32 udp4    10.0.0.1:123          *:*                  \nroot     syslogd     4928  6 udp6    *:514                 *:*                  \nroot     syslogd     4928  7 udp4    *:514                 *:*                  \nroot     syslogd     4928  8 dgram   /var/run/log           \u003c-                  \nroot     syslogd     4928 10 dgram   /var/run/logpriv      ??                   \nroot     tailscaled  4729  8 stream  /var/run/tailscale/ta ??                   \nroot     tailscaled  4729 10 udp6    *:41641               *:*                  \nroot     tailscaled  4729 11 udp4    *:41641               *:*                  \nroot     devd        4554  4 stream  /var/run/devd.pipe    ??                   \nroot     devd        4554  5 seqpack /var/run/devd.seqpack ??                   \n"
+    },
+    "calls": [
+      {
+        "cmd": "sockstat",
+        "args": [
+          "-l"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/jls",
+    "req": "GET /jls ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "1 17f4688b30722916e8a38fece386fa3bded5c39e9f8d9019bc40349ede0a8669\n2 b8356d950da1a25e160b7603963aef39324dc3d206bd036dc023b3256da74d2d\n3 8bff8877ef462a8430daebeb80076ba6447df72cc63e55c9a21d9dca9aaf6169\n4 e51279bf8257bf7fdd33ae438392393b00c756e653cde97e395246f605feb954\n5 audio\n6 cloudreve\n7 pfortainer\n"
+    },
+    "calls": [
+      {
+        "cmd": "jls",
+        "args": [
+          "jid",
+          "name"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/ps?jid=5",
+    "req": "GET /ps?jid=5 ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "13188\n13191\n13192\n13297\n13302\n13347\n13348\n13349\n13350\n13351\n13352\n13353\n13365\n13366\n"
+    },
+    "calls": [
+      {
+        "cmd": "ps",
+        "args": [
+          "-J",
+          "5",
+          "-o",
+          "pid="
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/ps?jid=abc",
+    "req": "GET /ps?jid=abc ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      }
+    },
+    "calls": [
+      {
+        "cmd": "ps",
+        "args": [
+          "-J",
+          "abc",
+          "-o",
+          "pid="
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/ps",
+    "req": "GET /ps ",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "jid required"
+    }
+  },
+  {
+    "name": "/zpool-status",
+    "req": "GET /zpool-status ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "  pool: zbak\n state: ONLINE\n  scan: scrub repaired 0B in 01:54:10 with 0 errors on Wed Nov 18 06:37:59 2026\nconfig:\n\n\tNAME        STATE     READ WRITE CKSUM\n\tzbak        ONLINE       0     0     0\n\t  ada0      ONLINE       0     0     0\n\nerrors: No known data errors\n\n  pool: zdata\n state: ONLINE\n  scan: scrub repaired 0B in 01:42:40 with 0 errors on Wed Nov 18 06:26:31 2026\nexpand: expanded raidz1-0 copied 1.80T in 02:22:08, on Tue Jun 30 20:17:31 2026\nconfig:\n\n\tNAME        STATE     READ WRITE CKSUM\n\tzdata       ONLINE       0     0     0\n\t  raidz1-0  ONLINE       0     0     0\n\t    ada1    ONLINE       0     0     0\n\t    ada4    ONLINE       0     0     0\n\t    ada3    ONLINE       0     0     0\n\t    ada2    ONLINE       0     0     0\n\nerrors: No known data errors\n\n  pool: zroot\n state: ONLINE\nconfig:\n\n\tNAME        STATE     READ WRITE CKSUM\n\tzroot       ONLINE       0     0     0\n\t  nda0p4    ONLINE       0     0     0\n\nerrors: No known data errors\n"
+    },
+    "calls": [
+      {
+        "cmd": "zpool",
+        "args": [
+          "status"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/zpool-list",
+    "req": "GET /zpool-list ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "zbak\t1992864825344\t946021474304\t1046843351040\tONLINE\nzdata\t15994458210304\t2060052234240\t13934405976064\tONLINE\nzroot\t124554051584\t2288332800\t122265718784\tONLINE\n"
+    },
+    "calls": [
+      {
+        "cmd": "zpool",
+        "args": [
+          "list",
+          "-H",
+          "-p",
+          "-o",
+          "name,size,alloc,free,health"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/zfs-list",
+    "req": "GET /zfs-list ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "zbak\tfilesystem\t946021474304\t985103196160\t114688\t/zbak\nzbak/apps\tfilesystem\t1597259776\t985103196160\t876232704\t/zbak/apps\nzbak/book-audio\tfilesystem\t366587187200\t985103196160\t366587015168\t/zbak/book-audio\nzbak/cloudreve\tfilesystem\t48844800\t985103196160\t48771072\t/zbak/cloudreve\nzbak/cloudreve-pgdata\tfilesystem\t24354816\t985103196160\t23441408\t/zbak/cloudreve-pgdata\nzbak/immich-apps\tfilesystem\t2206208000\t985103196160\t2205818880\t/zbak/immich-apps\nzbak/immich-pgdata-freebsd\tfilesystem\t1216438272\t985103196160\t1213460480\t/zbak/immich-pgdata-freebsd\nzbak/library-private-photo\tfilesystem\t574321799168\t985103196160\t570591227904\t/zbak/library-private-photo\nzdata\tfilesystem\t1372031128336\t9143097030896\t396818835600\t/zdata\nzdata/appjail\tfilesystem\t8228122672\t9143097030896\t8915104\t/usr/local/appjail\nzdata/appjail/components\tfilesystem\t151420368\t9143097030896\t130944\t/usr/local/appjail/cache/components\nzdata/appjail/components/amd64\tfilesystem\t151289424\t9143097030896\t130944\t/usr/local/appjail/cache/components/amd64\nzdata/appjail/components/amd64/15.1-RELEASE\tfilesystem\t151158480\t9143097030896\t130944\t/usr/local/appjail/cache/components/amd64/15.1-RELEASE\nzdata/appjail/components/amd64/15.1-RELEASE/default\tfilesystem\t151027536\t9143097030896\t151027536\t/usr/local/appjail/cache/components/amd64/15.1-RELEASE/default\nzdata/appjail/jails\tfilesystem\t7676253728\t9143097030896\t130944\t/usr/local/appjail/jails\nzdata/appjail/jails/audio\tfilesystem\t3836599184\t9143097030896\t327360\t/usr/local/appjail/jails/audio\nzdata/appjail/jails/audio/jail\tfilesystem\t3836271824\t9143097030896\t3836271824\t/usr/local/appjail/jails/audio/jail\nzdata/appjail/jails/cloudreve\tfilesystem\t1792552432\t9143097030896\t294624\t/usr/local/appjail/jails/cloudreve\nzdata/appjail/jails/cloudreve/jail\tfilesystem\t1792257808\t9143097030896\t1792257808\t/usr/local/appjail/jails/cloudreve/jail\nzdata/appjail/jails/pfortainer\tfilesystem\t2046971168\t9143097030896\t305536\t/usr/local/appjail/jails/pfortainer\nzdata/appjail/jails/pfortainer/jail\tfilesystem\t2046665632\t9143097030896\t2046665632\t/usr/local/appjail/jails/pfortainer/jail\nzdata/appjail/logs\tfilesystem\t2640704\t9143097030896\t130944\t/var/log/appjail\nzdata/appjail/logs/jails\tfilesystem\t2509760\t9143097030896\t130944\t/var/log/appjail/jails\nzdata/appjail/logs/jails/audio\tfilesystem\t834768\t9143097030896\t152768\t/var/log/appjail/jails/audio\nzdata/appjail/logs/jails/audio/console\tfilesystem\t136400\t9143097030896\t136400\t/var/log/appjail/jails/audio/console\nzdata/appjail/logs/jails/audio/healthcheckers\tfilesystem\t272800\t9143097030896\t272800\t/var/log/appjail/jails/audio/healthcheckers\nzdata/appjail/logs/jails/audio/startup-start\tfilesystem\t136400\t9143097030896\t136400\t/var/log/appjail/jails/audio/startup-start\nzdata/appjail/logs/jails/audio/startup-stop\tfilesystem\t136400\t9143097030896\t136400\t/var/log/appjail/jails/audio/startup-stop\nzdata/appjail/logs/jails/cloudreve\tfilesystem\t774752\t9143097030896\t152768\t/var/log/appjail/jails/cloudreve\nzdata/appjail/logs/jails/cloudreve/console\tfilesystem\t136400\t9143097030896\t136400\t/var/log/appjail/jails/cloudreve/console\nzdata/appjail/logs/jails/cloudreve/healthcheckers\tfilesystem\t212784\t9143097030896\t212784\t/var/log/appjail/jails/cloudreve/healthcheckers\nzdata/appjail/logs/jails/cloudreve/startup-start\tfilesystem\t136400\t9143097030896\t136400\t/var/log/appjail/jails/cloudreve/startup-start\nzdata/appjail/logs/jails/cloudreve/startup-stop\tfilesystem\t136400\t9143097030896\t136400\t/var/log/appjail/jails/cloudreve/startup-stop\nzdata/appjail/logs/jails/pfortainer\tfilesystem\t769296\t9143097030896\t152768\t/var/log/appjail/jails/pfortainer\nzdata/appjail/logs/jails/pfortainer/console\tfilesystem\t136400\t9143097030896\t136400\t/var/log/appjail/jails/pfortainer/console\nzdata/appjail/logs/jails/pfortainer/healthcheckers\tfilesystem\t207328\t9143097030896\t207328\t/var/log/appjail/jails/pfortainer/healthcheckers\nzdata/appjail/logs/jails/pfortainer/startup-start\tfilesystem\t136400\t9143097030896\t136400\t/var/log/appjail/jails/pfortainer/startup-start\nzdata/appjail/logs/jails/pfortainer/startup-stop\tfilesystem\t136400\t9143097030896\t136400\t/var/log/appjail/jails/pfortainer/startup-stop\nzdata/appjail/networks\tfilesystem\t267344\t9143097030896\t130944\t/usr/local/appjail/networks\nzdata/appjail/networks/ajnet\tfilesystem\t136400\t9143097030896\t136400\t/usr/local/appjail/networks/ajnet\nzdata/appjail/releases\tfilesystem\t388625424\t9143097030896\t130944\t/usr/local/appjail/releases\nzdata/appjail/releases/amd64\tfilesystem\t388494480\t9143097030896\t130944\t/usr/local/appjail/releases/amd64\nzdata/appjail/releases/amd64/15.1-RELEASE\tfilesystem\t388363536\t9143097030896\t130944\t/usr/local/appjail/releases/amd64/15.1-RELEASE\nzdata/appjail/releases/amd64/15.1-RELEASE/default\tfilesystem\t388232592\t9143097030896\t130944\t/usr/local/appjail/releases/amd64/15.1-RELEASE/default\nzdata/appjail/releases/amd64/15.1-RELEASE/default/release\tfilesystem\t388101648\t9143097030896\t388101648\t/usr/local/appjail/releases/amd64/15.1-RELEASE/default/release\nzdata/apps\tfilesystem\t4787356288\t9143097030896\t849199120\t/zdata/apps\nzdata/apps/cloudreve\tfilesystem\t75778384\t9143097030896\t44750112\t/zdata/apps/cloudreve\nzdata/apps/cloudreve/pgdata\tfilesystem\t30930064\t9143097030896\t29489680\t/zdata/apps/cloudreve/pgdata\nzdata/apps/immich\tfilesystem\t3253287312\t9143097030896\t2019685712\t/zdata/apps/immich\nzdata/apps/immich/pgdata-freebsd\tfilesystem\t1220256224\t9143097030896\t1214543792\t/zdata/apps/immich/pgdata-freebsd\nzdata/book-audio\tfilesystem\t345787765488\t9143097030896\t345787263536\t/zdata/book-audio\nzdata/containers\tfilesystem\t5387308960\t9143097030896\t26407040\t/var/db/containers\nzdata/containers/011c9e95535fe99afcf0620b810f030338f1a411840cdc87a0a6c4cfd05d8f95\tfilesystem\t120032\t9143097030896\t87055936\tlegacy\nzdata/containers/01329e34e6fe109f1b7fb4dbcc2718ac7c1d977390ddeaaffca0233f499a70ca\tfilesystem\t2162960272\t9143097030896\t2225131392\tlegacy\nzdata/containers/0366e6e84e90ca95670e64318dcb09f14e189962d3d76fe31936e8954e75a9e7\tfilesystem\t272800\t9143097030896\t2312956624\tlegacy\nzdata/containers/04ee7fe0ac9c9e1434032092699b894ab6ebea5745b30a4c907a9b1601dcb0e0\tfilesystem\t1018286016\t9143097030896\t1108391856\tlegacy\nzdata/containers/0514d0242221bd91e3825779697d6ea973869dccf081fd2006f365ab2d37db23\tfilesystem\t196416\t9143097030896\t1099143936\tlegacy\nzdata/containers/06df58797f449f57c78a498a391c14377f3ce207ccb477e1965f09ae09e8d940\tfilesystem\t207328\t9143097030896\t91780832\tlegacy\nzdata/containers/086a9b36c12b0b2ed743b091d31f062b90ef3aedc1eceda2f17b626d880ce3f6\tfilesystem\t158224\t9143097030896\t87055936\tlegacy\nzdata/containers/0bc6fb0d922f2577a6936248917ca2ca83e5d9c8f3b417f3c4676f911c3ece84\tfilesystem\t158224\t9143097030896\t91791744\tlegacy\nzdata/containers/11af960eba231bd8e799efee72bbdc3cbf040e9fe545a24907d88ed72328ffe9\tfilesystem\t229152\t9143097030896\t91737184\tlegacy\nzdata/containers/180ead7bf0a2f7d5d759c13a2a4f375287bc5a683201384e85b47acdc26ed9a1\tfilesystem\t229152\t9143097030896\t91737184\tlegacy\nzdata/containers/1b1ebd838f0db3aec9ec0a150cf51592e3327dde55c560bba7933f154219b93f\tfilesystem\t389007344\t9143097030896\t1891409696\tlegacy\nzdata/containers/21e72e1b5885ceb6c1ac342c19080480da411180113e3a23ef6d758e3af4ed38\tfilesystem\t120032\t9143097030896\t91737184\tlegacy\nzdata/containers/227a1ae92987b9f9b9d5b41501e501303e3a33de99b9f6e63680d46f4fd4ead1\tfilesystem\t196416\t9143097030896\t1099143936\tlegacy\nzdata/containers/24484a4f0e94e1762ce6d515ae296ae06c10656624f6804da090172ea06f7d88\tfilesystem\t190960\t9143097030896\t22593296\tlegacy\nzdata/containers/2536ee05ece821486f2e5072802a7097e657a49ff24a87edf8e8c035b807cafe\tfilesystem\t23155264\t9143097030896\t1099138480\tlegacy\nzdata/containers/3209a044c8abf02ebd5e40972520d409b1c56730669988c32dbde41e11b2f27a\tfilesystem\t261888\t9143097030896\t1891464256\tlegacy\nzdata/containers/320b2b7e66c0f0184b93cec908667e5f5631cea79c2a0ba03a12119d81104d18\tfilesystem\t196416\t9143097030896\t1108850160\tlegacy\nzdata/containers/3304fdaaf7a592e0542ddbf97b0d04d536a0f2207d0c3eacdca55517d461f9dd\tfilesystem\t158224\t9143097030896\t91791744\tlegacy\nzdata/containers/3e7cd765a1dbf6a259ec88534f983a140cecd57c5ae2e374ece342dd9e8ecd0f\tfilesystem\t169136\t9143097030896\t22593296\tlegacy\nzdata/containers/3f9ca59891406db2449b7700aca6aab8af8b9cf70cb38cf827c39c6b4ec181fc\tfilesystem\t86341200\t9143097030896\t91731728\tlegacy\nzdata/containers/4173ef5ae64cfe4204a098e7cf944c1bc9a1dd05693f216e11af6347d3460cbb\tfilesystem\t196416\t9143097030896\t91780832\tlegacy\nzdata/containers/42acdcf2df55852753f5b284197c47984dae9cf1559bbb311315e41305014d0c\tfilesystem\t365552\t9143097030896\t1891557008\tlegacy\nzdata/containers/4923726ea48e9e9aa89a99ab7863df318dba3b9161b8230812c57dab304dad3c\tfilesystem\t174592\t9143097030896\t91813568\tlegacy\nzdata/containers/492f00010e921515bbc26a5603f1d667daa51e8f418faed08138615becb2cfff\tfilesystem\t141856\t9143097030896\t87050480\tlegacy\nzdata/containers/4b58bf5e6982caf3ee283b0e926f51f23f19fefee4c3284e129378de9d1fb2ef\tfilesystem\t207328\t9143097030896\t1891409696\tlegacy\nzdata/containers/4ea733fae56f648ad953210ecb033e66f6b98cfdbdc2fb37f2358321ffe039c4\tfilesystem\t360096\t9143097030896\t2313033008\tlegacy\nzdata/containers/5b1376077d35d582358c1caf0d12eb8aa14db6c06c915112f22052af359e65d4\tfilesystem\t185504\t9143097030896\t91791744\tlegacy\nzdata/containers/617c68cacf286ab28eed6e872fbf50e14e8574f555ee4b42f52bf5a1a86cf383\tfilesystem\t174592\t9143097030896\t91813568\tlegacy\nzdata/containers/639b76725dd78efc34eed63dfdf7d5358abf9650576cec9a9c587494872909c0\tfilesystem\t24382864\t9143097030896\t87050480\tlegacy\nzdata/containers/6a73674495032c196dcc3f11ea04e8ae26560cda2036502c42eb635966efe5e2\tfilesystem\t250976\t9143097030896\t2312934800\tlegacy\nzdata/containers/6e166a8efcda17aa351ae4641e7b7530994d66c395bcd5d6128ef41f50707c30\tfilesystem\t158224\t9143097030896\t87055936\tlegacy\nzdata/containers/6ef7e4acc515162e9c6084eae334e3d40fbc9dc62bc65a8d5fadda0dd0954729\tfilesystem\t120032\t9143097030896\t91791744\tlegacy\nzdata/containers/74e85d8bb97e1e151325aee2f0d6ec276a4c40e49251c6830a4ed2bc644b275f\tfilesystem\t190960\t9143097030896\t22593296\tlegacy\nzdata/containers/756b5d9b03b3c849729993dfb000a579836830987e35c0a6985613f98c7dbbde\tfilesystem\t310992\t9143097030896\t2312945712\tlegacy\nzdata/containers/7d1e9ae22130fcd53a203ddf91ae8619f1fb7ce6115532ea75deb9170bbaba00\tfilesystem\t120032\t9143097030896\t91791744\tlegacy\nzdata/containers/823fd5c0d405e64bd65fe7e5be0c6bbec410d300dbcb3b5983ac5813a8f39140\tfilesystem\t196416\t9143097030896\t1108833792\tlegacy\nzdata/containers/84a6383741f3e54a7946bb2301d2b5afc3d64cadbbc84b5b2f81547761a5cfae\tfilesystem\t234608\t9143097030896\t1099143936\tlegacy\nzdata/containers/8d962a5fd89ed5911023f09c6dead5b561a8f7c62594b5b4798dfb7c5a7eb05f\tfilesystem\t174592\t9143097030896\t91791744\tlegacy\nzdata/containers/91cf2f8fdde722e5505bc18089aa796725d333bd763372e9d1978faf57e902f1\tfilesystem\t240064\t9143097030896\t1108861072\tlegacy\nzdata/containers/9518a29dfe22b566afda5488d22064e883680d60db4bdce9db7bb0e313ae7a54\tfilesystem\t310992\t9143097030896\t1108473696\tlegacy\nzdata/containers/9ed70271165aa952af716c35d9f618250afb4efaf55db8eb3d5d5848f711f22b\tfilesystem\t87999824\t9143097030896\t2312934800\tlegacy\nzdata/containers/a6b64a2b202fe7c3cce84b75f3ca7497b03c7e8ef7c27d3e323818f18643ce22\tfilesystem\t261888\t9143097030896\t1108833792\tlegacy\nzdata/containers/a6fd99a0fa19e6d6a4c1812a33a3dd2e444df601b7573e2126173632b0cd6fb1\tfilesystem\t272800\t9143097030896\t2313043920\tlegacy\nzdata/containers/a9be02cda421cb455a0ea20606529a3730057258570ee50e9e7d826d0bb8dfea\tfilesystem\t272800\t9143097030896\t1108861072\tlegacy\nzdata/containers/aa4c6826da5dd75dc768bc9fb7f7f234dfe90f823fad7423e6682c8158dab99d\tfilesystem\t169136\t9143097030896\t22593296\tlegacy\nzdata/containers/acbad04dc5669cc118cf5ba13326943d16b1ba975746b1d0a84f9e8a8e6156df\tfilesystem\t5183200\t9143097030896\t1108811968\tlegacy\nzdata/containers/ad590f1e644a6c9028f0eeaa810d9173a79c9c2daa0971c50012183b53c7194d\tfilesystem\t327360\t9143097030896\t1891453344\tlegacy\nzdata/containers/adcb8a45fbf51d9432c8ddbf351fe4a37809c01176d0444ce7c9493835b12bd8\tfilesystem\t185504\t9143097030896\t91791744\tlegacy\nzdata/containers/af698a6bdc25c3055d4446d2ef58a3f27945f17cd9e54c294dad2202f0b9ac36\tfilesystem\t272800\t9143097030896\t2312956624\tlegacy\nzdata/containers/b74fcf181c60159a5d534cb735f3367cf90662565bce56add23ec93d526bddef\tfilesystem\t207328\t9143097030896\t2312956624\tlegacy\nzdata/containers/bd66958cf18f8e5374e2b500aece74453a8958a756458223214d8fe83af1bd22\tfilesystem\t272800\t9143097030896\t1099154848\tlegacy\nzdata/containers/c2274ba1606d64a2524d886d650e2b748b44ba6a4e0adc3c41447f96733e2371\tfilesystem\t174592\t9143097030896\t91748096\tlegacy\nzdata/containers/d073cdb5e36fc2a313c351a820cf67aa82a1a12218b93f426fdca7338779f798\tfilesystem\t1441546128\t9143097030896\t1503051616\tlegacy\nzdata/containers/d1f150e30c89af40c745c2e8fac6afb4f9a3e6074d0c06d6e85534cc846a3b46\tfilesystem\t174592\t9143097030896\t87066848\tlegacy\nzdata/containers/d4bfe98da04485bb9e7d1838d81856c40ff8d4fc8e3c58fa383e642afed21612\tfilesystem\t294624\t9143097030896\t1502686064\tlegacy\nzdata/containers/d8ef77f70a0ec65b949217ad5afc7b6217f3094ec67af4f76d5e26fbb7b6d708\tfilesystem\t22587840\t9143097030896\t22576928\tlegacy\nzdata/containers/da26ab07ed73018c7b55d09c61fb28768353970a0a8001f9d434072172ce09b9\tfilesystem\t278256\t9143097030896\t1108850160\tlegacy\nzdata/containers/dc200883549e2b38e80018af369c4a9e0d7fb9bd98d9f1c1f8b681261b246610\tfilesystem\t250976\t9143097030896\t1108833792\tlegacy\nzdata/containers/de5a9f1f8f697710cb4290b4f5770f24ea03d31c1743c0a08bac726e5ec1009e\tfilesystem\t283712\t9143097030896\t1099154848\tlegacy\nzdata/containers/de6644b2aaf92edfabf5041b45be40de215dc995e7c538ac40f87af0a6fccdd6\tfilesystem\t229152\t9143097030896\t1502686064\tlegacy\nzdata/containers/dfe53d905d8a7c6b4d4b4691058c7ad3dd084fafe31767fec737e412d5c77b79\tfilesystem\t207328\t9143097030896\t1891464256\tlegacy\nzdata/containers/e09a9e953c4bcce1bfe7d6dc17bb8d66f46e899e55f39d82f10aab372cd2f9a6\tfilesystem\t261888\t9143097030896\t1891464256\tlegacy\nzdata/containers/e211db42470213afd831cd197fdf5e2c89a36511bc1e3566922b4487853ee88e\tfilesystem\t261888\t9143097030896\t1891557008\tlegacy\nzdata/containers/e3638b6cd36211bb32c77ce8ba916d62e3a39b98ae82c039d7e99ee4840eec08\tfilesystem\t174592\t9143097030896\t91748096\tlegacy\nzdata/containers/e8b4c7cc8c0d55b5650c9e1b69a8f7a3ec9b8c5301678b544d1bf651f2a9cc3f\tfilesystem\t261888\t9143097030896\t1108833792\tlegacy\nzdata/containers/ea5735e9b8fe5300f01182b36c1f1fc425b79929fdbdb035a1222e3db571a3f2\tfilesystem\t86341200\t9143097030896\t91731728\tlegacy\nzdata/containers/ec440acbcdc2f57f2030d53f9f971e4c635b4d37cda93651a4a4739e4fcbc8b7\tfilesystem\t120032\t9143097030896\t91737184\tlegacy\nzdata/containers/f0059ada42408bd549b95a1ee9394677095b5672392f8e25fff2610b6a8a419b\tfilesystem\t261888\t9143097030896\t1108811968\tlegacy\nzdata/containers/f4e607b230f05fd2b38cea7fceadc12bc37a4d63a3a064a3f7bfff3d21d2af1d\tfilesystem\t152768\t9143097030896\t87066848\tlegacy\nzdata/containers/f7256795b5723a57a87ee97b40327e2a690d50e25a7201ef85358cc9a60b7815\tfilesystem\t327360\t9143097030896\t2312945712\tlegacy\nzdata/containers/fe415d7aa70d9e99c0b27f25b2e890de7f4a7c6b47a2d0ba5d15053c98010a5a\tfilesystem\t174592\t9143097030896\t91791744\tlegacy\nzdata/home\tfilesystem\t376464\t9143097030896\t130944\t/zdata/home\nzdata/home/user\tfilesystem\t245520\t9143097030896\t234608\t/zdata/home/user\nzdata/library-private-photo\tfilesystem\t579892209424\t9143097030896\t574244218240\t/zdata/library-private-photo\nzdata/shared\tfilesystem\t30878521168\t9143097030896\t30878510256\t/zdata/shared\nzroot\tfilesystem\t2288517120\t118407364608\t98304\t/zroot\nzroot/ROOT\tfilesystem\t2279522304\t118407364608\t98304\tnone\nzroot/ROOT/default\tfilesystem\t2279424000\t118407364608\t2279424000\t/\nzroot/home\tfilesystem\t315392\t118407364608\t98304\t/home\nzroot/home/mohicann\tfilesystem\t217088\t118407364608\t217088\t/home/mohicann\nzroot/tmp\tfilesystem\t733184\t118407364608\t733184\t/tmp\nzroot/usr\tfilesystem\t294912\t118407364608\t98304\t/usr\nzroot/usr/ports\tfilesystem\t98304\t118407364608\t98304\t/usr/ports\nzroot/usr/src\tfilesystem\t98304\t118407364608\t98304\t/usr/src\nzroot/var\tfilesystem\t1040384\t118407364608\t98304\t/var\nzroot/var/audit\tfilesystem\t98304\t118407364608\t98304\t/var/audit\nzroot/var/crash\tfilesystem\t98304\t118407364608\t98304\t/var/crash\nzroot/var/log\tfilesystem\t528384\t118407364608\t528384\t/var/log\nzroot/var/mail\tfilesystem\t118784\t118407364608\t118784\t/var/mail\nzroot/var/tmp\tfilesystem\t98304\t118407364608\t98304\t/var/tmp\n"
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-H",
+          "-p",
+          "-o",
+          "name,type,used,avail,refer,mountpoint"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/zfs-list-snapshot",
+    "req": "GET /zfs-list-snapshot ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "zdata/book-audio@auto-20261014-125700\t1791950221\t294624\t342108473696\nzdata/apps@auto-20261014-125702\t1791950222\t2618880\t255177120\nzdata/library-private-photo@auto-20261014-125701\t1791950222\t3597386320\t573127489616\nzbak/book-audio@auto-20261104-000000\t1793718000\t0\t365688913920\nzbak/library-private-photo@auto-20261104-000000\t1793718000\t248659968\t570590072832\nzbak/apps@auto-20261104-000000\t1793718001\t11804672\t323571712\nzbak/apps@auto-20261105-000000\t1793804400\t11448320\t323444736\nzbak/book-audio@auto-20261105-000000\t1793804400\t0\t365688913920\nzbak/library-private-photo@auto-20261105-000000\t1793804400\t212992\t570590072832\nzbak/book-audio@auto-20261106-000000\t1793890800\t0\t365688913920\nzbak/library-private-photo@auto-20261106-000000\t1793890800\t204800\t570590072832\nzbak/apps@auto-20261106-000000\t1793890801\t11292672\t325701632\nzbak/apps@auto-20261107-000000\t1793977200\t10928128\t325877760\nzbak/book-audio@auto-20261107-000000\t1793977200\t0\t365688913920\nzbak/library-private-photo@auto-20261107-000000\t1793977200\t212992\t570590072832\nzbak/apps@auto-20261108-000000\t1794063600\t11051008\t331931648\nzbak/book-audio@auto-20261108-000000\t1794063600\t0\t365688913920\nzbak/library-private-photo@auto-20261108-000000\t1794063600\t212992\t570590072832\nzbak/book-audio@auto-20261109-000000\t1794150000\t0\t365688913920\nzbak/library-private-photo@auto-20261109-000000\t1794150000\t204800\t570590072832\nzbak/apps@auto-20261109-000000\t1794150001\t11292672\t333533184\nzbak/book-audio@auto-20261110-000000\t1794236400\t0\t365688913920\nzbak/library-private-photo@auto-20261110-000000\t1794236400\t204800\t570590203904\nzbak/apps@auto-20261110-000000\t1794236401\t10702848\t333410304\nzbak/apps@auto-20261111-000000\t1794322800\t10330112\t321859584\nzbak/book-audio@auto-20261111-000000\t1794322800\t0\t365688913920\nzbak/library-private-photo@auto-20261111-000000\t1794322800\t212992\t570590334976\nzdata/apps@auto-20261111-000000\t1794322800\t10851984\t305077696\nzdata/book-audio@auto-20261111-000000\t1794322800\t0\t344964542384\nzdata/library-private-photo@auto-20261111-000000\t1794322800\t227777088\t574243421664\nzbak/apps@auto-20261112-000000\t1794409200\t10575872\t322207744\nzbak/book-audio@auto-20261112-000000\t1794409200\t0\t365688913920\nzbak/library-private-photo@auto-20261112-000000\t1794409200\t212992\t570590466048\nzdata/apps@auto-20261112-000000\t1794409200\t10420960\t305426880\nzdata/book-audio@auto-20261112-000000\t1794409200\t0\t344964542384\nzdata/library-private-photo@auto-20261112-000000\t1794409200\t240064\t574243541696\nzbak/apps@auto-20261113-000000\t1794495600\t10526720\t323416064\nzbak/book-audio@auto-20261113-000000\t1794495600\t0\t366587015168\nzbak/library-private-photo@auto-20261113-000000\t1794495600\t204800\t570590597120\nzdata/apps@auto-20261113-000000\t1794495600\t10448240\t306616288\nzdata/book-audio@auto-20261113-000000\t1794495600\t0\t345787263536\nzdata/library-private-photo@auto-20261113-000000\t1794495600\t229152\t574243661728\nzbak/apps@auto-20261114-000000\t1794582000\t9826304\t324947968\nzbak/book-audio@auto-20261114-000000\t1794582000\t0\t366587015168\nzbak/library-private-photo@auto-20261114-000000\t1794582000\t212992\t570590728192\nzdata/apps@auto-20261114-000000\t1794582000\t9738960\t308198528\nzdata/book-audio@auto-20261114-000000\t1794582000\t0\t345787263536\nzdata/library-private-photo@auto-20261114-000000\t1794582000\t240064\t574243781760\nzbak/apps@auto-20261115-000000\t1794668400\t9637888\t326000640\nzbak/book-audio@auto-20261115-000000\t1794668400\t0\t366587015168\nzbak/library-private-photo@auto-20261115-000000\t1794668400\t212992\t570590859264\nzdata/apps@auto-20261115-000000\t1794668400\t9558912\t309235168\nzdata/book-audio@auto-20261115-000000\t1794668400\t0\t345787263536\nzdata/library-private-photo@auto-20261115-000000\t1794668400\t240064\t574243901792\nzbak/book-audio@auto-20261116-000000\t1794754800\t0\t366587015168\nzbak/library-private-photo@auto-20261116-000000\t1794754800\t204800\t570590990336\nzdata/book-audio@auto-20261116-000000\t1794754800\t0\t345787263536\nzdata/library-private-photo@auto-20261116-000000\t1794754800\t229152\t574244021824\nzbak/apps@auto-20261116-000000\t1794754801\t9916416\t327188480\nzdata/apps@auto-20261116-000000\t1794754801\t9831712\t310391840\nzbak/apps@auto-20261117-000000\t1794841200\t196608\t328269824\nzbak/book-audio@auto-20261117-000000\t1794841200\t0\t366587015168\nzbak/library-private-photo@auto-20261117-000000\t1794841200\t212992\t570591121408\nzdata/apps@auto-20261117-000000\t1794841200\t250976\t311450304\nzdata/book-audio@auto-20261117-000000\t1794841200\t0\t345787263536\nzdata/library-private-photo@auto-20261117-000000\t1794841200\t240064\t574244141856\nzbak/immich-apps@pre-freebsd-20261117\t1794890648\t122880\t2192531456\nzdata@pre-freebsd-20261117\t1794890648\t283712\t396818819232\nzdata/apps@pre-freebsd-20261117\t1794890648\t0\t538469008\nzdata/apps/immich@pre-freebsd-20261117\t1794890648\t163680\t2008211744\nzdata/book-audio@pre-freebsd-20261117\t1794890648\t0\t345787263536\nzdata/home@pre-freebsd-20261117\t1794890648\t0\t130944\nzdata/home/user@pre-freebsd-20261117\t1794890648\t10912\t234608\nzdata/library-private-photo@pre-freebsd-20261117\t1794890648\t0\t574244261888\nzdata/shared@pre-freebsd-20261117\t1794890648\t10912\t30878510256\nzbak/apps@auto-20261117-134410\t1794890650\t225280\t576065536\nzbak/book-audio@auto-20261117-134410\t1794890650\t0\t366587015168\nzbak/library-private-photo@auto-20261117-134410\t1794890650\t139264\t570591252480\nzdata/apps@auto-20261117-134410\t1794890650\t0\t538469008\nzdata/book-audio@auto-20261117-134410\t1794890650\t0\t345787263536\nzdata/library-private-photo@auto-20261117-134410\t1794890650\t0\t574244261888\nzbak/book-audio@auto-20261117-141210\t1794892336\t0\t366587015168\nzbak/library-private-photo@auto-20261117-141216\t1794892336\t180224\t570591252480\nzdata/book-audio@auto-20261117-141210\t1794892336\t0\t345787263536\nzdata/library-private-photo@auto-20261117-141216\t1794892336\t207328\t574244261888\nzbak/apps@auto-20261117-141237\t1794892357\t258048\t823373824\nzdata/apps@auto-20261117-141237\t1794892357\t343728\t764936656\nzdata/containers/d8ef77f70a0ec65b949217ad5afc7b6217f3094ec67af4f76d5e26fbb7b6d708@498077634\t1794903777\t0\t22576928\nzdata/containers/74e85d8bb97e1e151325aee2f0d6ec276a4c40e49251c6830a4ed2bc644b275f@682224666\t1794903778\t10912\t22593296\nzdata/containers/3e7cd765a1dbf6a259ec88534f983a140cecd57c5ae2e374ece342dd9e8ecd0f@665758344\t1794903779\t10912\t22593296\nzdata/containers/3f9ca59891406db2449b7700aca6aab8af8b9cf70cb38cf827c39c6b4ec181fc@365768050\t1794903782\t10912\t91731728\nzdata/containers/180ead7bf0a2f7d5d759c13a2a4f375287bc5a683201384e85b47acdc26ed9a1@407171659\t1794903783\t10912\t91737184\nzdata/containers/21e72e1b5885ceb6c1ac342c19080480da411180113e3a23ef6d758e3af4ed38@513581095\t1794903784\t10912\t91737184\nzdata/containers/e3638b6cd36211bb32c77ce8ba916d62e3a39b98ae82c039d7e99ee4840eec08@868020795\t1794903785\t10912\t91748096\nzdata/containers/4173ef5ae64cfe4204a098e7cf944c1bc9a1dd05693f216e11af6347d3460cbb@80556459\t1794903787\t10912\t91780832\nzdata/containers/5b1376077d35d582358c1caf0d12eb8aa14db6c06c915112f22052af359e65d4@176356282\t1794903788\t10912\t91791744\nzdata/containers/8d962a5fd89ed5911023f09c6dead5b561a8f7c62594b5b4798dfb7c5a7eb05f@191274181\t1794903789\t10912\t91791744\nzdata/containers/0bc6fb0d922f2577a6936248917ca2ca83e5d9c8f3b417f3c4676f911c3ece84@458176211\t1794903790\t10912\t91791744\nzdata/containers/7d1e9ae22130fcd53a203ddf91ae8619f1fb7ce6115532ea75deb9170bbaba00@795187566\t1794903791\t10912\t91791744\nzdata/containers/617c68cacf286ab28eed6e872fbf50e14e8574f555ee4b42f52bf5a1a86cf383@866714067\t1794903861\t0\t91813568\nzdata/containers/d073cdb5e36fc2a313c351a820cf67aa82a1a12218b93f426fdca7338779f798@415145677\t1794903882\t10912\t1503051616\nzdata/containers/d4bfe98da04485bb9e7d1838d81856c40ff8d4fc8e3c58fa383e642afed21612@512555177\t1794903883\t10912\t1502686064\nzdata/containers/de6644b2aaf92edfabf5041b45be40de215dc995e7c538ac40f87af0a6fccdd6@540059107\t1794903884\t10912\t1502686064\nzdata/containers/1b1ebd838f0db3aec9ec0a150cf51592e3327dde55c560bba7933f154219b93f@491251827\t1794903891\t10912\t1891409696\nzdata/containers/4b58bf5e6982caf3ee283b0e926f51f23f19fefee4c3284e129378de9d1fb2ef@513403141\t1794903892\t10912\t1891409696\nzdata/containers/ad590f1e644a6c9028f0eeaa810d9173a79c9c2daa0971c50012183b53c7194d@669002674\t1794903893\t10912\t1891453344\nzdata/containers/3209a044c8abf02ebd5e40972520d409b1c56730669988c32dbde41e11b2f27a@702391841\t1794903894\t10912\t1891464256\nzdata/containers/e09a9e953c4bcce1bfe7d6dc17bb8d66f46e899e55f39d82f10aab372cd2f9a6@702705479\t1794903895\t10912\t1891464256\nzdata/containers/dfe53d905d8a7c6b4d4b4691058c7ad3dd084fafe31767fec737e412d5c77b79@714656976\t1794903896\t10912\t1891464256\nzdata/containers/617c68cacf286ab28eed6e872fbf50e14e8574f555ee4b42f52bf5a1a86cf383@192437262\t1794903989\t0\t91813568\nzdata/containers/01329e34e6fe109f1b7fb4dbcc2718ac7c1d977390ddeaaffca0233f499a70ca@374679707\t1794904017\t10912\t2225131392\nzdata/containers/9ed70271165aa952af716c35d9f618250afb4efaf55db8eb3d5d5848f711f22b@548524785\t1794904019\t10912\t2312934800\nzdata/containers/6a73674495032c196dcc3f11ea04e8ae26560cda2036502c42eb635966efe5e2@472436402\t1794904020\t10912\t2312934800\nzdata/containers/f7256795b5723a57a87ee97b40327e2a690d50e25a7201ef85358cc9a60b7815@437158269\t1794904021\t10912\t2312945712\nzdata/containers/756b5d9b03b3c849729993dfb000a579836830987e35c0a6985613f98c7dbbde@364187518\t1794904022\t10912\t2312945712\nzdata/containers/0366e6e84e90ca95670e64318dcb09f14e189962d3d76fe31936e8954e75a9e7@415744268\t1794904023\t10912\t2312956624\nzdata/containers/af698a6bdc25c3055d4446d2ef58a3f27945f17cd9e54c294dad2202f0b9ac36@616370598\t1794904024\t10912\t2312956624\nzdata/containers/b74fcf181c60159a5d534cb735f3367cf90662565bce56add23ec93d526bddef@761033999\t1794904025\t10912\t2312956624\nzdata/containers/d8ef77f70a0ec65b949217ad5afc7b6217f3094ec67af4f76d5e26fbb7b6d708@61812091\t1794904029\t0\t22576928\nzdata/containers/24484a4f0e94e1762ce6d515ae296ae06c10656624f6804da090172ea06f7d88@86508936\t1794904030\t10912\t22593296\nzdata/containers/aa4c6826da5dd75dc768bc9fb7f7f234dfe90f823fad7423e6682c8158dab99d@423712531\t1794904032\t10912\t22593296\nzdata/containers/ea5735e9b8fe5300f01182b36c1f1fc425b79929fdbdb035a1222e3db571a3f2@153989872\t1794904035\t10912\t91731728\nzdata/containers/11af960eba231bd8e799efee72bbdc3cbf040e9fe545a24907d88ed72328ffe9@809543669\t1794904036\t10912\t91737184\nzdata/containers/ec440acbcdc2f57f2030d53f9f971e4c635b4d37cda93651a4a4739e4fcbc8b7@783043772\t1794904037\t10912\t91737184\nzdata/containers/c2274ba1606d64a2524d886d650e2b748b44ba6a4e0adc3c41447f96733e2371@861696283\t1794904038\t10912\t91748096\nzdata/containers/06df58797f449f57c78a498a391c14377f3ce207ccb477e1965f09ae09e8d940@806947823\t1794904039\t10912\t91780832\nzdata/containers/adcb8a45fbf51d9432c8ddbf351fe4a37809c01176d0444ce7c9493835b12bd8@851425118\t1794904040\t10912\t91791744\nzdata/containers/fe415d7aa70d9e99c0b27f25b2e890de7f4a7c6b47a2d0ba5d15053c98010a5a@277792108\t1794904042\t10912\t91791744\nzdata/containers/3304fdaaf7a592e0542ddbf97b0d04d536a0f2207d0c3eacdca55517d461f9dd@517895416\t1794904043\t10912\t91791744\nzdata/containers/6ef7e4acc515162e9c6084eae334e3d40fbc9dc62bc65a8d5fadda0dd0954729@613868783\t1794904044\t10912\t91791744\nzdata/containers/4923726ea48e9e9aa89a99ab7863df318dba3b9161b8230812c57dab304dad3c@320448996\t1794904077\t10912\t91813568\nzdata/containers/04ee7fe0ac9c9e1434032092699b894ab6ebea5745b30a4c907a9b1601dcb0e0@125647844\t1794904092\t10912\t1108391856\nzdata/containers/9518a29dfe22b566afda5488d22064e883680d60db4bdce9db7bb0e313ae7a54@197662020\t1794904093\t10912\t1108473696\nzdata/containers/acbad04dc5669cc118cf5ba13326943d16b1ba975746b1d0a84f9e8a8e6156df@264385560\t1794904094\t10912\t1108811968\nzdata/containers/f0059ada42408bd549b95a1ee9394677095b5672392f8e25fff2610b6a8a419b@378290617\t1794904095\t10912\t1108811968\nzdata/containers/a6b64a2b202fe7c3cce84b75f3ca7497b03c7e8ef7c27d3e323818f18643ce22@457706945\t1794904096\t10912\t1108833792\nzdata/containers/e8b4c7cc8c0d55b5650c9e1b69a8f7a3ec9b8c5301678b544d1bf651f2a9cc3f@620607807\t1794904097\t10912\t1108833792\nzdata/containers/823fd5c0d405e64bd65fe7e5be0c6bbec410d300dbcb3b5983ac5813a8f39140@666232329\t1794904098\t10912\t1108833792\nzdata/containers/dc200883549e2b38e80018af369c4a9e0d7fb9bd98d9f1c1f8b681261b246610@672193457\t1794904099\t10912\t1108833792\nzdata/containers/da26ab07ed73018c7b55d09c61fb28768353970a0a8001f9d434072172ce09b9@914098287\t1794904100\t10912\t1108850160\nzdata/containers/320b2b7e66c0f0184b93cec908667e5f5631cea79c2a0ba03a12119d81104d18@898417402\t1794904101\t10912\t1108850160\nzdata/containers/a9be02cda421cb455a0ea20606529a3730057258570ee50e9e7d826d0bb8dfea@93516309\t1794904103\t10912\t1108861072\nzdata/containers/91cf2f8fdde722e5505bc18089aa796725d333bd763372e9d1978faf57e902f1@89939313\t1794904104\t10912\t1108861072\nzdata/containers/2536ee05ece821486f2e5072802a7097e657a49ff24a87edf8e8c035b807cafe@614960859\t1794904105\t10912\t1099138480\nzdata/containers/84a6383741f3e54a7946bb2301d2b5afc3d64cadbbc84b5b2f81547761a5cfae@880117843\t1794904106\t10912\t1099143936\nzdata/containers/0514d0242221bd91e3825779697d6ea973869dccf081fd2006f365ab2d37db23@136932286\t1794904108\t10912\t1099143936\nzdata/containers/227a1ae92987b9f9b9d5b41501e501303e3a33de99b9f6e63680d46f4fd4ead1@178320296\t1794904109\t10912\t1099143936\nzdata/containers/617c68cacf286ab28eed6e872fbf50e14e8574f555ee4b42f52bf5a1a86cf383@809408648\t1794904113\t0\t91813568\nzdata/containers/639b76725dd78efc34eed63dfdf7d5358abf9650576cec9a9c587494872909c0@770215687\t1794904115\t10912\t87050480\nzdata/containers/492f00010e921515bbc26a5603f1d667daa51e8f418faed08138615becb2cfff@849424571\t1794904116\t10912\t87050480\nzdata/containers/6e166a8efcda17aa351ae4641e7b7530994d66c395bcd5d6128ef41f50707c30@801066174\t1794904117\t10912\t87055936\nzdata/containers/086a9b36c12b0b2ed743b091d31f062b90ef3aedc1eceda2f17b626d880ce3f6@68384491\t1794904119\t10912\t87055936\nzdata/containers/011c9e95535fe99afcf0620b810f030338f1a411840cdc87a0a6c4cfd05d8f95@103190097\t1794904120\t10912\t87055936\nzdata/containers/bd66958cf18f8e5374e2b500aece74453a8958a756458223214d8fe83af1bd22@256541577\t1794904524\t10912\t1099154848\nzdata/containers/4ea733fae56f648ad953210ecb033e66f6b98cfdbdc2fb37f2358321ffe039c4@40965626\t1794904631\t10912\t2313033008\nzdata/containers/d1f150e30c89af40c745c2e8fac6afb4f9a3e6074d0c06d6e85534cc846a3b46@165045448\t1794904632\t10912\t87066848\nzdata/containers/42acdcf2df55852753f5b284197c47984dae9cf1559bbb311315e41305014d0c@2618854\t1794904633\t10912\t1891557008\nzbak/apps@autosnap_2026-11-17_18:19:01_daily\t1794907141\t5337088\t1084506112\nzbak/cloudreve-pgdata@autosnap_2026-11-17_18:19:01_daily\t1794907141\t516096\t22683648\nzbak/immich-apps@autosnap_2026-11-17_18:19:01_daily\t1794907141\t139264\t2192596992\nzdata/apps@autosnap_2026-11-17_18:19:01_daily\t1794907141\t5532384\t1007892336\nzdata/apps/cloudreve/pgdata@autosnap_2026-11-17_18:19:01_daily\t1794907141\t654720\t28120224\nzdata/apps/immich@autosnap_2026-11-17_18:19:01_daily\t1794907141\t185504\t2008293584\nzbak/book-audio@autosnap_2026-11-17_18:19:02_daily\t1794907142\t0\t366587015168\nzbak/cloudreve@autosnap_2026-11-17_18:19:02_daily\t1794907142\t73728\t48771072\nzbak/immich-pgdata-freebsd@autosnap_2026-11-17_18:19:02_daily\t1794907142\t610304\t1213091840\nzbak/library-private-photo@autosnap_2026-11-17_18:19:02_daily\t1794907142\t180224\t570591252480\nzdata/apps/cloudreve@autosnap_2026-11-17_18:19:02_daily\t1794907142\t98208\t44750112\nzdata/apps/immich/pgdata-freebsd@autosnap_2026-11-17_18:19:02_daily\t1794907142\t780208\t1214489232\nzdata/book-audio@autosnap_2026-11-17_18:19:02_daily\t1794907142\t0\t345787263536\nzdata/library-private-photo@autosnap_2026-11-17_18:19:02_daily\t1794907142\t207328\t574244261888\nzbak/apps@autosnap_2026-11-18_00:00:00_daily\t1794927600\t30801920\t870977536\nzbak/library-private-photo@autosnap_2026-11-18_00:00:00_daily\t1794927600\t139264\t570591252480\nzdata/apps@autosnap_2026-11-18_00:00:00_daily\t1794927600\t29211424\t813980640\nzdata/library-private-photo@autosnap_2026-11-18_00:00:00_daily\t1794927600\t152768\t574244261888\nzbak/immich-apps@autosnap_2026-11-18_00:00:01_daily\t1794927601\t126976\t2192842752\nzbak/immich-pgdata-freebsd@autosnap_2026-11-18_00:00:00_daily\t1794927601\t266240\t1213108224\nzdata/apps/immich@autosnap_2026-11-18_00:00:01_daily\t1794927601\t169136\t2008517280\nzdata/apps/immich/pgdata-freebsd@autosnap_2026-11-18_00:00:00_daily\t1794927601\t310992\t1214500144\nzbak/book-audio@autosnap_2026-11-18_00:00:02_daily\t1794927602\t0\t366587015168\nzbak/cloudreve@autosnap_2026-11-18_00:00:01_daily\t1794927602\t0\t48771072\nzbak/cloudreve-pgdata@autosnap_2026-11-18_00:00:02_daily\t1794927602\t249856\t22781952\nzdata/apps/cloudreve@autosnap_2026-11-18_00:00:01_daily\t1794927602\t0\t44750112\nzdata/apps/cloudreve/pgdata@autosnap_2026-11-18_00:00:02_daily\t1794927602\t300080\t28251168\nzdata/book-audio@autosnap_2026-11-18_00:00:02_daily\t1794927602\t0\t345787263536\nzbak/apps@autosnap_2026-11-19_00:00:00_daily\t1795014000\t0\t876232704\nzbak/cloudreve@autosnap_2026-11-19_00:00:00_daily\t1795014000\t0\t48771072\nzbak/cloudreve-pgdata@autosnap_2026-11-19_00:00:00_daily\t1795014000\t0\t23441408\nzdata/apps@autosnap_2026-11-19_00:00:00_daily\t1795014000\t3666432\t819551216\nzdata/apps/cloudreve@autosnap_2026-11-19_00:00:00_daily\t1795014000\t0\t44750112\nzdata/apps/cloudreve/pgdata@autosnap_2026-11-19_00:00:00_daily\t1795014000\t300080\t29113216\nzbak/book-audio@autosnap_2026-11-19_00:00:01_daily\t1795014001\t0\t366587015168\nzbak/immich-apps@autosnap_2026-11-19_00:00:01_daily\t1795014001\t0\t2205818880\nzbak/library-private-photo@autosnap_2026-11-19_00:00:01_daily\t1795014001\t0\t570591227904\nzdata/apps/immich@autosnap_2026-11-19_00:00:01_daily\t1795014001\t12581536\t2020973328\nzdata/book-audio@autosnap_2026-11-19_00:00:01_daily\t1795014001\t0\t345787263536\nzdata/library-private-photo@autosnap_2026-11-19_00:00:01_daily\t1795014001\t229152\t574244240064\nzbak/immich-pgdata-freebsd@autosnap_2026-11-19_00:00:02_daily\t1795014002\t0\t1213460480\nzdata/apps/immich/pgdata-freebsd@autosnap_2026-11-19_00:00:02_daily\t1795014002\t1091200\t1214538336\nzdata/apps@pre-go-20261119\t1795049406\t15107664\t842226352\n"
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-H",
+          "-p",
+          "-t",
+          "snapshot",
+          "-o",
+          "name,creation,used,refer",
+          "-s",
+          "creation"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/zfs-list-snapshot?dataset=zdata%2Fapps",
+    "req": "GET /zfs-list-snapshot?dataset=zdata%2Fapps ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "zdata/apps@auto-20261014-125702\t1791950222\t2618880\t255177120\nzdata/apps@auto-20261111-000000\t1794322800\t10851984\t305077696\nzdata/apps@auto-20261112-000000\t1794409200\t10420960\t305426880\nzdata/apps@auto-20261113-000000\t1794495600\t10448240\t306616288\nzdata/apps@auto-20261114-000000\t1794582000\t9738960\t308198528\nzdata/apps@auto-20261115-000000\t1794668400\t9558912\t309235168\nzdata/apps@auto-20261116-000000\t1794754801\t9831712\t310391840\nzdata/apps@auto-20261117-000000\t1794841200\t250976\t311450304\nzdata/apps@pre-freebsd-20261117\t1794890648\t0\t538469008\nzdata/apps/immich@pre-freebsd-20261117\t1794890648\t163680\t2008211744\nzdata/apps@auto-20261117-134410\t1794890650\t0\t538469008\nzdata/apps@auto-20261117-141237\t1794892357\t343728\t764936656\nzdata/apps@autosnap_2026-11-17_18:19:01_daily\t1794907141\t5532384\t1007892336\nzdata/apps/cloudreve/pgdata@autosnap_2026-11-17_18:19:01_daily\t1794907141\t654720\t28120224\nzdata/apps/immich@autosnap_2026-11-17_18:19:01_daily\t1794907141\t185504\t2008293584\nzdata/apps/cloudreve@autosnap_2026-11-17_18:19:02_daily\t1794907142\t98208\t44750112\nzdata/apps/immich/pgdata-freebsd@autosnap_2026-11-17_18:19:02_daily\t1794907142\t780208\t1214489232\nzdata/apps@autosnap_2026-11-18_00:00:00_daily\t1794927600\t29211424\t813980640\nzdata/apps/immich@autosnap_2026-11-18_00:00:01_daily\t1794927601\t169136\t2008517280\nzdata/apps/immich/pgdata-freebsd@autosnap_2026-11-18_00:00:00_daily\t1794927601\t310992\t1214500144\nzdata/apps/cloudreve@autosnap_2026-11-18_00:00:01_daily\t1794927602\t0\t44750112\nzdata/apps/cloudreve/pgdata@autosnap_2026-11-18_00:00:02_daily\t1794927602\t300080\t28251168\nzdata/apps@autosnap_2026-11-19_00:00:00_daily\t1795014000\t3666432\t819551216\nzdata/apps/cloudreve@autosnap_2026-11-19_00:00:00_daily\t1795014000\t0\t44750112\nzdata/apps/cloudreve/pgdata@autosnap_2026-11-19_00:00:00_daily\t1795014000\t300080\t29113216\nzdata/apps/immich@autosnap_2026-11-19_00:00:01_daily\t1795014001\t12581536\t2020973328\nzdata/apps/immich/pgdata-freebsd@autosnap_2026-11-19_00:00:02_daily\t1795014002\t1091200\t1214538336\nzdata/apps@pre-go-20261119\t1795049406\t15107664\t842226352\n"
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-H",
+          "-p",
+          "-t",
+          "snapshot",
+          "-o",
+          "name,creation,used,refer",
+          "-s",
+          "creation",
+          "-r",
+          "zdata/apps"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/zfs-list-snapshot?dataset=..%2Fbad",
+    "req": "GET /zfs-list-snapshot?dataset=..%2Fbad ",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "exit status: 127"
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-H",
+          "-p",
+          "-t",
+          "snapshot",
+          "-o",
+          "name,creation,used,refer",
+          "-s",
+          "creation",
+          "-r",
+          "../bad"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/zfs-list-snapshot?dataset=",
+    "req": "GET /zfs-list-snapshot?dataset= ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "zdata/book-audio@auto-20261014-125700\t1791950221\t294624\t342108473696\nzdata/apps@auto-20261014-125702\t1791950222\t2618880\t255177120\nzdata/library-private-photo@auto-20261014-125701\t1791950222\t3597386320\t573127489616\nzbak/book-audio@auto-20261104-000000\t1793718000\t0\t365688913920\nzbak/library-private-photo@auto-20261104-000000\t1793718000\t248659968\t570590072832\nzbak/apps@auto-20261104-000000\t1793718001\t11804672\t323571712\nzbak/apps@auto-20261105-000000\t1793804400\t11448320\t323444736\nzbak/book-audio@auto-20261105-000000\t1793804400\t0\t365688913920\nzbak/library-private-photo@auto-20261105-000000\t1793804400\t212992\t570590072832\nzbak/book-audio@auto-20261106-000000\t1793890800\t0\t365688913920\nzbak/library-private-photo@auto-20261106-000000\t1793890800\t204800\t570590072832\nzbak/apps@auto-20261106-000000\t1793890801\t11292672\t325701632\nzbak/apps@auto-20261107-000000\t1793977200\t10928128\t325877760\nzbak/book-audio@auto-20261107-000000\t1793977200\t0\t365688913920\nzbak/library-private-photo@auto-20261107-000000\t1793977200\t212992\t570590072832\nzbak/apps@auto-20261108-000000\t1794063600\t11051008\t331931648\nzbak/book-audio@auto-20261108-000000\t1794063600\t0\t365688913920\nzbak/library-private-photo@auto-20261108-000000\t1794063600\t212992\t570590072832\nzbak/book-audio@auto-20261109-000000\t1794150000\t0\t365688913920\nzbak/library-private-photo@auto-20261109-000000\t1794150000\t204800\t570590072832\nzbak/apps@auto-20261109-000000\t1794150001\t11292672\t333533184\nzbak/book-audio@auto-20261110-000000\t1794236400\t0\t365688913920\nzbak/library-private-photo@auto-20261110-000000\t1794236400\t204800\t570590203904\nzbak/apps@auto-20261110-000000\t1794236401\t10702848\t333410304\nzbak/apps@auto-20261111-000000\t1794322800\t10330112\t321859584\nzbak/book-audio@auto-20261111-000000\t1794322800\t0\t365688913920\nzbak/library-private-photo@auto-20261111-000000\t1794322800\t212992\t570590334976\nzdata/apps@auto-20261111-000000\t1794322800\t10851984\t305077696\nzdata/book-audio@auto-20261111-000000\t1794322800\t0\t344964542384\nzdata/library-private-photo@auto-20261111-000000\t1794322800\t227777088\t574243421664\nzbak/apps@auto-20261112-000000\t1794409200\t10575872\t322207744\nzbak/book-audio@auto-20261112-000000\t1794409200\t0\t365688913920\nzbak/library-private-photo@auto-20261112-000000\t1794409200\t212992\t570590466048\nzdata/apps@auto-20261112-000000\t1794409200\t10420960\t305426880\nzdata/book-audio@auto-20261112-000000\t1794409200\t0\t344964542384\nzdata/library-private-photo@auto-20261112-000000\t1794409200\t240064\t574243541696\nzbak/apps@auto-20261113-000000\t1794495600\t10526720\t323416064\nzbak/book-audio@auto-20261113-000000\t1794495600\t0\t366587015168\nzbak/library-private-photo@auto-20261113-000000\t1794495600\t204800\t570590597120\nzdata/apps@auto-20261113-000000\t1794495600\t10448240\t306616288\nzdata/book-audio@auto-20261113-000000\t1794495600\t0\t345787263536\nzdata/library-private-photo@auto-20261113-000000\t1794495600\t229152\t574243661728\nzbak/apps@auto-20261114-000000\t1794582000\t9826304\t324947968\nzbak/book-audio@auto-20261114-000000\t1794582000\t0\t366587015168\nzbak/library-private-photo@auto-20261114-000000\t1794582000\t212992\t570590728192\nzdata/apps@auto-20261114-000000\t1794582000\t9738960\t308198528\nzdata/book-audio@auto-20261114-000000\t1794582000\t0\t345787263536\nzdata/library-private-photo@auto-20261114-000000\t1794582000\t240064\t574243781760\nzbak/apps@auto-20261115-000000\t1794668400\t9637888\t326000640\nzbak/book-audio@auto-20261115-000000\t1794668400\t0\t366587015168\nzbak/library-private-photo@auto-20261115-000000\t1794668400\t212992\t570590859264\nzdata/apps@auto-20261115-000000\t1794668400\t9558912\t309235168\nzdata/book-audio@auto-20261115-000000\t1794668400\t0\t345787263536\nzdata/library-private-photo@auto-20261115-000000\t1794668400\t240064\t574243901792\nzbak/book-audio@auto-20261116-000000\t1794754800\t0\t366587015168\nzbak/library-private-photo@auto-20261116-000000\t1794754800\t204800\t570590990336\nzdata/book-audio@auto-20261116-000000\t1794754800\t0\t345787263536\nzdata/library-private-photo@auto-20261116-000000\t1794754800\t229152\t574244021824\nzbak/apps@auto-20261116-000000\t1794754801\t9916416\t327188480\nzdata/apps@auto-20261116-000000\t1794754801\t9831712\t310391840\nzbak/apps@auto-20261117-000000\t1794841200\t196608\t328269824\nzbak/book-audio@auto-20261117-000000\t1794841200\t0\t366587015168\nzbak/library-private-photo@auto-20261117-000000\t1794841200\t212992\t570591121408\nzdata/apps@auto-20261117-000000\t1794841200\t250976\t311450304\nzdata/book-audio@auto-20261117-000000\t1794841200\t0\t345787263536\nzdata/library-private-photo@auto-20261117-000000\t1794841200\t240064\t574244141856\nzbak/immich-apps@pre-freebsd-20261117\t1794890648\t122880\t2192531456\nzdata@pre-freebsd-20261117\t1794890648\t283712\t396818819232\nzdata/apps@pre-freebsd-20261117\t1794890648\t0\t538469008\nzdata/apps/immich@pre-freebsd-20261117\t1794890648\t163680\t2008211744\nzdata/book-audio@pre-freebsd-20261117\t1794890648\t0\t345787263536\nzdata/home@pre-freebsd-20261117\t1794890648\t0\t130944\nzdata/home/user@pre-freebsd-20261117\t1794890648\t10912\t234608\nzdata/library-private-photo@pre-freebsd-20261117\t1794890648\t0\t574244261888\nzdata/shared@pre-freebsd-20261117\t1794890648\t10912\t30878510256\nzbak/apps@auto-20261117-134410\t1794890650\t225280\t576065536\nzbak/book-audio@auto-20261117-134410\t1794890650\t0\t366587015168\nzbak/library-private-photo@auto-20261117-134410\t1794890650\t139264\t570591252480\nzdata/apps@auto-20261117-134410\t1794890650\t0\t538469008\nzdata/book-audio@auto-20261117-134410\t1794890650\t0\t345787263536\nzdata/library-private-photo@auto-20261117-134410\t1794890650\t0\t574244261888\nzbak/book-audio@auto-20261117-141210\t1794892336\t0\t366587015168\nzbak/library-private-photo@auto-20261117-141216\t1794892336\t180224\t570591252480\nzdata/book-audio@auto-20261117-141210\t1794892336\t0\t345787263536\nzdata/library-private-photo@auto-20261117-141216\t1794892336\t207328\t574244261888\nzbak/apps@auto-20261117-141237\t1794892357\t258048\t823373824\nzdata/apps@auto-20261117-141237\t1794892357\t343728\t764936656\nzdata/containers/d8ef77f70a0ec65b949217ad5afc7b6217f3094ec67af4f76d5e26fbb7b6d708@498077634\t1794903777\t0\t22576928\nzdata/containers/74e85d8bb97e1e151325aee2f0d6ec276a4c40e49251c6830a4ed2bc644b275f@682224666\t1794903778\t10912\t22593296\nzdata/containers/3e7cd765a1dbf6a259ec88534f983a140cecd57c5ae2e374ece342dd9e8ecd0f@665758344\t1794903779\t10912\t22593296\nzdata/containers/3f9ca59891406db2449b7700aca6aab8af8b9cf70cb38cf827c39c6b4ec181fc@365768050\t1794903782\t10912\t91731728\nzdata/containers/180ead7bf0a2f7d5d759c13a2a4f375287bc5a683201384e85b47acdc26ed9a1@407171659\t1794903783\t10912\t91737184\nzdata/containers/21e72e1b5885ceb6c1ac342c19080480da411180113e3a23ef6d758e3af4ed38@513581095\t1794903784\t10912\t91737184\nzdata/containers/e3638b6cd36211bb32c77ce8ba916d62e3a39b98ae82c039d7e99ee4840eec08@868020795\t1794903785\t10912\t91748096\nzdata/containers/4173ef5ae64cfe4204a098e7cf944c1bc9a1dd05693f216e11af6347d3460cbb@80556459\t1794903787\t10912\t91780832\nzdata/containers/5b1376077d35d582358c1caf0d12eb8aa14db6c06c915112f22052af359e65d4@176356282\t1794903788\t10912\t91791744\nzdata/containers/8d962a5fd89ed5911023f09c6dead5b561a8f7c62594b5b4798dfb7c5a7eb05f@191274181\t1794903789\t10912\t91791744\nzdata/containers/0bc6fb0d922f2577a6936248917ca2ca83e5d9c8f3b417f3c4676f911c3ece84@458176211\t1794903790\t10912\t91791744\nzdata/containers/7d1e9ae22130fcd53a203ddf91ae8619f1fb7ce6115532ea75deb9170bbaba00@795187566\t1794903791\t10912\t91791744\nzdata/containers/617c68cacf286ab28eed6e872fbf50e14e8574f555ee4b42f52bf5a1a86cf383@866714067\t1794903861\t0\t91813568\nzdata/containers/d073cdb5e36fc2a313c351a820cf67aa82a1a12218b93f426fdca7338779f798@415145677\t1794903882\t10912\t1503051616\nzdata/containers/d4bfe98da04485bb9e7d1838d81856c40ff8d4fc8e3c58fa383e642afed21612@512555177\t1794903883\t10912\t1502686064\nzdata/containers/de6644b2aaf92edfabf5041b45be40de215dc995e7c538ac40f87af0a6fccdd6@540059107\t1794903884\t10912\t1502686064\nzdata/containers/1b1ebd838f0db3aec9ec0a150cf51592e3327dde55c560bba7933f154219b93f@491251827\t1794903891\t10912\t1891409696\nzdata/containers/4b58bf5e6982caf3ee283b0e926f51f23f19fefee4c3284e129378de9d1fb2ef@513403141\t1794903892\t10912\t1891409696\nzdata/containers/ad590f1e644a6c9028f0eeaa810d9173a79c9c2daa0971c50012183b53c7194d@669002674\t1794903893\t10912\t1891453344\nzdata/containers/3209a044c8abf02ebd5e40972520d409b1c56730669988c32dbde41e11b2f27a@702391841\t1794903894\t10912\t1891464256\nzdata/containers/e09a9e953c4bcce1bfe7d6dc17bb8d66f46e899e55f39d82f10aab372cd2f9a6@702705479\t1794903895\t10912\t1891464256\nzdata/containers/dfe53d905d8a7c6b4d4b4691058c7ad3dd084fafe31767fec737e412d5c77b79@714656976\t1794903896\t10912\t1891464256\nzdata/containers/617c68cacf286ab28eed6e872fbf50e14e8574f555ee4b42f52bf5a1a86cf383@192437262\t1794903989\t0\t91813568\nzdata/containers/01329e34e6fe109f1b7fb4dbcc2718ac7c1d977390ddeaaffca0233f499a70ca@374679707\t1794904017\t10912\t2225131392\nzdata/containers/9ed70271165aa952af716c35d9f618250afb4efaf55db8eb3d5d5848f711f22b@548524785\t1794904019\t10912\t2312934800\nzdata/containers/6a73674495032c196dcc3f11ea04e8ae26560cda2036502c42eb635966efe5e2@472436402\t1794904020\t10912\t2312934800\nzdata/containers/f7256795b5723a57a87ee97b40327e2a690d50e25a7201ef85358cc9a60b7815@437158269\t1794904021\t10912\t2312945712\nzdata/containers/756b5d9b03b3c849729993dfb000a579836830987e35c0a6985613f98c7dbbde@364187518\t1794904022\t10912\t2312945712\nzdata/containers/0366e6e84e90ca95670e64318dcb09f14e189962d3d76fe31936e8954e75a9e7@415744268\t1794904023\t10912\t2312956624\nzdata/containers/af698a6bdc25c3055d4446d2ef58a3f27945f17cd9e54c294dad2202f0b9ac36@616370598\t1794904024\t10912\t2312956624\nzdata/containers/b74fcf181c60159a5d534cb735f3367cf90662565bce56add23ec93d526bddef@761033999\t1794904025\t10912\t2312956624\nzdata/containers/d8ef77f70a0ec65b949217ad5afc7b6217f3094ec67af4f76d5e26fbb7b6d708@61812091\t1794904029\t0\t22576928\nzdata/containers/24484a4f0e94e1762ce6d515ae296ae06c10656624f6804da090172ea06f7d88@86508936\t1794904030\t10912\t22593296\nzdata/containers/aa4c6826da5dd75dc768bc9fb7f7f234dfe90f823fad7423e6682c8158dab99d@423712531\t1794904032\t10912\t22593296\nzdata/containers/ea5735e9b8fe5300f01182b36c1f1fc425b79929fdbdb035a1222e3db571a3f2@153989872\t1794904035\t10912\t91731728\nzdata/containers/11af960eba231bd8e799efee72bbdc3cbf040e9fe545a24907d88ed72328ffe9@809543669\t1794904036\t10912\t91737184\nzdata/containers/ec440acbcdc2f57f2030d53f9f971e4c635b4d37cda93651a4a4739e4fcbc8b7@783043772\t1794904037\t10912\t91737184\nzdata/containers/c2274ba1606d64a2524d886d650e2b748b44ba6a4e0adc3c41447f96733e2371@861696283\t1794904038\t10912\t91748096\nzdata/containers/06df58797f449f57c78a498a391c14377f3ce207ccb477e1965f09ae09e8d940@806947823\t1794904039\t10912\t91780832\nzdata/containers/adcb8a45fbf51d9432c8ddbf351fe4a37809c01176d0444ce7c9493835b12bd8@851425118\t1794904040\t10912\t91791744\nzdata/containers/fe415d7aa70d9e99c0b27f25b2e890de7f4a7c6b47a2d0ba5d15053c98010a5a@277792108\t1794904042\t10912\t91791744\nzdata/containers/3304fdaaf7a592e0542ddbf97b0d04d536a0f2207d0c3eacdca55517d461f9dd@517895416\t1794904043\t10912\t91791744\nzdata/containers/6ef7e4acc515162e9c6084eae334e3d40fbc9dc62bc65a8d5fadda0dd0954729@613868783\t1794904044\t10912\t91791744\nzdata/containers/4923726ea48e9e9aa89a99ab7863df318dba3b9161b8230812c57dab304dad3c@320448996\t1794904077\t10912\t91813568\nzdata/containers/04ee7fe0ac9c9e1434032092699b894ab6ebea5745b30a4c907a9b1601dcb0e0@125647844\t1794904092\t10912\t1108391856\nzdata/containers/9518a29dfe22b566afda5488d22064e883680d60db4bdce9db7bb0e313ae7a54@197662020\t1794904093\t10912\t1108473696\nzdata/containers/acbad04dc5669cc118cf5ba13326943d16b1ba975746b1d0a84f9e8a8e6156df@264385560\t1794904094\t10912\t1108811968\nzdata/containers/f0059ada42408bd549b95a1ee9394677095b5672392f8e25fff2610b6a8a419b@378290617\t1794904095\t10912\t1108811968\nzdata/containers/a6b64a2b202fe7c3cce84b75f3ca7497b03c7e8ef7c27d3e323818f18643ce22@457706945\t1794904096\t10912\t1108833792\nzdata/containers/e8b4c7cc8c0d55b5650c9e1b69a8f7a3ec9b8c5301678b544d1bf651f2a9cc3f@620607807\t1794904097\t10912\t1108833792\nzdata/containers/823fd5c0d405e64bd65fe7e5be0c6bbec410d300dbcb3b5983ac5813a8f39140@666232329\t1794904098\t10912\t1108833792\nzdata/containers/dc200883549e2b38e80018af369c4a9e0d7fb9bd98d9f1c1f8b681261b246610@672193457\t1794904099\t10912\t1108833792\nzdata/containers/da26ab07ed73018c7b55d09c61fb28768353970a0a8001f9d434072172ce09b9@914098287\t1794904100\t10912\t1108850160\nzdata/containers/320b2b7e66c0f0184b93cec908667e5f5631cea79c2a0ba03a12119d81104d18@898417402\t1794904101\t10912\t1108850160\nzdata/containers/a9be02cda421cb455a0ea20606529a3730057258570ee50e9e7d826d0bb8dfea@93516309\t1794904103\t10912\t1108861072\nzdata/containers/91cf2f8fdde722e5505bc18089aa796725d333bd763372e9d1978faf57e902f1@89939313\t1794904104\t10912\t1108861072\nzdata/containers/2536ee05ece821486f2e5072802a7097e657a49ff24a87edf8e8c035b807cafe@614960859\t1794904105\t10912\t1099138480\nzdata/containers/84a6383741f3e54a7946bb2301d2b5afc3d64cadbbc84b5b2f81547761a5cfae@880117843\t1794904106\t10912\t1099143936\nzdata/containers/0514d0242221bd91e3825779697d6ea973869dccf081fd2006f365ab2d37db23@136932286\t1794904108\t10912\t1099143936\nzdata/containers/227a1ae92987b9f9b9d5b41501e501303e3a33de99b9f6e63680d46f4fd4ead1@178320296\t1794904109\t10912\t1099143936\nzdata/containers/617c68cacf286ab28eed6e872fbf50e14e8574f555ee4b42f52bf5a1a86cf383@809408648\t1794904113\t0\t91813568\nzdata/containers/639b76725dd78efc34eed63dfdf7d5358abf9650576cec9a9c587494872909c0@770215687\t1794904115\t10912\t87050480\nzdata/containers/492f00010e921515bbc26a5603f1d667daa51e8f418faed08138615becb2cfff@849424571\t1794904116\t10912\t87050480\nzdata/containers/6e166a8efcda17aa351ae4641e7b7530994d66c395bcd5d6128ef41f50707c30@801066174\t1794904117\t10912\t87055936\nzdata/containers/086a9b36c12b0b2ed743b091d31f062b90ef3aedc1eceda2f17b626d880ce3f6@68384491\t1794904119\t10912\t87055936\nzdata/containers/011c9e95535fe99afcf0620b810f030338f1a411840cdc87a0a6c4cfd05d8f95@103190097\t1794904120\t10912\t87055936\nzdata/containers/bd66958cf18f8e5374e2b500aece74453a8958a756458223214d8fe83af1bd22@256541577\t1794904524\t10912\t1099154848\nzdata/containers/4ea733fae56f648ad953210ecb033e66f6b98cfdbdc2fb37f2358321ffe039c4@40965626\t1794904631\t10912\t2313033008\nzdata/containers/d1f150e30c89af40c745c2e8fac6afb4f9a3e6074d0c06d6e85534cc846a3b46@165045448\t1794904632\t10912\t87066848\nzdata/containers/42acdcf2df55852753f5b284197c47984dae9cf1559bbb311315e41305014d0c@2618854\t1794904633\t10912\t1891557008\nzbak/apps@autosnap_2026-11-17_18:19:01_daily\t1794907141\t5337088\t1084506112\nzbak/cloudreve-pgdata@autosnap_2026-11-17_18:19:01_daily\t1794907141\t516096\t22683648\nzbak/immich-apps@autosnap_2026-11-17_18:19:01_daily\t1794907141\t139264\t2192596992\nzdata/apps@autosnap_2026-11-17_18:19:01_daily\t1794907141\t5532384\t1007892336\nzdata/apps/cloudreve/pgdata@autosnap_2026-11-17_18:19:01_daily\t1794907141\t654720\t28120224\nzdata/apps/immich@autosnap_2026-11-17_18:19:01_daily\t1794907141\t185504\t2008293584\nzbak/book-audio@autosnap_2026-11-17_18:19:02_daily\t1794907142\t0\t366587015168\nzbak/cloudreve@autosnap_2026-11-17_18:19:02_daily\t1794907142\t73728\t48771072\nzbak/immich-pgdata-freebsd@autosnap_2026-11-17_18:19:02_daily\t1794907142\t610304\t1213091840\nzbak/library-private-photo@autosnap_2026-11-17_18:19:02_daily\t1794907142\t180224\t570591252480\nzdata/apps/cloudreve@autosnap_2026-11-17_18:19:02_daily\t1794907142\t98208\t44750112\nzdata/apps/immich/pgdata-freebsd@autosnap_2026-11-17_18:19:02_daily\t1794907142\t780208\t1214489232\nzdata/book-audio@autosnap_2026-11-17_18:19:02_daily\t1794907142\t0\t345787263536\nzdata/library-private-photo@autosnap_2026-11-17_18:19:02_daily\t1794907142\t207328\t574244261888\nzbak/apps@autosnap_2026-11-18_00:00:00_daily\t1794927600\t30801920\t870977536\nzbak/library-private-photo@autosnap_2026-11-18_00:00:00_daily\t1794927600\t139264\t570591252480\nzdata/apps@autosnap_2026-11-18_00:00:00_daily\t1794927600\t29211424\t813980640\nzdata/library-private-photo@autosnap_2026-11-18_00:00:00_daily\t1794927600\t152768\t574244261888\nzbak/immich-apps@autosnap_2026-11-18_00:00:01_daily\t1794927601\t126976\t2192842752\nzbak/immich-pgdata-freebsd@autosnap_2026-11-18_00:00:00_daily\t1794927601\t266240\t1213108224\nzdata/apps/immich@autosnap_2026-11-18_00:00:01_daily\t1794927601\t169136\t2008517280\nzdata/apps/immich/pgdata-freebsd@autosnap_2026-11-18_00:00:00_daily\t1794927601\t310992\t1214500144\nzbak/book-audio@autosnap_2026-11-18_00:00:02_daily\t1794927602\t0\t366587015168\nzbak/cloudreve@autosnap_2026-11-18_00:00:01_daily\t1794927602\t0\t48771072\nzbak/cloudreve-pgdata@autosnap_2026-11-18_00:00:02_daily\t1794927602\t249856\t22781952\nzdata/apps/cloudreve@autosnap_2026-11-18_00:00:01_daily\t1794927602\t0\t44750112\nzdata/apps/cloudreve/pgdata@autosnap_2026-11-18_00:00:02_daily\t1794927602\t300080\t28251168\nzdata/book-audio@autosnap_2026-11-18_00:00:02_daily\t1794927602\t0\t345787263536\nzbak/apps@autosnap_2026-11-19_00:00:00_daily\t1795014000\t0\t876232704\nzbak/cloudreve@autosnap_2026-11-19_00:00:00_daily\t1795014000\t0\t48771072\nzbak/cloudreve-pgdata@autosnap_2026-11-19_00:00:00_daily\t1795014000\t0\t23441408\nzdata/apps@autosnap_2026-11-19_00:00:00_daily\t1795014000\t3666432\t819551216\nzdata/apps/cloudreve@autosnap_2026-11-19_00:00:00_daily\t1795014000\t0\t44750112\nzdata/apps/cloudreve/pgdata@autosnap_2026-11-19_00:00:00_daily\t1795014000\t300080\t29113216\nzbak/book-audio@autosnap_2026-11-19_00:00:01_daily\t1795014001\t0\t366587015168\nzbak/immich-apps@autosnap_2026-11-19_00:00:01_daily\t1795014001\t0\t2205818880\nzbak/library-private-photo@autosnap_2026-11-19_00:00:01_daily\t1795014001\t0\t570591227904\nzdata/apps/immich@autosnap_2026-11-19_00:00:01_daily\t1795014001\t12581536\t2020973328\nzdata/book-audio@autosnap_2026-11-19_00:00:01_daily\t1795014001\t0\t345787263536\nzdata/library-private-photo@autosnap_2026-11-19_00:00:01_daily\t1795014001\t229152\t574244240064\nzbak/immich-pgdata-freebsd@autosnap_2026-11-19_00:00:02_daily\t1795014002\t0\t1213460480\nzdata/apps/immich/pgdata-freebsd@autosnap_2026-11-19_00:00:02_daily\t1795014002\t1091200\t1214538336\nzdata/apps@pre-go-20261119\t1795049406\t15107664\t842226352\n"
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-H",
+          "-p",
+          "-t",
+          "snapshot",
+          "-o",
+          "name,creation,used,refer",
+          "-s",
+          "creation"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/smart-scan",
+    "req": "GET /smart-scan ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "/dev/ada0 -d atacam # /dev/ada0, ATA device\n/dev/ada1 -d atacam # /dev/ada1, ATA device\n/dev/ada2 -d atacam # /dev/ada2, ATA device\n/dev/ada3 -d atacam # /dev/ada3, ATA device\n/dev/ada4 -d atacam # /dev/ada4, ATA device\n/dev/nda0 -d scsi # /dev/nda0, SCSI device\n/dev/nvme0 -d nvme # /dev/nvme0, NVMe device\n"
+    },
+    "calls": [
+      {
+        "cmd": "smartctl",
+        "args": [
+          "--scan"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/smart?dev=ada0",
+    "req": "GET /smart?dev=ada0 ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "smartctl 7.5 2025-04-30 r5714 [FreeBSD 15.1-RELEASE amd64] (local build)\nCopyright (C) 2002-25, Bruce Allen, Christian Franke, www.smartmontools.org\n\n=== START OF INFORMATION SECTION ===\nModel Family:     Seagate Skyhawk\nDevice Model:     ST2000VX008-2E3164\nSerial Number:    Z52C00JL\nLU WWN Device Id: 5 000c50 0e4ac2c97\nFirmware Version: CV12\nUser Capacity:    2,000,398,934,016 bytes [2.00 TB]\nSector Sizes:     512 bytes logical, 4096 bytes physical\nRotation Rate:    5900 rpm\nForm Factor:      3.5 inches\nDevice is:        In smartctl database 7.5/5706\nATA Version is:   ACS-2, ACS-3 T13/2161-D revision 3b\nSATA Version is:  SATA 3.1, 6.0 Gb/s (current: 6.0 Gb/s)\nLocal Time is:    Thu Nov 19 13:23:35 2026 KST\nSMART support is: Available - device has SMART capability.\nSMART support is: Enabled\n\n=== START OF READ SMART DATA SECTION ===\nSMART overall-health self-assessment test result: PASSED\n\nGeneral SMART Values:\nOffline data collection status:  (0x82)\tOffline data collection activity\n\t\t\t\t\twas completed without error.\n\t\t\t\t\tAuto Offline Data Collection: Enabled.\nSelf-test execution status:      (   0)\tThe previous self-test routine completed\n\t\t\t\t\twithout error or no self-test has ever \n\t\t\t\t\tbeen run.\nTotal time to complete Offline \ndata collection: \t\t(   97) seconds.\nOffline data collection\ncapabilities: \t\t\t (0x7b) SMART execute Offline immediate.\n\t\t\t\t\tAuto Offline data collection on/off support.\n\t\t\t\t\tSuspend Offline collection upon new\n\t\t\t\t\tcommand.\n\t\t\t\t\tOffline surface scan supported.\n\t\t\t\t\tSelf-test supported.\n\t\t\t\t\tConveyance Self-test supported.\n\t\t\t\t\tSelective Self-test supported.\nSMART capabilities:            (0x0003)\tSaves SMART data before entering\n\t\t\t\t\tpower-saving mode.\n\t\t\t\t\tSupports SMART auto save timer.\nError logging capability:        (0x01)\tError logging supported.\n\t\t\t\t\tGeneral Purpose Logging supported.\nShort self-test routine \nrecommended polling time: \t (   1) minutes.\nExtended self-test routine\nrecommended polling time: \t ( 250) minutes.\nConveyance self-test routine\nrecommended polling time: \t (   2) minutes.\nSCT capabilities: \t       (0x10b9)\tSCT Status supported.\n\t\t\t\t\tSCT Error Recovery Control supported.\n\t\t\t\t\tSCT Feature Control supported.\n\t\t\t\t\tSCT Data Table supported.\n\nSMART Attributes Data Structure revision number: 10\nVendor Specific SMART Attributes with Thresholds:\nID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE\n  1 Raw_Read_Error_Rate     0x000f   118   099   006    Pre-fail  Always       -       171441160\n  3 Spin_Up_Time            0x0003   097   097   000    Pre-fail  Always       -       0\n  4 Start_Stop_Count        0x0032   100   100   020    Old_age   Always       -       18\n  5 Reallocated_Sector_Ct   0x0033   100   100   010    Pre-fail  Always       -       0\n  7 Seek_Error_Rate         0x000f   082   060   030    Pre-fail  Always       -       197650389\n  9 Power_On_Hours          0x0032   059   059   000    Old_age   Always       -       36599h+00m+00.000s\n 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail  Always       -       0\n 12 Power_Cycle_Count       0x0032   100   100   020    Old_age   Always       -       16\n184 End-to-End_Error        0x0032   100   100   099    Old_age   Always       -       0\n187 Reported_Uncorrect      0x0032   100   100   000    Old_age   Always       -       0\n188 Command_Timeout         0x0032   100   100   000    Old_age   Always       -       0\n189 High_Fly_Writes         0x003a   001   001   000    Old_age   Always       -       345\n190 Airflow_Temperature_Cel 0x0022   068   051   045    Old_age   Always       -       32 (Min/Max 30/33)\n191 G-Sense_Error_Rate      0x0032   100   100   000    Old_age   Always       -       0\n192 Power-Off_Retract_Count 0x0032   100   100   000    Old_age   Always       -       13\n193 Load_Cycle_Count        0x0032   100   100   000    Old_age   Always       -       123\n194 Temperature_Celsius     0x0022   032   049   000    Old_age   Always       -       32 (0 24 0 0 0)\n197 Current_Pending_Sector  0x0012   100   100   000    Old_age   Always       -       0\n198 Offline_Uncorrectable   0x0010   100   100   000    Old_age   Offline      -       0\n199 UDMA_CRC_Error_Count    0x003e   200   200   000    Old_age   Always       -       0\n\nSMART Error Log Version: 1\nNo Errors Logged\n\nSMART Self-test log structure revision number 1\nNo self-tests have been logged.  [To run self-tests, use: smartctl -t]\n\nSMART Selective self-test log data structure revision number 1\n SPAN  MIN_LBA  MAX_LBA  CURRENT_TEST_STATUS\n    1        0        0  Not_testing\n    2        0        0  Not_testing\n    3        0        0  Not_testing\n    4        0        0  Not_testing\n    5        0        0  Not_testing\nSelective self-test flags (0x0):\n  After scanning selected spans, do NOT read-scan remainder of disk.\nIf Selective self-test is pending on power-up, resume after 0 minute delay.\n\nThe above only provides legacy SMART information - try 'smartctl -x' for more\n\n"
+    },
+    "calls": [
+      {
+        "cmd": "smartctl",
+        "args": [
+          "-a",
+          "/dev/ada0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/smart?dev=nvme0",
+    "req": "GET /smart?dev=nvme0 ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "smartctl 7.5 2025-04-30 r5714 [FreeBSD 15.1-RELEASE amd64] (local build)\nCopyright (C) 2002-25, Bruce Allen, Christian Franke, www.smartmontools.org\n\n=== START OF INFORMATION SECTION ===\nModel Number:                       SAMSUNG MZVLW128HEGR-000L2\nSerial Number:                      S35FNX0J706772\nFirmware Version:                   4L1QCXB7\nPCI Vendor/Subsystem ID:            0x144d\nIEEE OUI Identifier:                0x002538\nTotal NVM Capacity:                 128,035,676,160 [128 GB]\nUnallocated NVM Capacity:           0\nController ID:                      2\nNVMe Version:                       1.2\nNumber of Namespaces:               1\nNamespace 1 Size/Capacity:          128,035,676,160 [128 GB]\nNamespace 1 Utilization:            127,017,017,344 [127 GB]\nNamespace 1 Formatted LBA Size:     512\nNamespace 1 IEEE EUI-64:            002538 b771b05c6e\nLocal Time is:                      Thu Nov 19 13:23:35 2026 KST\nFirmware Updates (0x16):            3 Slots, no Reset required\nOptional Admin Commands (0x0017):   Security Format Frmw_DL Self_Test\nOptional NVM Commands (0x001f):     Comp Wr_Unc DS_Mngmt Wr_Zero Sav/Sel_Feat\nLog Page Attributes (0x03):         S/H_per_NS Cmd_Eff_Lg\nWarning  Comp. Temp. Threshold:     69 Celsius\nCritical Comp. Temp. Threshold:     72 Celsius\n\nSupported Power States\nSt Op     Max   Active     Idle   RL RT WL WT  Ent_Lat  Ex_Lat\n 0 +     7.60W       -        -    0  0  0  0        0       0\n 1 +     6.00W       -        -    1  1  1  1        0       0\n 2 +     5.10W       -        -    2  2  2  2        0       0\n 3 -   0.0400W       -        -    3  3  3  3      210    1500\n 4 -   0.0050W       -        -    4  4  4  4     2200    6000\n\nSupported LBA Sizes (NSID 0x1)\nId Fmt  Data  Metadt  Rel_Perf\n 0 +     512       0         0\n\n=== START OF SMART DATA SECTION ===\nSMART overall-health self-assessment test result: PASSED\n\nSMART/Health Information (NVMe Log 0x02, NSID 0xffffffff)\nCritical Warning:                   0x00\nTemperature:                        34 Celsius\nAvailable Spare:                    100%\nAvailable Spare Threshold:          10%\nPercentage Used:                    3%\nData Units Read:                    7,548,151 [3.86 TB]\nData Units Written:                 7,920,146 [4.05 TB]\nHost Read Commands:                 102,403,587\nHost Write Commands:                167,622,976\nController Busy Time:               392\nPower Cycles:                       1,891\nPower On Hours:                     2,627\nUnsafe Shutdowns:                   595\nMedia and Data Integrity Errors:    0\nError Information Log Entries:      333\nWarning  Comp. Temperature Time:    9\nCritical Comp. Temperature Time:    0\nTemperature Sensor 1:               34 Celsius\nTemperature Sensor 2:               51 Celsius\n\nError Information (NVMe Log 0x01, 16 of 64 entries)\nNum   ErrCount  SQId   CmdId  Status  PELoc          LBA  NSID    VS  Message\n  0        333     0  0x0007  0x4004      -            0     0     -  Invalid Field in Command\n  1        332     0  0x0018  0x4004      -            0     0     -  Invalid Field in Command\n  2        331     0  0x0007  0x4004      -            0     0     -  Invalid Field in Command\n  3        330     0  0x1002  0x4004      -            0     0     -  Invalid Field in Command\n  4        329     0  0x0007  0x4004      -            0     0     -  Invalid Field in Command\n  5        328     0  0x101c  0x4004      -            0     0     -  Invalid Field in Command\n  6        327     0  0x0007  0x4004      -            0     0     -  Invalid Field in Command\n  7        326     0  0x1014  0x4004      -            0     0     -  Invalid Field in Command\n  8        325     0  0x0001  0x4004      -            0     0     -  Invalid Field in Command\n  9        324     0  0x0005  0x4004      -            0     0     -  Invalid Field in Command\n 10        323     0  0x0008  0x4004      -            0     0     -  Invalid Field in Command\n 11        322     0  0x0012  0x4004      -            0     0     -  Invalid Field in Command\n 12        321     0  0x0007  0x4004      -            0     0     -  Invalid Field in Command\n 13        320     0  0x4016  0x4004      -            0     0     -  Invalid Field in Command\n 14        319     0  0x0004  0x4004      -            0     0     -  Invalid Field in Command\n 15        318     0  0x0007  0x4004      -            0     0     -  Invalid Field in Command\n... (48 entries not read)\n\nSelf-test Log (NVMe Log 0x06, NSID 0xffffffff)\nSelf-test status: No self-test in progress\nNo Self-tests Logged\n\n"
+    },
+    "calls": [
+      {
+        "cmd": "smartctl",
+        "args": [
+          "-a",
+          "/dev/nvme0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/smart?dev=sda",
+    "req": "GET /smart?dev=sda ",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "invalid device"
+    }
+  },
+  {
+    "name": "/smart?dev=ada0;ls",
+    "req": "GET /smart?dev=ada0;ls ",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "invalid device"
+    }
+  },
+  {
+    "name": "/localusers/status",
+    "req": "GET /localusers/status ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "groups": [
+            {
+              "gid": 0,
+              "members": [
+                "root",
+                "mohicann"
+              ],
+              "name": "wheel"
+            },
+            {
+              "gid": 65533,
+              "members": [],
+              "name": "nogroup"
+            },
+            {
+              "gid": 65534,
+              "members": [],
+              "name": "nobody"
+            },
+            {
+              "gid": 3000,
+              "members": [],
+              "name": "mohicann"
+            }
+          ],
+          "users": [
+            {
+              "fullname": "Unprivileged user",
+              "gid": 65534,
+              "groups": [],
+              "has_smb": false,
+              "home": "/nonexistent",
+              "shell": "/usr/sbin/nologin",
+              "uid": 65534,
+              "username": "nobody"
+            },
+            {
+              "fullname": "mohicann",
+              "gid": 3000,
+              "groups": [
+                "wheel"
+              ],
+              "has_smb": false,
+              "home": "/home/mohicann",
+              "shell": "/bin/sh",
+              "uid": 3000,
+              "username": "mohicann"
+            }
+          ]
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "pdbedit",
+        "args": [
+          "-L"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/nfs/status",
+    "req": "GET /nfs/status ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "exports": [],
+          "running": false
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "service",
+        "args": [
+          "nfsd",
+          "status"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/smb/status",
+    "req": "GET /smb/status ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "running": false,
+          "setup_ok": false,
+          "shares": []
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "service",
+        "args": [
+          "samba_server",
+          "status"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/network/status",
+    "req": "GET /network/status ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "dns": [
+            "192.168.0.1"
+          ],
+          "interfaces": [
+            {
+              "flags": [
+                "BROADCAST",
+                "SIMPLEX",
+                "MULTICAST"
+              ],
+              "inet": [],
+              "inet6": [],
+              "mac": "a8:b8:e0:03:7d:2d",
+              "media": "Ethernet autoselect",
+              "mtu": 1500,
+              "name": "igc0",
+              "status": "no carrier",
+              "up": false
+            },
+            {
+              "flags": [
+                "BROADCAST",
+                "SIMPLEX",
+                "MULTICAST"
+              ],
+              "inet": [],
+              "inet6": [],
+              "mac": "a8:b8:e0:03:7d:2e",
+              "media": "Ethernet autoselect",
+              "mtu": 1500,
+              "name": "igc1",
+              "status": "no carrier",
+              "up": false
+            },
+            {
+              "flags": [
+                "BROADCAST",
+                "SIMPLEX",
+                "MULTICAST"
+              ],
+              "inet": [],
+              "inet6": [],
+              "mac": "a8:b8:e0:03:7d:2f",
+              "media": "Ethernet autoselect",
+              "mtu": 1500,
+              "name": "igc2",
+              "status": "no carrier",
+              "up": false
+            },
+            {
+              "flags": [
+                "UP",
+                "BROADCAST",
+                "RUNNING",
+                "SIMPLEX",
+                "MULTICAST",
+                "LOWER_UP"
+              ],
+              "inet": [
+                "192.168.0.110/24"
+              ],
+              "inet6": [
+                "fe80::aab8:e0ff:fe03:7d30%igc3/64"
+              ],
+              "mac": "a8:b8:e0:03:7d:30",
+              "media": "Ethernet autoselect (1000baseT \u003cfull-duplex\u003e)",
+              "mtu": 1500,
+              "name": "igc3",
+              "status": "active",
+              "up": true
+            },
+            {
+              "flags": [
+                "UP",
+                "LOOPBACK",
+                "RUNNING",
+                "MULTICAST",
+                "LOWER_UP"
+              ],
+              "inet": [
+                "127.0.0.1/8"
+              ],
+              "inet6": [
+                "::1/128",
+                "fe80::1%lo0/64"
+              ],
+              "mac": "",
+              "media": "",
+              "mtu": 16384,
+              "name": "lo0",
+              "status": "",
+              "up": true
+            },
+            {
+              "flags": [
+                "UP",
+                "RUNNING",
+                "PROMISC",
+                "LOWER_UP"
+              ],
+              "inet": [],
+              "inet6": [],
+              "mac": "",
+              "media": "",
+              "mtu": 33152,
+              "name": "pflog0",
+              "status": "",
+              "up": true
+            },
+            {
+              "flags": [
+                "UP",
+                "BROADCAST",
+                "RUNNING",
+                "MULTICAST",
+                "LOWER_UP"
+              ],
+              "inet": [
+                "100.70.120.35/32"
+              ],
+              "inet6": [
+                "fd7a:115c:a1e0::fd2b:352d/48"
+              ],
+              "mac": "",
+              "media": "",
+              "mtu": 1280,
+              "name": "tailscale0",
+              "status": "",
+              "up": true
+            },
+            {
+              "flags": [
+                "UP",
+                "BROADCAST",
+                "RUNNING",
+                "SIMPLEX",
+                "MULTICAST",
+                "LOWER_UP"
+              ],
+              "inet": [
+                "10.0.0.1/24"
+              ],
+              "inet6": [],
+              "mac": "58:9c:fc:10:ee:0a",
+              "media": "",
+              "mtu": 1500,
+              "name": "ajnet",
+              "status": "",
+              "up": true
+            },
+            {
+              "flags": [
+                "UP",
+                "BROADCAST",
+                "RUNNING",
+                "PROMISC",
+                "SIMPLEX",
+                "MULTICAST",
+                "LOWER_UP"
+              ],
+              "inet": [],
+              "inet6": [],
+              "mac": "58:9c:fc:10:2b:51",
+              "media": "Ethernet 10Gbase-T (10Gbase-T \u003cfull-duplex\u003e)",
+              "mtu": 1500,
+              "name": "ea_ca897ad527e",
+              "status": "active",
+              "up": true
+            },
+            {
+              "flags": [
+                "UP",
+                "BROADCAST",
+                "RUNNING",
+                "PROMISC",
+                "SIMPLEX",
+                "MULTICAST",
+                "LOWER_UP"
+              ],
+              "inet": [],
+              "inet6": [],
+              "mac": "58:9c:fc:10:e5:e9",
+              "media": "Ethernet 10Gbase-T (10Gbase-T \u003cfull-duplex\u003e)",
+              "mtu": 1500,
+              "name": "ea_a0e6aba9e31",
+              "status": "active",
+              "up": true
+            },
+            {
+              "flags": [
+                "UP",
+                "BROADCAST",
+                "RUNNING",
+                "PROMISC",
+                "SIMPLEX",
+                "MULTICAST",
+                "LOWER_UP"
+              ],
+              "inet": [],
+              "inet6": [],
+              "mac": "58:9c:fc:10:df:63",
+              "media": "Ethernet 10Gbase-T (10Gbase-T \u003cfull-duplex\u003e)",
+              "mtu": 1500,
+              "name": "ea_4cec68a504e",
+              "status": "active",
+              "up": true
+            }
+          ],
+          "routes": "Routing tables\n\nInternet:\nDestination        Gateway            Flags         Netif Expire\ndefault            192.168.0.1        UGS            igc3\n10.0.0.0/24        link#8             U             ajnet\n10.0.0.1           link#5             UHS             lo0\n100.64.64.77       link#7             UHS      tailscale0\n100.70.120.35      link#5             UH              lo0\n100.74.84.39       link#7             UHS      tailscale0\n100.77.171.31      link#7             UHS      tailscale0\n100.81.96.26       link#7             UHS      tailscale0\n100.88.109.107     link#7             UHS      tailscale0\n100.93.170.108     link#7             UHS      tailscale0\n100.100.100.100    link#7             UHS      tailscale0\n100.110.165.46     link#7             UHS      tailscale0\n100.114.211.87     link#7             UHS      tailscale0\n100.115.38.17      link#7             UHS      tailscale0\n100.121.96.43      link#7             UHS      tailscale0\n127.0.0.1          link#5             UH              lo0\n192.168.0.0/24     link#4             U              igc3\n192.168.0.110      link#5             UHS             lo0\n\nInternet6:\nDestination                       Gateway                       Flags         Netif Expire\n::/96                             link#5                        URS             lo0\n::1                               link#5                        UHS             lo0\n::ffff:0.0.0.0/96                 link#5                        URS             lo0\nfd7a:115c:a1e0::/48               link#7                        U        tailscale0\nfd7a:115c:a1e0::53                link#7                        UHS      tailscale0\nfd7a:115c:a1e0::fd2b:352d         link#5                        UHS             lo0\nfe80::%lo0/10                     link#5                        URS             lo0\nfe80::%igc3/64                    link#4                        U              igc3\nfe80::aab8:e0ff:fe03:7d30%lo0     link#5                        UHS             lo0\nfe80::%lo0/64                     link#5                        U               lo0\nfe80::1%lo0                       link#5                        UHS             lo0\nff02::/16                         link#5                        URS             lo0"
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "ifconfig",
+        "args": [
+          "-a"
+        ]
+      },
+      {
+        "cmd": "netstat",
+        "args": [
+          "-rn"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/appjail/list",
+    "req": "GET /appjail/list ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "jails": [
+            {
+              "boot": true,
+              "created": "2026-11-17 15:19:20",
+              "ip": "10.0.0.11",
+              "jail_type": "thick",
+              "name": "audio",
+              "ports": "8080/tcp,8080/tcp",
+              "priority": "10",
+              "running": true,
+              "status": "UP",
+              "version": "15.1-RELEASE"
+            },
+            {
+              "boot": true,
+              "created": "2026-11-17 17:12:40",
+              "ip": "10.0.0.12",
+              "jail_type": "thick",
+              "name": "cloudreve",
+              "ports": "3040 -\u003e 5212/tcp,3040 -\u003e 5212/tcp",
+              "priority": "20",
+              "running": true,
+              "status": "UP",
+              "version": "15.1-RELEASE"
+            },
+            {
+              "boot": true,
+              "created": "2026-11-17 18:36:22",
+              "ip": "10.0.0.13",
+              "jail_type": "thick",
+              "name": "pfortainer",
+              "ports": "11000/tcp,11000/tcp",
+              "priority": "30",
+              "running": true,
+              "status": "UP",
+              "version": "15.1-RELEASE"
+            }
+          ]
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "appjail",
+        "args": [
+          "jail",
+          "list",
+          "-eHIp",
+          "name",
+          "status",
+          "type",
+          "version",
+          "boot",
+          "priority",
+          "network_ip4",
+          "ports",
+          "created"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/appjail/detail?name=audio",
+    "req": "GET /appjail/detail?name=audio ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "dataset": "zdata/appjail/jails/audio/jail",
+          "expose": {
+            "error": "",
+            "headers": [
+              "NRO",
+              "ENABLED",
+              "NAME",
+              "PORTS",
+              "PROTOCOL",
+              "NETWORK_NAME",
+              "EXT_IF",
+              "ON_IF"
+            ],
+            "rows": [
+              [
+                "0",
+                "1",
+                "audio-server-rs nginx",
+                "8080",
+                "tcp",
+                "ajnet",
+                "igc3",
+                "igc3"
+              ],
+              [
+                "1",
+                "1",
+                "audio-server-rs nginx (tailscale)",
+                "8080",
+                "tcp",
+                "ajnet",
+                "tailscale0",
+                "tailscale0"
+              ]
+            ]
+          },
+          "fstab": {
+            "error": "",
+            "headers": [
+              "NRO",
+              "ENABLED",
+              "NAME",
+              "DEVICE",
+              "MOUNTPOINT",
+              "TYPE",
+              "OPTIONS",
+              "DUMP",
+              "PASS"
+            ],
+            "rows": [
+              [
+                "0",
+                "1",
+                "",
+                "/zdata/apps/audio-server-rs",
+                "/opt/audio-server-rs",
+                "nullfs",
+                "rw",
+                "0",
+                "0"
+              ],
+              [
+                "1",
+                "1",
+                "",
+                "/zdata/book-audio",
+                "/audio",
+                "nullfs",
+                "ro",
+                "0",
+                "0"
+              ],
+              [
+                "2",
+                "1",
+                "",
+                "/zdata/audio-hls-rs",
+                "/audio-hls",
+                "nullfs",
+                "rw",
+                "0",
+                "0"
+              ],
+              [
+                "3",
+                "1",
+                "",
+                "/zdata/log/audio-server-rs",
+                "/audit",
+                "nullfs",
+                "rw",
+                "0",
+                "0"
+              ],
+              [
+                "4",
+                "1",
+                "",
+                "/zdata/apps/audio-server-go",
+                "/opt/audio-server-go",
+                "nullfs",
+                "rw",
+                "0",
+                "0"
+              ]
+            ]
+          },
+          "healthcheck": {
+            "error": "",
+            "headers": [
+              "NRO",
+              "ENABLED",
+              "NAME",
+              "STATUS",
+              "HEALTH_TYPE",
+              "HEALTH_CMD",
+              "RECOVER_TYPE",
+              "RECOVER_CMD"
+            ],
+            "rows": [
+              [
+                "0",
+                "1",
+                "",
+                "healthy",
+                "jail",
+                "fetch -qo /dev/null http://127.0.0.1:3001/health",
+                "jail",
+                "service audioserver restart"
+              ]
+            ]
+          },
+          "info": {
+            "boot": true,
+            "created": "2026-11-17 15:19:20",
+            "ip": "10.0.0.11",
+            "jail_type": "thick",
+            "name": "audio",
+            "ports": "8080/tcp,8080/tcp",
+            "priority": "10",
+            "running": true,
+            "status": "UP",
+            "version": "15.1-RELEASE"
+          },
+          "path": "\u003cROOT\u003e/usr/local/appjail/jails/audio/jail",
+          "processes": [
+            {
+              "command": "/usr/sbin/syslogd -s",
+              "pcpu": "0.0",
+              "pid": 13188,
+              "rss": "2288",
+              "user": "root"
+            },
+            {
+              "command": "syslogd: syslogd.casper (syslogd)",
+              "pcpu": "0.0",
+              "pid": 13191,
+              "rss": "2116",
+              "user": "root"
+            },
+            {
+              "command": "syslogd: system.net (syslogd)",
+              "pcpu": "0.0",
+              "pid": 13192,
+              "rss": "2048",
+              "user": "root"
+            },
+            {
+              "command": "redis-server: /usr/local/bin/redis-server 127.0.0.1:6379 (redis-server)",
+              "pcpu": "0.0",
+              "pid": 13297,
+              "rss": "15088",
+              "user": "root"
+            },
+            {
+              "command": "/usr/sbin/cron -s",
+              "pcpu": "0.0",
+              "pid": 13302,
+              "rss": "1944",
+              "user": "root"
+            },
+            {
+              "command": "nginx: master process /usr/local/sbin/nginx",
+              "pcpu": "0.0",
+              "pid": 13347,
+              "rss": "6064",
+              "user": "root"
+            },
+            {
+              "command": "nginx: worker process (nginx)",
+              "pcpu": "0.0",
+              "pid": 13348,
+              "rss": "6592",
+              "user": "root"
+            },
+            {
+              "command": "nginx: worker process (nginx)",
+              "pcpu": "0.0",
+              "pid": 13349,
+              "rss": "7196",
+              "user": "root"
+            },
+            {
+              "command": "nginx: worker process (nginx)",
+              "pcpu": "0.0",
+              "pid": 13350,
+              "rss": "7232",
+              "user": "root"
+            },
+            {
+              "command": "nginx: worker process (nginx)",
+              "pcpu": "0.0",
+              "pid": 13351,
+              "rss": "7220",
+              "user": "root"
+            },
+            {
+              "command": "nginx: worker process (nginx)",
+              "pcpu": "0.0",
+              "pid": 13352,
+              "rss": "7192",
+              "user": "root"
+            },
+            {
+              "command": "nginx: worker process (nginx)",
+              "pcpu": "0.0",
+              "pid": 13353,
+              "rss": "7456",
+              "user": "root"
+            },
+            {
+              "command": "daemon: audioserver[13366] (daemon)",
+              "pcpu": "0.0",
+              "pid": 13365,
+              "rss": "2164",
+              "user": "root"
+            },
+            {
+              "command": "/opt/audio-server-go/bin/audio-server",
+              "pcpu": "0.0",
+              "pid": 13366,
+              "rss": "140344",
+              "user": "root"
+            }
+          ],
+          "template_conf": "exec.start: \"/bin/sh /etc/rc\"\nexec.stop: \"/bin/sh /etc/rc.shutdown jail\"\nmount.devfs\npersist\nvnet\nvnet.interface: \"eb_ca897ad527e\"\nexec.prestart: \"appjail network plug -e \\\"ca897ad527e\\\" -n \\\"ajnet\\\"\"\nexec.poststart: \"appjail network assign -d -e \\\"ca897ad527e\\\" -j \\\"${name}\\\" -n \\\"ajnet\\\"\"\nexec.poststop: \"appjail network unplug \\\"ajnet\\\" \\\"ca897ad527e\\\"\"\nexec.prestart+: \"appjail nat on jail \\\"${name}\\\"\"\nexec.poststop+: \"appjail nat off jail \\\"${name}\\\"\"\nexec.prestart+: \"appjail expose on \\\"${name}\\\"\"\nexec.poststop+: \"appjail expose off \\\"${name}\\\"\"\n",
+          "zfs_refer": "3.57G",
+          "zfs_used": "3.57G"
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "appjail",
+        "args": [
+          "jail",
+          "list",
+          "-eHIp",
+          "-j",
+          "audio",
+          "name",
+          "status",
+          "type",
+          "version",
+          "boot",
+          "priority",
+          "network_ip4",
+          "ports",
+          "created"
+        ]
+      },
+      {
+        "cmd": "appjail",
+        "args": [
+          "fstab",
+          "jail",
+          "audio",
+          "list",
+          "-eIp"
+        ]
+      },
+      {
+        "cmd": "appjail",
+        "args": [
+          "expose",
+          "list",
+          "-eIp",
+          "audio"
+        ]
+      },
+      {
+        "cmd": "appjail",
+        "args": [
+          "healthcheck",
+          "list",
+          "-eIp",
+          "audio"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-H",
+          "-o",
+          "used,refer",
+          "zdata/appjail/jails/audio/jail"
+        ]
+      },
+      {
+        "cmd": "ps",
+        "args": [
+          "-J",
+          "audio",
+          "-o",
+          "pid=",
+          "-o",
+          "user=",
+          "-o",
+          "pcpu=",
+          "-o",
+          "rss=",
+          "-o",
+          "command="
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/appjail/detail?name=nope",
+    "req": "GET /appjail/detail?name=nope ",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "unknown jail"
+    }
+  },
+  {
+    "name": "/appjail/detail?name=..%2F..",
+    "req": "GET /appjail/detail?name=..%2F.. ",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "unknown jail"
+    }
+  },
+  {
+    "name": "/diag/cmd?cmd=df",
+    "req": "GET /diag/cmd?cmd=df ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "Filesystem                                                                           Size    Used   Avail Capacity  Mounted on\nzroot/ROOT/default                                                                   112G    2.1G    110G     2%    /\ndevfs                                                                                1.0K      0B    1.0K     0%    /dev\n/dev/gpt/efiboot0                                                                    256M    1.3M    255M     0%    /boot/efi\nfdescfs                                                                              1.0K      0B    1.0K     0%    /dev/fd\nzroot/home                                                                           110G     96K    110G     0%    /home\nzroot/tmp                                                                            110G    864K    110G     0%    /tmp\nzroot                                                                                110G     96K    110G     0%    /zroot\nzroot/usr/src                                                                        110G     96K    110G     0%    /usr/src\nzroot/var/audit                                                                      110G     96K    110G     0%    /var/audit\nzroot/var/crash                                                                      110G     96K    110G     0%    /var/crash\nzroot/usr/ports                                                                      110G     96K    110G     0%    /usr/ports\nzroot/var/log                                                                        110G    516K    110G     0%    /var/log\nzroot/var/tmp                                                                        110G     96K    110G     0%    /var/tmp\nzroot/var/mail                                                                       110G    116K    110G     0%    /var/mail\nzroot/home/mohicann                                                                  110G    212K    110G     0%    /home/mohicann\nzdata/containers                                                                     8.3T     25M    8.3T     0%    /var/db/containers\nzdata/appjail                                                                        8.3T    8.5M    8.3T     0%    /usr/local/appjail\nzbak                                                                                 917G    112K    917G     0%    /zbak\nzdata/appjail/networks                                                               8.3T    128K    8.3T     0%    /usr/local/appjail/networks\nzdata/appjail/networks/ajnet                                                         8.3T    133K    8.3T     0%    /usr/local/appjail/networks/ajnet\nzdata/appjail/components                                                             8.3T    128K    8.3T     0%    /usr/local/appjail/cache/components\nzdata/appjail/components/amd64                                                       8.3T    128K    8.3T     0%    /usr/local/appjail/cache/components/amd64\nzbak/cloudreve                                                                       917G     47M    917G     0%    /zbak/cloudreve\nzdata/appjail/logs                                                                   8.3T    128K    8.3T     0%    /var/log/appjail\nzdata/appjail/logs/jails                                                             8.3T    128K    8.3T     0%    /var/log/appjail/jails\nzdata/appjail/releases                                                               8.3T    128K    8.3T     0%    /usr/local/appjail/releases\nzbak/immich-pgdata-freebsd                                                           919G    1.1G    917G     0%    /zbak/immich-pgdata-freebsd\nzbak/immich-apps                                                                     920G    2.1G    917G     0%    /zbak/immich-apps\nzdata/appjail/releases/amd64                                                         8.3T    128K    8.3T     0%    /usr/local/appjail/releases/amd64\nzdata/appjail/logs/jails/pfortainer                                                  8.3T    149K    8.3T     0%    /var/log/appjail/jails/pfortainer\nzdata/appjail/components/amd64/15.1-RELEASE                                          8.3T    128K    8.3T     0%    /usr/local/appjail/cache/components/amd64/15.1-RELEASE\nzdata                                                                                8.7T    370G    8.3T     4%    /zdata\nzdata/appjail/logs/jails/pfortainer/startup-stop                                     8.3T    133K    8.3T     0%    /var/log/appjail/jails/pfortainer/startup-stop\nzdata/appjail/logs/jails/pfortainer/console                                          8.3T    133K    8.3T     0%    /var/log/appjail/jails/pfortainer/console\nzdata/appjail/logs/jails/audio                                                       8.3T    149K    8.3T     0%    /var/log/appjail/jails/audio\nzbak/cloudreve-pgdata                                                                917G     22M    917G     0%    /zbak/cloudreve-pgdata\nzdata/appjail/jails                                                                  8.3T    128K    8.3T     0%    /usr/local/appjail/jails\nzdata/appjail/releases/amd64/15.1-RELEASE                                            8.3T    128K    8.3T     0%    /usr/local/appjail/releases/amd64/15.1-RELEASE\nzdata/appjail/logs/jails/cloudreve                                                   8.3T    149K    8.3T     0%    /var/log/appjail/jails/cloudreve\nzdata/appjail/logs/jails/audio/console                                               8.3T    133K    8.3T     0%    /var/log/appjail/jails/audio/console\nzdata/appjail/components/amd64/15.1-RELEASE/default                                  8.3T    144M    8.3T     0%    /usr/local/appjail/cache/components/amd64/15.1-RELEASE/default\nzdata/appjail/jails/audio                                                            8.3T    320K    8.3T     0%    /usr/local/appjail/jails/audio\nzdata/appjail/logs/jails/audio/startup-start                                         8.3T    133K    8.3T     0%    /var/log/appjail/jails/audio/startup-start\nzdata/appjail/logs/jails/audio/healthcheckers                                        8.3T    267K    8.3T     0%    /var/log/appjail/jails/audio/healthcheckers\nzbak/library-private-photo                                                           1.4T    531G    917G    37%    /zbak/library-private-photo\nzdata/appjail/jails/cloudreve                                                        8.3T    288K    8.3T     0%    /usr/local/appjail/jails/cloudreve\nzdata/appjail/releases/amd64/15.1-RELEASE/default                                    8.3T    128K    8.3T     0%    /usr/local/appjail/releases/amd64/15.1-RELEASE/default\nzdata/appjail/logs/jails/cloudreve/healthcheckers                                    8.3T    208K    8.3T     0%    /var/log/appjail/jails/cloudreve/healthcheckers\nzdata/appjail/logs/jails/audio/startup-stop                                          8.3T    133K    8.3T     0%    /var/log/appjail/jails/audio/startup-stop\nzdata/appjail/logs/jails/cloudreve/startup-stop                                      8.3T    133K    8.3T     0%    /var/log/appjail/jails/cloudreve/startup-stop\nzbak/apps                                                                            918G    836M    917G     0%    /zbak/apps\nzbak/book-audio                                                                      1.2T    341G    917G    27%    /zbak/book-audio\nzdata/appjail/logs/jails/cloudreve/console                                           8.3T    133K    8.3T     0%    /var/log/appjail/jails/cloudreve/console\nzdata/appjail/jails/cloudreve/jail                                                   8.3T    1.7G    8.3T     0%    /usr/local/appjail/jails/cloudreve/jail\nzdata/home                                                                           8.3T    128K    8.3T     0%    /zdata/home\nzdata/appjail/logs/jails/cloudreve/startup-start                                     8.3T    133K    8.3T     0%    /var/log/appjail/jails/cloudreve/startup-start\nzdata/appjail/jails/audio/jail                                                       8.3T    3.6G    8.3T     0%    /usr/local/appjail/jails/audio/jail\nzdata/apps                                                                           8.3T    810M    8.3T     0%    /zdata/apps\nzdata/library-private-photo                                                          8.8T    535G    8.3T     6%    /zdata/library-private-photo\nzdata/home/user                                                                      8.3T    229K    8.3T     0%    /zdata/home/user\nzdata/appjail/jails/pfortainer                                                       8.3T    299K    8.3T     0%    /usr/local/appjail/jails/pfortainer\nzdata/shared                                                                         8.3T     29G    8.3T     0%    /zdata/shared\nzdata/apps/cloudreve                                                                 8.3T     43M    8.3T     0%    /zdata/apps/cloudreve\nzdata/apps/immich                                                                    8.3T    1.9G    8.3T     0%    /zdata/apps/immich\nzdata/appjail/releases/amd64/15.1-RELEASE/default/release                            8.3T    370M    8.3T     0%    /usr/local/appjail/releases/amd64/15.1-RELEASE/default/release\nzdata/apps/immich/pgdata-freebsd                                                     8.3T    1.1G    8.3T     0%    /zdata/apps/immich/pgdata-freebsd\nzdata/apps/cloudreve/pgdata                                                          8.3T     28M    8.3T     0%    /zdata/apps/cloudreve/pgdata\nzdata/appjail/jails/pfortainer/jail                                                  8.3T    1.9G    8.3T     0%    /usr/local/appjail/jails/pfortainer/jail\nzdata/book-audio                                                                     8.6T    322G    8.3T     4%    /zdata/book-audio\nzdata/containers/de5a9f1f8f697710cb4290b4f5770f24ea03d31c1743c0a08bac726e5ec1009e    8.3T    1.0G    8.3T     0%    /var/db/containers/storage/zfs/graph/de5a9f1f8f697710cb4290b4f5770f24ea03d31c1743c0a08bac726e5ec1009e\nzdata/containers/a6fd99a0fa19e6d6a4c1812a33a3dd2e444df601b7573e2126173632b0cd6fb1    8.3T    2.2G    8.3T     0%    /var/db/containers/storage/zfs/graph/a6fd99a0fa19e6d6a4c1812a33a3dd2e444df601b7573e2126173632b0cd6fb1\nzdata/containers/f4e607b230f05fd2b38cea7fceadc12bc37a4d63a3a064a3f7bfff3d21d2af1d    8.3T     83M    8.3T     0%    /var/db/containers/storage/zfs/graph/f4e607b230f05fd2b38cea7fceadc12bc37a4d63a3a064a3f7bfff3d21d2af1d\nzdata/containers/e211db42470213afd831cd197fdf5e2c89a36511bc1e3566922b4487853ee88e    8.3T    1.8G    8.3T     0%    /var/db/containers/storage/zfs/graph/e211db42470213afd831cd197fdf5e2c89a36511bc1e3566922b4487853ee88e\nzdata/appjail/logs/jails/pfortainer/healthcheckers                                   8.3T    203K    8.3T     0%    /var/log/appjail/jails/pfortainer/healthcheckers\n/zdata/apps/audio-server-rs                                                          8.3T    810M    8.3T     0%    /usr/local/appjail/jails/audio/jail/opt/audio-server-rs\n/zdata/book-audio                                                                    8.6T    322G    8.3T     4%    /usr/local/appjail/jails/audio/jail/audio\n/zdata/audio-hls-rs                                                                  8.7T    370G    8.3T     4%    /usr/local/appjail/jails/audio/jail/audio-hls\n/zdata/log/audio-server-rs                                                           8.7T    370G    8.3T     4%    /usr/local/appjail/jails/audio/jail/audit\ndevfs                                                                                1.0K      0B    1.0K     0%    /usr/local/appjail/jails/audio/jail/dev\n/zdata/apps/cloudreve/app                                                            8.3T     43M    8.3T     0%    /usr/local/appjail/jails/cloudreve/jail/usr/local/cloudreve\n/zdata/apps/cloudreve/pgdata                                                         8.3T     28M    8.3T     0%    /usr/local/appjail/jails/cloudreve/jail/var/db/postgres/data18\ndevfs                                                                                1.0K      0B    1.0K     0%    /usr/local/appjail/jails/cloudreve/jail/dev\nzdata/appjail/logs/jails/pfortainer/startup-start                                    8.3T    133K    8.3T     0%    /var/log/appjail/jails/pfortainer/startup-start\n/zdata/apps/pfortainer-rs                                                            8.3T    810M    8.3T     0%    /usr/local/appjail/jails/pfortainer/jail/opt/pfortainer-rs\n/var/run/pfortainer-rs                                                               112G    2.1G    110G     2%    /usr/local/appjail/jails/pfortainer/jail/run/pfortainer-rs\n/var/run/podman                                                                      112G    2.1G    110G     2%    /usr/local/appjail/jails/pfortainer/jail/run/podman\ndevfs                                                                                1.0K      0B    1.0K     0%    /usr/local/appjail/jails/pfortainer/jail/dev\n/zdata/apps/audio-server-go                                                          8.3T    810M    8.3T     0%    /usr/local/appjail/jails/audio/jail/opt/audio-server-go\n"
+    },
+    "calls": [
+      {
+        "cmd": "df",
+        "args": [
+          "-h"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/diag/cmd?cmd=mount",
+    "req": "GET /diag/cmd?cmd=mount ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "zroot/ROOT/default on / (zfs, local, noatime, nfsv4acls)\ndevfs on /dev (devfs)\n/dev/gpt/efiboot0 on /boot/efi (msdosfs, local)\nfdescfs on /dev/fd (fdescfs)\nzroot/home on /home (zfs, local, noatime, nfsv4acls)\nzroot/tmp on /tmp (zfs, local, noatime, nosuid, nfsv4acls)\nzroot on /zroot (zfs, local, noatime, nfsv4acls)\nzroot/usr/src on /usr/src (zfs, local, noatime, nfsv4acls)\nzroot/var/audit on /var/audit (zfs, local, noatime, noexec, nosuid, nfsv4acls)\nzroot/var/crash on /var/crash (zfs, local, noatime, noexec, nosuid, nfsv4acls)\nzroot/usr/ports on /usr/ports (zfs, local, noatime, nosuid, nfsv4acls)\nzroot/var/log on /var/log (zfs, local, noatime, noexec, nosuid, nfsv4acls)\nzroot/var/tmp on /var/tmp (zfs, local, noatime, nosuid, nfsv4acls)\nzroot/var/mail on /var/mail (zfs, local, nfsv4acls)\nzroot/home/mohicann on /home/mohicann (zfs, local, noatime, nfsv4acls)\nzdata/containers on /var/db/containers (zfs, local, noatime, nfsv4acls)\nzdata/appjail on /usr/local/appjail (zfs, local, noatime, nfsv4acls)\nzbak on /zbak (zfs, local, nfsv4acls)\nzdata/appjail/networks on /usr/local/appjail/networks (zfs, local, noatime, nfsv4acls)\nzdata/appjail/networks/ajnet on /usr/local/appjail/networks/ajnet (zfs, local, noatime, nfsv4acls)\nzdata/appjail/components on /usr/local/appjail/cache/components (zfs, local, noatime, nfsv4acls)\nzdata/appjail/components/amd64 on /usr/local/appjail/cache/components/amd64 (zfs, local, noatime, nfsv4acls)\nzbak/cloudreve on /zbak/cloudreve (zfs, local, read-only, nfsv4acls)\nzdata/appjail/logs on /var/log/appjail (zfs, local, noatime, nfsv4acls)\nzdata/appjail/logs/jails on /var/log/appjail/jails (zfs, local, noatime, nfsv4acls)\nzdata/appjail/releases on /usr/local/appjail/releases (zfs, local, noatime, nfsv4acls)\nzbak/immich-pgdata-freebsd on /zbak/immich-pgdata-freebsd (zfs, local, read-only, nfsv4acls)\nzbak/immich-apps on /zbak/immich-apps (zfs, local, read-only, nfsv4acls)\nzdata/appjail/releases/amd64 on /usr/local/appjail/releases/amd64 (zfs, local, noatime, nfsv4acls)\nzdata/appjail/logs/jails/pfortainer on /var/log/appjail/jails/pfortainer (zfs, local, noatime, nfsv4acls)\nzdata/appjail/components/amd64/15.1-RELEASE on /usr/local/appjail/cache/components/amd64/15.1-RELEASE (zfs, local, noatime, nfsv4acls)\nzdata on /zdata (zfs, local, noatime, nfsv4acls)\nzdata/appjail/logs/jails/pfortainer/startup-stop on /var/log/appjail/jails/pfortainer/startup-stop (zfs, local, noatime, nfsv4acls)\nzdata/appjail/logs/jails/pfortainer/console on /var/log/appjail/jails/pfortainer/console (zfs, local, noatime, nfsv4acls)\nzdata/appjail/logs/jails/audio on /var/log/appjail/jails/audio (zfs, local, noatime, nfsv4acls)\nzbak/cloudreve-pgdata on /zbak/cloudreve-pgdata (zfs, local, read-only, nfsv4acls)\nzdata/appjail/jails on /usr/local/appjail/jails (zfs, local, noatime, nfsv4acls)\nzdata/appjail/releases/amd64/15.1-RELEASE on /usr/local/appjail/releases/amd64/15.1-RELEASE (zfs, local, noatime, nfsv4acls)\nzdata/appjail/logs/jails/cloudreve on /var/log/appjail/jails/cloudreve (zfs, local, noatime, nfsv4acls)\nzdata/appjail/logs/jails/audio/console on /var/log/appjail/jails/audio/console (zfs, local, noatime, nfsv4acls)\nzdata/appjail/components/amd64/15.1-RELEASE/default on /usr/local/appjail/cache/components/amd64/15.1-RELEASE/default (zfs, local, noatime, nfsv4acls)\nzdata/appjail/jails/audio on /usr/local/appjail/jails/audio (zfs, local, noatime, nfsv4acls)\nzdata/appjail/logs/jails/audio/startup-start on /var/log/appjail/jails/audio/startup-start (zfs, local, noatime, nfsv4acls)\nzdata/appjail/logs/jails/audio/healthcheckers on /var/log/appjail/jails/audio/healthcheckers (zfs, local, noatime, nfsv4acls)\nzbak/library-private-photo on /zbak/library-private-photo (zfs, local, read-only, nfsv4acls)\nzdata/appjail/jails/cloudreve on /usr/local/appjail/jails/cloudreve (zfs, local, noatime, nfsv4acls)\nzdata/appjail/releases/amd64/15.1-RELEASE/default on /usr/local/appjail/releases/amd64/15.1-RELEASE/default (zfs, local, noatime, nfsv4acls)\nzdata/appjail/logs/jails/cloudreve/healthcheckers on /var/log/appjail/jails/cloudreve/healthcheckers (zfs, local, noatime, nfsv4acls)\nzdata/appjail/logs/jails/audio/startup-stop on /var/log/appjail/jails/audio/startup-stop (zfs, local, noatime, nfsv4acls)\nzdata/appjail/logs/jails/cloudreve/startup-stop on /var/log/appjail/jails/cloudreve/startup-stop (zfs, local, noatime, nfsv4acls)\nzbak/apps on /zbak/apps (zfs, local, read-only, nfsv4acls)\nzbak/book-audio on /zbak/book-audio (zfs, local, read-only, nfsv4acls)\nzdata/appjail/logs/jails/cloudreve/console on /var/log/appjail/jails/cloudreve/console (zfs, local, noatime, nfsv4acls)\nzdata/appjail/jails/cloudreve/jail on /usr/local/appjail/jails/cloudreve/jail (zfs, local, noatime, nfsv4acls)\nzdata/home on /zdata/home (zfs, local, noatime, nfsv4acls)\nzdata/appjail/logs/jails/cloudreve/startup-start on /var/log/appjail/jails/cloudreve/startup-start (zfs, local, noatime, nfsv4acls)\nzdata/appjail/jails/audio/jail on /usr/local/appjail/jails/audio/jail (zfs, local, noatime, nfsv4acls)\nzdata/apps on /zdata/apps (zfs, local, noatime, nfsv4acls)\nzdata/library-private-photo on /zdata/library-private-photo (zfs, local, noatime, nfsv4acls)\nzdata/home/user on /zdata/home/user (zfs, local, noatime, nfsv4acls)\nzdata/appjail/jails/pfortainer on /usr/local/appjail/jails/pfortainer (zfs, local, noatime, nfsv4acls)\nzdata/shared on /zdata/shared (zfs, local, noatime, nfsv4acls)\nzdata/apps/cloudreve on /zdata/apps/cloudreve (zfs, local, noatime, nfsv4acls)\nzdata/apps/immich on /zdata/apps/immich (zfs, local, noatime, nfsv4acls)\nzdata/appjail/releases/amd64/15.1-RELEASE/default/release on /usr/local/appjail/releases/amd64/15.1-RELEASE/default/release (zfs, local, noatime, nfsv4acls)\nzdata/apps/immich/pgdata-freebsd on /zdata/apps/immich/pgdata-freebsd (zfs, local, noatime, nfsv4acls)\nzdata/apps/cloudreve/pgdata on /zdata/apps/cloudreve/pgdata (zfs, local, noatime, nfsv4acls)\nzdata/appjail/jails/pfortainer/jail on /usr/local/appjail/jails/pfortainer/jail (zfs, local, noatime, nfsv4acls)\nzdata/book-audio on /zdata/book-audio (zfs, local, noatime, nfsv4acls)\nzdata/containers/de5a9f1f8f697710cb4290b4f5770f24ea03d31c1743c0a08bac726e5ec1009e on /var/db/containers/storage/zfs/graph/de5a9f1f8f697710cb4290b4f5770f24ea03d31c1743c0a08bac726e5ec1009e (zfs, local, noatime, nfsv4acls)\nzdata/containers/a6fd99a0fa19e6d6a4c1812a33a3dd2e444df601b7573e2126173632b0cd6fb1 on /var/db/containers/storage/zfs/graph/a6fd99a0fa19e6d6a4c1812a33a3dd2e444df601b7573e2126173632b0cd6fb1 (zfs, local, noatime, nfsv4acls)\nzdata/containers/f4e607b230f05fd2b38cea7fceadc12bc37a4d63a3a064a3f7bfff3d21d2af1d on /var/db/containers/storage/zfs/graph/f4e607b230f05fd2b38cea7fceadc12bc37a4d63a3a064a3f7bfff3d21d2af1d (zfs, local, noatime, nfsv4acls)\nzdata/containers/e211db42470213afd831cd197fdf5e2c89a36511bc1e3566922b4487853ee88e on /var/db/containers/storage/zfs/graph/e211db42470213afd831cd197fdf5e2c89a36511bc1e3566922b4487853ee88e (zfs, local, noatime, nfsv4acls)\nzdata/appjail/logs/jails/pfortainer/healthcheckers on /var/log/appjail/jails/pfortainer/healthcheckers (zfs, local, noatime, nfsv4acls)\n/zdata/apps/audio-server-rs on /usr/local/appjail/jails/audio/jail/opt/audio-server-rs (nullfs, local)\n/zdata/book-audio on /usr/local/appjail/jails/audio/jail/audio (nullfs, local, read-only)\n/zdata/audio-hls-rs on /usr/local/appjail/jails/audio/jail/audio-hls (nullfs, local)\n/zdata/log/audio-server-rs on /usr/local/appjail/jails/audio/jail/audit (nullfs, local)\ndevfs on /usr/local/appjail/jails/audio/jail/dev (devfs)\n/zdata/apps/cloudreve/app on /usr/local/appjail/jails/cloudreve/jail/usr/local/cloudreve (nullfs, local)\n/zdata/apps/cloudreve/pgdata on /usr/local/appjail/jails/cloudreve/jail/var/db/postgres/data18 (nullfs, local)\ndevfs on /usr/local/appjail/jails/cloudreve/jail/dev (devfs)\nzdata/appjail/logs/jails/pfortainer/startup-start on /var/log/appjail/jails/pfortainer/startup-start (zfs, local, noatime, nfsv4acls)\n/zdata/apps/pfortainer-rs on /usr/local/appjail/jails/pfortainer/jail/opt/pfortainer-rs (nullfs, local)\n/var/run/pfortainer-rs on /usr/local/appjail/jails/pfortainer/jail/run/pfortainer-rs (nullfs, local)\n/var/run/podman on /usr/local/appjail/jails/pfortainer/jail/run/podman (nullfs, local)\ndevfs on /usr/local/appjail/jails/pfortainer/jail/dev (devfs)\n/zdata/apps/audio-server-go on /usr/local/appjail/jails/audio/jail/opt/audio-server-go (nullfs, local)\n"
+    },
+    "calls": [
+      {
+        "cmd": "mount",
+        "args": []
+      }
+    ]
+  },
+  {
+    "name": "/diag/cmd?cmd=ifconfig",
+    "req": "GET /diag/cmd?cmd=ifconfig ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "igc0: flags=8802\u003cBROADCAST,SIMPLEX,MULTICAST\u003e metric 0 mtu 1500\n\toptions=4e427bb\u003cRXCSUM,TXCSUM,VLAN_MTU,VLAN_HWTAGGING,JUMBO_MTU,VLAN_HWCSUM,TSO4,TSO6,LRO,WOL_MAGIC,VLAN_HWTSO,RXCSUM_IPV6,TXCSUM_IPV6,HWSTATS,MEXTPG\u003e\n\tether a8:b8:e0:03:7d:2d\n\tmedia: Ethernet autoselect\n\tstatus: no carrier\n\tnd6 options=29\u003cPERFORMNUD,IFDISABLED,AUTO_LINKLOCAL\u003e\nigc1: flags=8802\u003cBROADCAST,SIMPLEX,MULTICAST\u003e metric 0 mtu 1500\n\toptions=4e427bb\u003cRXCSUM,TXCSUM,VLAN_MTU,VLAN_HWTAGGING,JUMBO_MTU,VLAN_HWCSUM,TSO4,TSO6,LRO,WOL_MAGIC,VLAN_HWTSO,RXCSUM_IPV6,TXCSUM_IPV6,HWSTATS,MEXTPG\u003e\n\tether a8:b8:e0:03:7d:2e\n\tmedia: Ethernet autoselect\n\tstatus: no carrier\n\tnd6 options=29\u003cPERFORMNUD,IFDISABLED,AUTO_LINKLOCAL\u003e\nigc2: flags=8802\u003cBROADCAST,SIMPLEX,MULTICAST\u003e metric 0 mtu 1500\n\toptions=4e427bb\u003cRXCSUM,TXCSUM,VLAN_MTU,VLAN_HWTAGGING,JUMBO_MTU,VLAN_HWCSUM,TSO4,TSO6,LRO,WOL_MAGIC,VLAN_HWTSO,RXCSUM_IPV6,TXCSUM_IPV6,HWSTATS,MEXTPG\u003e\n\tether a8:b8:e0:03:7d:2f\n\tmedia: Ethernet autoselect\n\tstatus: no carrier\n\tnd6 options=29\u003cPERFORMNUD,IFDISABLED,AUTO_LINKLOCAL\u003e\nigc3: flags=1008843\u003cUP,BROADCAST,RUNNING,SIMPLEX,MULTICAST,LOWER_UP\u003e metric 0 mtu 1500\n\toptions=4e427bb\u003cRXCSUM,TXCSUM,VLAN_MTU,VLAN_HWTAGGING,JUMBO_MTU,VLAN_HWCSUM,TSO4,TSO6,LRO,WOL_MAGIC,VLAN_HWTSO,RXCSUM_IPV6,TXCSUM_IPV6,HWSTATS,MEXTPG\u003e\n\tether a8:b8:e0:03:7d:30\n\tinet 192.168.0.110 netmask 0xffffff00 broadcast 192.168.0.255\n\tinet6 fe80::aab8:e0ff:fe03:7d30%igc3 prefixlen 64 scopeid 0x4\n\tmedia: Ethernet autoselect (1000baseT \u003cfull-duplex\u003e)\n\tstatus: active\n\tnd6 options=23\u003cPERFORMNUD,ACCEPT_RTADV,AUTO_LINKLOCAL\u003e\nlo0: flags=1008049\u003cUP,LOOPBACK,RUNNING,MULTICAST,LOWER_UP\u003e metric 0 mtu 16384\n\toptions=680003\u003cRXCSUM,TXCSUM,LINKSTATE,RXCSUM_IPV6,TXCSUM_IPV6\u003e\n\tinet 127.0.0.1 netmask 0xff000000\n\tinet6 ::1 prefixlen 128\n\tinet6 fe80::1%lo0 prefixlen 64 scopeid 0x5\n\tgroups: lo\n\tnd6 options=21\u003cPERFORMNUD,AUTO_LINKLOCAL\u003e\npflog0: flags=1000141\u003cUP,RUNNING,PROMISC,LOWER_UP\u003e metric 0 mtu 33152\n\toptions=0\n\tgroups: pflog\ntailscale0: flags=1008043\u003cUP,BROADCAST,RUNNING,MULTICAST,LOWER_UP\u003e metric 0 mtu 1280\n\toptions=4080000\u003cLINKSTATE,MEXTPG\u003e\n\tinet 100.70.120.35 netmask 0xffffffff broadcast 100.70.120.35\n\tinet6 fd7a:115c:a1e0::fd2b:352d prefixlen 48\n\tgroups: tun\n\tnd6 options=101\u003cPERFORMNUD,NO_DAD\u003e\n\tOpened by PID 4729\najnet: flags=1008843\u003cUP,BROADCAST,RUNNING,SIMPLEX,MULTICAST,LOWER_UP\u003e metric 0 mtu 1500\n\toptions=10\u003cVLAN_HWTAGGING\u003e\n\tether 58:9c:fc:10:ee:0a\n\tinet 10.0.0.1 netmask 0xffffff00 broadcast 10.0.0.255\n\tid 00:00:00:00:00:00 priority 32768 hellotime 2 fwddelay 15\n\tmaxage 20 holdcnt 6 proto rstp maxaddr 2000 timeout 1200\n\troot id 00:00:00:00:00:00 priority 32768 ifcost 0 port 0\n\tbridge flags=0\u003c\u003e\n\tmember: ea_4cec68a504e flags=143\u003cLEARNING,DISCOVER,AUTOEDGE,AUTOPTP\u003e\n\t        port 17 priority 128 path cost 2000 vlan protocol 802.1q\n\tmember: ea_a0e6aba9e31 flags=143\u003cLEARNING,DISCOVER,AUTOEDGE,AUTOPTP\u003e\n\t        port 13 priority 128 path cost 2000 vlan protocol 802.1q\n\tmember: ea_ca897ad527e flags=143\u003cLEARNING,DISCOVER,AUTOEDGE,AUTOPTP\u003e\n\t        port 9 priority 128 path cost 2000 vlan protocol 802.1q\n\tgroups: bridge appjail_bridge\n\tnd6 options=9\u003cPERFORMNUD,IFDISABLED\u003e\nea_ca897ad527e: flags=1008943\u003cUP,BROADCAST,RUNNING,PROMISC,SIMPLEX,MULTICAST,LOWER_UP\u003e metric 0 mtu 1500\n\toptions=60001b\u003cRXCSUM,TXCSUM,VLAN_MTU,VLAN_HWTAGGING,RXCSUM_IPV6,TXCSUM_IPV6\u003e\n\tether 58:9c:fc:10:2b:51\n\tgroups: epair appjail_epair\n\tmedia: Ethernet 10Gbase-T (10Gbase-T \u003cfull-duplex\u003e)\n\tstatus: active\n\tnd6 options=29\u003cPERFORMNUD,IFDISABLED,AUTO_LINKLOCAL\u003e\nea_a0e6aba9e31: flags=1008943\u003cUP,BROADCAST,RUNNING,PROMISC,SIMPLEX,MULTICAST,LOWER_UP\u003e metric 0 mtu 1500\n\toptions=60001b\u003cRXCSUM,TXCSUM,VLAN_MTU,VLAN_HWTAGGING,RXCSUM_IPV6,TXCSUM_IPV6\u003e\n\tether 58:9c:fc:10:e5:e9\n\tgroups: epair appjail_epair\n\tmedia: Ethernet 10Gbase-T (10Gbase-T \u003cfull-duplex\u003e)\n\tstatus: active\n\tnd6 options=29\u003cPERFORMNUD,IFDISABLED,AUTO_LINKLOCAL\u003e\nea_4cec68a504e: flags=1008943\u003cUP,BROADCAST,RUNNING,PROMISC,SIMPLEX,MULTICAST,LOWER_UP\u003e metric 0 mtu 1500\n\toptions=60001b\u003cRXCSUM,TXCSUM,VLAN_MTU,VLAN_HWTAGGING,RXCSUM_IPV6,TXCSUM_IPV6\u003e\n\tether 58:9c:fc:10:df:63\n\tgroups: epair appjail_epair\n\tmedia: Ethernet 10Gbase-T (10Gbase-T \u003cfull-duplex\u003e)\n\tstatus: active\n\tnd6 options=29\u003cPERFORMNUD,IFDISABLED,AUTO_LINKLOCAL\u003e\n"
+    },
+    "calls": [
+      {
+        "cmd": "ifconfig",
+        "args": []
+      }
+    ]
+  },
+  {
+    "name": "/diag/cmd?cmd=bogus",
+    "req": "GET /diag/cmd?cmd=bogus ",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "unknown command: bogus"
+    }
+  },
+  {
+    "name": "/diag/cmd",
+    "req": "GET /diag/cmd ",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "unknown command: "
+    }
+  },
+  {
+    "name": "/diag/log?file=dmesg",
+    "req": "GET /diag/log?file=dmesg ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "shim: no rule for \"tail -n 200 \u003cROOT\u003e/var/run/dmesg.boot\"\n"
+    },
+    "calls": [
+      {
+        "cmd": "tail",
+        "args": [
+          "-n",
+          "200",
+          "\u003cROOT\u003e/var/run/dmesg.boot"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/diag/log?file=passwd",
+    "req": "GET /diag/log?file=passwd ",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "unknown log file: passwd"
+    }
+  },
+  {
+    "name": "/diag/log",
+    "req": "GET /diag/log ",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "unknown log file: "
+    }
+  },
+  {
+    "name": "/metrics/host",
+    "req": "GET /metrics/host ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "net": {
+            "ajnet": [
+              61446798,
+              139156568
+            ],
+            "ea_4cec68a504e": [
+              42445384,
+              21768447
+            ],
+            "ea_a0e6aba9e31": [
+              1068,
+              5107
+            ],
+            "ea_ca897ad527e": [
+              18998582,
+              117383014
+            ],
+            "igc0": [
+              0,
+              0
+            ],
+            "igc1": [
+              0,
+              0
+            ],
+            "igc2": [
+              0,
+              0
+            ],
+            "igc3": [
+              188461776,
+              72655362
+            ],
+            "lo0": [
+              2536092396,
+              2536092396
+            ],
+            "pflog0": [
+              0,
+              232
+            ],
+            "tailscale0": [
+              32780462,
+              23561807
+            ]
+          },
+          "pools": [
+            [
+              "zbak",
+              1992864825344,
+              946021474304
+            ],
+            [
+              "zdata",
+              15994458210304,
+              2060052234240
+            ],
+            [
+              "zroot",
+              124554051584,
+              2288332800
+            ]
+          ],
+          "tcp_estab": "\u003chost\u003e"
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "netstat",
+        "args": [
+          "-ibn"
+        ]
+      },
+      {
+        "cmd": "zpool",
+        "args": [
+          "list",
+          "-Hp",
+          "-o",
+          "name,size,alloc"
+        ]
+      }
+    ]
+  }
+]

@@ -40,7 +40,7 @@ type Client struct {
 
 func (a *App) Client(cookie string) *Client {
 	return &Client{Base: a.URL, Cookie: cookie, hc: &http.Client{
-		Timeout:       30 * time.Second,
+		Timeout: 30 * time.Second,
 		// 요청마다 새 연결: 서버가 바디를 다 읽기 전에 응답·종료한 연결을 재사용해 생기는 경쟁을 없앤다.
 		Transport:     &http.Transport{DisableKeepAlives: true},
 		CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
@@ -48,11 +48,11 @@ func (a *App) Client(cookie string) *Client {
 }
 
 type Req struct {
-	Method  string
-	Path    string
-	Header  map[string]string
-	Body    io.Reader
-	CT      string
+	Method string
+	Path   string
+	Header map[string]string
+	Body   io.Reader
+	CT     string
 }
 
 func (c *Client) Do(t testing.TB, r Req) *Resp {

@@ -1,0 +1,83 @@
+[
+  {
+    "name": "ok",
+    "req": "POST /compose-up services:\n  web:\n    image: nginx\n",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/x-ndjson"
+        ],
+        "X-Accel-Buffering": [
+          "no"
+        ]
+      },
+      "body": "{\"line\":\"line one\",\"type\":\"log\"}\n{\"line\":\"line two \u003cx\u003e\",\"type\":\"log\"}\n{\"line\":\"warn: something\",\"type\":\"log\"}\n{\"line\":\"0\",\"type\":\"done\"}\n"
+    },
+    "calls": [
+      {
+        "cmd": "podman-compose",
+        "args": [
+          "-f",
+          "\u003cTMP\u003e/pfortainer-compose-\u003ctmp\u003e/docker-compose.yml",
+          "up",
+          "-d"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "fails",
+    "req": "POST /compose-up services: {}\n",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/x-ndjson"
+        ],
+        "X-Accel-Buffering": [
+          "no"
+        ]
+      },
+      "body": "{\"line\":\"Error: no such image\",\"type\":\"error\"}\n{\"line\":\"1\",\"type\":\"done\"}\n"
+    },
+    "calls": [
+      {
+        "cmd": "podman-compose",
+        "args": [
+          "-f",
+          "\u003cTMP\u003e/pfortainer-compose-\u003ctmp\u003e/docker-compose.yml",
+          "up",
+          "-d"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "empty",
+    "req": "POST /compose-up ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/x-ndjson"
+        ],
+        "X-Accel-Buffering": [
+          "no"
+        ]
+      },
+      "body": "{\"line\":\"Error: no such image\",\"type\":\"error\"}\n{\"line\":\"1\",\"type\":\"done\"}\n"
+    },
+    "calls": [
+      {
+        "cmd": "podman-compose",
+        "args": [
+          "-f",
+          "\u003cTMP\u003e/pfortainer-compose-\u003ctmp\u003e/docker-compose.yml",
+          "up",
+          "-d"
+        ]
+      }
+    ]
+  }
+]

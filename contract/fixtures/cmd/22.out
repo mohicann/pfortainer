@@ -1,0 +1,3 @@
+	NRO	ENABLED	NAME	PORTS	PROTOCOL	NETWORK_NAME	EXT_IF	ON_IF
+0	1	audio-server-rs nginx	8080	tcp	ajnet	igc3	igc3	
+1	1	audio-server-rs nginx (tailscale)	8080	tcp	ajnet	tailscale0	tailscale0	

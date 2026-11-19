@@ -1,0 +1,532 @@
+[
+  {
+    "name": "/smart?dev=ada1",
+    "req": "GET /smart?dev=ada1 ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "partial output\nSMART overall-health self-assessment test result: PASSED\n"
+    },
+    "calls": [
+      {
+        "cmd": "smartctl",
+        "args": [
+          "-a",
+          "/dev/ada1"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/smart?dev=ada2",
+    "req": "GET /smart?dev=ada2 ",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "exit status: 2"
+    },
+    "calls": [
+      {
+        "cmd": "smartctl",
+        "args": [
+          "-a",
+          "/dev/ada2"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/zpool-status",
+    "req": "GET /zpool-status ",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "exit status: 1"
+    },
+    "calls": [
+      {
+        "cmd": "zpool",
+        "args": [
+          "status"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/zpool-list",
+    "req": "GET /zpool-list ",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "exit status: 127"
+    },
+    "calls": [
+      {
+        "cmd": "zpool",
+        "args": [
+          "list",
+          "-H",
+          "-p",
+          "-o",
+          "name,size,alloc,free,health"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/zfs-list",
+    "req": "GET /zfs-list ",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "exit status: 1"
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-H",
+          "-p",
+          "-o",
+          "name,type,used,avail,refer,mountpoint"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/zfs-list-snapshot",
+    "req": "GET /zfs-list-snapshot ",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "exit status: 1"
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-H",
+          "-p",
+          "-t",
+          "snapshot",
+          "-o",
+          "name,creation,used,refer",
+          "-s",
+          "creation"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/sockstat",
+    "req": "GET /sockstat ",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "exit status: 3"
+    },
+    "calls": [
+      {
+        "cmd": "sockstat",
+        "args": [
+          "-l"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/jls",
+    "req": "GET /jls ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "1 a\n"
+    },
+    "calls": [
+      {
+        "cmd": "jls",
+        "args": [
+          "jid",
+          "name"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/ps?jid=1",
+    "req": "GET /ps?jid=1 ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      }
+    },
+    "calls": [
+      {
+        "cmd": "ps",
+        "args": [
+          "-J",
+          "1",
+          "-o",
+          "pid="
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/nfs/status",
+    "req": "GET /nfs/status ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "exports": [],
+          "running": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "service",
+        "args": [
+          "nfsd",
+          "status"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/smb/status",
+    "req": "GET /smb/status ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "running": true,
+          "setup_ok": false,
+          "shares": []
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "service",
+        "args": [
+          "samba_server",
+          "status"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/localusers/status",
+    "req": "GET /localusers/status ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "groups": [
+            {
+              "gid": 0,
+              "members": [
+                "root",
+                "mohicann"
+              ],
+              "name": "wheel"
+            },
+            {
+              "gid": 65533,
+              "members": [],
+              "name": "nogroup"
+            },
+            {
+              "gid": 65534,
+              "members": [],
+              "name": "nobody"
+            },
+            {
+              "gid": 3000,
+              "members": [],
+              "name": "mohicann"
+            }
+          ],
+          "users": [
+            {
+              "fullname": "Unprivileged user",
+              "gid": 65534,
+              "groups": [],
+              "has_smb": false,
+              "home": "/nonexistent",
+              "shell": "/usr/sbin/nologin",
+              "uid": 65534,
+              "username": "nobody"
+            },
+            {
+              "fullname": "mohicann",
+              "gid": 3000,
+              "groups": [
+                "wheel"
+              ],
+              "has_smb": true,
+              "home": "/home/mohicann",
+              "shell": "/bin/sh",
+              "uid": 3000,
+              "username": "mohicann"
+            }
+          ]
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "pdbedit",
+        "args": [
+          "-L"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/network/status",
+    "req": "GET /network/status ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "dns": [
+            "192.168.0.1"
+          ],
+          "interfaces": [],
+          "routes": "Routing tables"
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "ifconfig",
+        "args": [
+          "-a"
+        ]
+      },
+      {
+        "cmd": "netstat",
+        "args": [
+          "-rn"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/diag/log?file=messages",
+    "req": "GET /diag/log?file=messages ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "tail: cannot open"
+    },
+    "calls": [
+      {
+        "cmd": "tail",
+        "args": [
+          "-n",
+          "200",
+          "\u003cROOT\u003e/var/log/messages"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/diag/cmd?cmd=df",
+    "req": "GET /diag/cmd?cmd=df ",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "exit status: 1"
+    },
+    "calls": [
+      {
+        "cmd": "df",
+        "args": [
+          "-h"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/diag/cmd?cmd=top",
+    "req": "GET /diag/cmd?cmd=top ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/octet-stream"
+        ]
+      },
+      "body": "shim: no rule for \"top -H -S -n 20 -d 1\"\n"
+    },
+    "calls": [
+      {
+        "cmd": "top",
+        "args": [
+          "-H",
+          "-S",
+          "-n",
+          "20",
+          "-d",
+          "1"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/appjail/list",
+    "req": "GET /appjail/list ",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "exit status: 1"
+    },
+    "calls": [
+      {
+        "cmd": "appjail",
+        "args": [
+          "jail",
+          "list",
+          "-eHIp",
+          "name",
+          "status",
+          "type",
+          "version",
+          "boot",
+          "priority",
+          "network_ip4",
+          "ports",
+          "created"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/appjail/detail?name=audio",
+    "req": "GET /appjail/detail?name=audio ",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "exit status: 1"
+    },
+    "calls": [
+      {
+        "cmd": "appjail",
+        "args": [
+          "jail",
+          "list",
+          "-eHIp",
+          "-j",
+          "audio",
+          "name",
+          "status",
+          "type",
+          "version",
+          "boot",
+          "priority",
+          "network_ip4",
+          "ports",
+          "created"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "/smart-scan",
+    "req": "GET /smart-scan ",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "exit status: 127"
+    },
+    "calls": [
+      {
+        "cmd": "smartctl",
+        "args": [
+          "--scan"
+        ]
+      }
+    ]
+  }
+]

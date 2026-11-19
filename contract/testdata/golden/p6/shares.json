@@ -1,0 +1,850 @@
+[
+  {
+    "name": "smb_setup",
+    "req": "POST /smb/setup ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "message": "include 줄 추가 완료. Samba를 reload해주세요."
+        }
+      }
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc"
+      },
+      {
+        "content": "[global]\n\tworkgroup = WORKGROUP\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf"
+      }
+    ]
+  },
+  {
+    "name": "smb_setup_again",
+    "req": "POST /smb/setup ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "message": "include 줄 추가 완료. Samba를 reload해주세요."
+        }
+      }
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc"
+      },
+      {
+        "content": "[global]\n\tworkgroup = WORKGROUP\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf"
+      }
+    ]
+  },
+  {
+    "name": "smb_share_full",
+    "req": "POST /smb/share {\"browseable\":false,\"comment\":\"Media\",\"guest_ok\":true,\"name\":\"media\",\"path\":\"/zdata/media\",\"read_only\":true,\"valid_users\":\"@staff bob\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc"
+      },
+      {
+        "content": "[global]\n\tworkgroup = WORKGROUP\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d"
+      },
+      {
+        "content": "[media]\n\tpath = /zdata/media\n\tcomment = Media\n\tvalid users = @staff bob\n\tread only = Yes\n\tbrowseable = No\n\tguest ok = Yes\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/media.conf"
+      }
+    ]
+  },
+  {
+    "name": "smb_share_min",
+    "req": "POST /smb/share {\"name\":\"pub\",\"path\":\"/zdata/pub\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc"
+      },
+      {
+        "content": "[global]\n\tworkgroup = WORKGROUP\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d"
+      },
+      {
+        "content": "[media]\n\tpath = /zdata/media\n\tcomment = Media\n\tvalid users = @staff bob\n\tread only = Yes\n\tbrowseable = No\n\tguest ok = Yes\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/media.conf"
+      },
+      {
+        "content": "[pub]\n\tpath = /zdata/pub\n\tread only = No\n\tbrowseable = No\n\tguest ok = No\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/pub.conf"
+      }
+    ]
+  },
+  {
+    "name": "smb_share_bad_name",
+    "req": "POST /smb/share {\"name\":\"../x\",\"path\":\"/zdata\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "invalid share name (alphanumeric, hyphen, underscore only)"
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc"
+      },
+      {
+        "content": "[global]\n\tworkgroup = WORKGROUP\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d"
+      },
+      {
+        "content": "[media]\n\tpath = /zdata/media\n\tcomment = Media\n\tvalid users = @staff bob\n\tread only = Yes\n\tbrowseable = No\n\tguest ok = Yes\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/media.conf"
+      },
+      {
+        "content": "[pub]\n\tpath = /zdata/pub\n\tread only = No\n\tbrowseable = No\n\tguest ok = No\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/pub.conf"
+      }
+    ]
+  },
+  {
+    "name": "smb_share_rel_path",
+    "req": "POST /smb/share {\"name\":\"x\",\"path\":\"zdata\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "invalid path"
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc"
+      },
+      {
+        "content": "[global]\n\tworkgroup = WORKGROUP\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d"
+      },
+      {
+        "content": "[media]\n\tpath = /zdata/media\n\tcomment = Media\n\tvalid users = @staff bob\n\tread only = Yes\n\tbrowseable = No\n\tguest ok = Yes\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/media.conf"
+      },
+      {
+        "content": "[pub]\n\tpath = /zdata/pub\n\tread only = No\n\tbrowseable = No\n\tguest ok = No\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/pub.conf"
+      }
+    ]
+  },
+  {
+    "name": "smb_share_newline_inject",
+    "req": "POST /smb/share {\"comment\":\"c\\n[global]\\nevil = yes\",\"name\":\"inj\",\"path\":\"/zdata/x\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc"
+      },
+      {
+        "content": "[global]\n\tworkgroup = WORKGROUP\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d"
+      },
+      {
+        "content": "[inj]\n\tpath = /zdata/x\n\tcomment = c\n[global]\nevil = yes\n\tread only = No\n\tbrowseable = No\n\tguest ok = No\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/inj.conf"
+      },
+      {
+        "content": "[media]\n\tpath = /zdata/media\n\tcomment = Media\n\tvalid users = @staff bob\n\tread only = Yes\n\tbrowseable = No\n\tguest ok = Yes\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/media.conf"
+      },
+      {
+        "content": "[pub]\n\tpath = /zdata/pub\n\tread only = No\n\tbrowseable = No\n\tguest ok = No\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/pub.conf"
+      }
+    ]
+  },
+  {
+    "name": "smb_status",
+    "req": "GET /smb/status ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "running": false,
+          "setup_ok": false,
+          "shares": [
+            {
+              "browseable": false,
+              "comment": "c",
+              "guest_ok": false,
+              "name": "global",
+              "path": "/zdata/x",
+              "read_only": false,
+              "valid_users": ""
+            },
+            {
+              "browseable": false,
+              "comment": "",
+              "guest_ok": false,
+              "name": "pub",
+              "path": "/zdata/pub",
+              "read_only": false,
+              "valid_users": ""
+            },
+            {
+              "browseable": false,
+              "comment": "Media",
+              "guest_ok": true,
+              "name": "media",
+              "path": "/zdata/media",
+              "read_only": true,
+              "valid_users": "@staff bob"
+            }
+          ]
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "service",
+        "args": [
+          "samba_server",
+          "status"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "smb_share_delete",
+    "req": "POST /smb/share/delete {\"name\":\"pub\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc"
+      },
+      {
+        "content": "[global]\n\tworkgroup = WORKGROUP\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d"
+      },
+      {
+        "content": "[inj]\n\tpath = /zdata/x\n\tcomment = c\n[global]\nevil = yes\n\tread only = No\n\tbrowseable = No\n\tguest ok = No\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/inj.conf"
+      },
+      {
+        "content": "[media]\n\tpath = /zdata/media\n\tcomment = Media\n\tvalid users = @staff bob\n\tread only = Yes\n\tbrowseable = No\n\tguest ok = Yes\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/media.conf"
+      }
+    ]
+  },
+  {
+    "name": "smb_share_delete_missing",
+    "req": "POST /smb/share/delete {\"name\":\"nope\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc"
+      },
+      {
+        "content": "[global]\n\tworkgroup = WORKGROUP\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d"
+      },
+      {
+        "content": "[inj]\n\tpath = /zdata/x\n\tcomment = c\n[global]\nevil = yes\n\tread only = No\n\tbrowseable = No\n\tguest ok = No\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/inj.conf"
+      },
+      {
+        "content": "[media]\n\tpath = /zdata/media\n\tcomment = Media\n\tvalid users = @staff bob\n\tread only = Yes\n\tbrowseable = No\n\tguest ok = Yes\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/media.conf"
+      }
+    ]
+  },
+  {
+    "name": "smb_reload",
+    "req": "POST /smb/reload ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "output": "ok"
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "service",
+        "args": [
+          "samba_server",
+          "reload"
+        ]
+      }
+    ],
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc"
+      },
+      {
+        "content": "[global]\n\tworkgroup = WORKGROUP\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d"
+      },
+      {
+        "content": "[inj]\n\tpath = /zdata/x\n\tcomment = c\n[global]\nevil = yes\n\tread only = No\n\tbrowseable = No\n\tguest ok = No\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/inj.conf"
+      },
+      {
+        "content": "[media]\n\tpath = /zdata/media\n\tcomment = Media\n\tvalid users = @staff bob\n\tread only = Yes\n\tbrowseable = No\n\tguest ok = Yes\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/media.conf"
+      }
+    ]
+  },
+  {
+    "name": "nfs_export_full",
+    "req": "POST /nfs/export {\"clients\":\"192.168.0.0/24\",\"line\":\"/zdata/media -ro -maproot=root 192.168.0.0/24\",\"name\":\"media\",\"path\":\"/zdata/media\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc/exports.d"
+      },
+      {
+        "content": "# managed by pfortainer\n/zdata/media -ro -maproot=root 192.168.0.0/24\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/etc/exports.d/media.exports"
+      }
+    ]
+  },
+  {
+    "name": "nfs_export_min",
+    "req": "POST /nfs/export {\"name\":\"m\",\"path\":\"/zdata/m\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc/exports.d"
+      },
+      {
+        "content": "# managed by pfortainer\n\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/etc/exports.d/m.exports"
+      },
+      {
+        "content": "# managed by pfortainer\n/zdata/media -ro -maproot=root 192.168.0.0/24\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/etc/exports.d/media.exports"
+      }
+    ]
+  },
+  {
+    "name": "nfs_export_bad_name",
+    "req": "POST /nfs/export {\"name\":\"a/b\",\"path\":\"/zdata\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "invalid export name"
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc/exports.d"
+      },
+      {
+        "content": "# managed by pfortainer\n\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/etc/exports.d/m.exports"
+      },
+      {
+        "content": "# managed by pfortainer\n/zdata/media -ro -maproot=root 192.168.0.0/24\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/etc/exports.d/media.exports"
+      }
+    ]
+  },
+  {
+    "name": "nfs_export_rel",
+    "req": "POST /nfs/export {\"name\":\"r\",\"path\":\"zdata\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "invalid path"
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc/exports.d"
+      },
+      {
+        "content": "# managed by pfortainer\n\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/etc/exports.d/m.exports"
+      },
+      {
+        "content": "# managed by pfortainer\n/zdata/media -ro -maproot=root 192.168.0.0/24\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/etc/exports.d/media.exports"
+      }
+    ]
+  },
+  {
+    "name": "nfs_status",
+    "req": "GET /nfs/status ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "exports": [
+            {
+              "clients": "-ro -maproot=root 192.168.0.0/24",
+              "line": "/zdata/media -ro -maproot=root 192.168.0.0/24",
+              "name": "media",
+              "path": "/zdata/media"
+            }
+          ],
+          "running": false
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "service",
+        "args": [
+          "nfsd",
+          "status"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "nfs_export_delete",
+    "req": "POST /nfs/export/delete {\"name\":\"m\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc/exports.d"
+      },
+      {
+        "content": "# managed by pfortainer\n/zdata/media -ro -maproot=root 192.168.0.0/24\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/etc/exports.d/media.exports"
+      }
+    ]
+  },
+  {
+    "name": "nfs_export_delete_missing",
+    "req": "POST /nfs/export/delete {\"name\":\"zz\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc/exports.d"
+      },
+      {
+        "content": "# managed by pfortainer\n/zdata/media -ro -maproot=root 192.168.0.0/24\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/etc/exports.d/media.exports"
+      }
+    ]
+  },
+  {
+    "name": "nfs_reload",
+    "req": "POST /nfs/reload ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "output": "ok"
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "service",
+        "args": [
+          "mountd",
+          "reload"
+        ]
+      }
+    ],
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc/exports.d"
+      },
+      {
+        "content": "# managed by pfortainer\n/zdata/media -ro -maproot=root 192.168.0.0/24\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/etc/exports.d/media.exports"
+      }
+    ]
+  },
+  {
+    "name": "nfs_reload_fails",
+    "req": "POST /nfs/reload ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "output": "mountd not running"
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "service",
+        "args": [
+          "mountd",
+          "reload"
+        ]
+      }
+    ],
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/etc/exports.d"
+      },
+      {
+        "content": "# managed by pfortainer\n/zdata/media -ro -maproot=root 192.168.0.0/24\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/etc/exports.d/media.exports"
+      }
+    ]
+  },
+  {
+    "name": "smb_reload_fails",
+    "req": "POST /smb/reload ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "output": "mountd not running"
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "service",
+        "args": [
+          "samba_server",
+          "reload"
+        ]
+      }
+    ],
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc"
+      },
+      {
+        "content": "[global]\n\tworkgroup = WORKGROUP\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n\ninclude = \u003cROOT\u003e/usr/local/etc/smb4.conf.d/*.conf\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d"
+      },
+      {
+        "content": "[inj]\n\tpath = /zdata/x\n\tcomment = c\n[global]\nevil = yes\n\tread only = No\n\tbrowseable = No\n\tguest ok = No\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/inj.conf"
+      },
+      {
+        "content": "[media]\n\tpath = /zdata/media\n\tcomment = Media\n\tvalid users = @staff bob\n\tread only = Yes\n\tbrowseable = No\n\tguest ok = Yes\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/media.conf"
+      }
+    ]
+  },
+  {
+    "name": "smb_setup_no_main_conf",
+    "req": "POST /smb/setup ",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "smb4.conf 읽기 실패: No such file or directory (os error 2)"
+    },
+    "files": [
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc"
+      },
+      {
+        "mode": "drwxr-xr-x",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d"
+      },
+      {
+        "content": "[inj]\n\tpath = /zdata/x\n\tcomment = c\n[global]\nevil = yes\n\tread only = No\n\tbrowseable = No\n\tguest ok = No\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/inj.conf"
+      },
+      {
+        "content": "[media]\n\tpath = /zdata/media\n\tcomment = Media\n\tvalid users = @staff bob\n\tread only = Yes\n\tbrowseable = No\n\tguest ok = Yes\n",
+        "mode": "-rw-r--r--",
+        "path": "\u003cROOT\u003e/usr/local/etc/smb4.conf.d/media.conf"
+      }
+    ]
+  }
+]

@@ -1,11 +1,11 @@
 package tests
 
 import (
-	"regexp"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net"
+	"regexp"
 	"sort"
 	"strings"
 	"testing"

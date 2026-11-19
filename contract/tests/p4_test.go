@@ -486,7 +486,9 @@ func TestDiagnostics(t *testing.T) {
 	r.golden("p4/diagnostics")
 }
 
-func itoa(i int) string { return strings.TrimSpace(strings.Replace(string(rune('0'+i/100))+string(rune('0'+i/10%10))+string(rune('0'+i%10)), "\x00", "", -1)) }
+func itoa(i int) string {
+	return strings.TrimSpace(strings.Replace(string(rune('0'+i/100))+string(rune('0'+i/10%10))+string(rune('0'+i%10)), "\x00", "", -1))
+}
 
 // nearNowTimes: 페이지의 "MM-DD HH:MM"(KST) 중 지금·지금+1일 근처 값을 치환한다
 // (마지막 실행 시각, 알 수 없는 주기의 다음 실행 시각).

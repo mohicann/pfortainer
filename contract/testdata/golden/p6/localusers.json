@@ -1,0 +1,565 @@
+[
+  {
+    "name": "create_full",
+    "req": "POST /localusers/create {\"fullname\":\"Bob Kim\",\"password\":\"pw 1\",\"shell\":\"/bin/sh\",\"smb_password\":\"smb\\npw\",\"username\":\"bob\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "pw",
+        "args": [
+          "useradd",
+          "-n",
+          "bob",
+          "-m",
+          "-s",
+          "/bin/sh",
+          "-c",
+          "Bob Kim"
+        ]
+      },
+      {
+        "cmd": "pw",
+        "args": [
+          "usermod",
+          "bob",
+          "-h",
+          "0"
+        ],
+        "stdin": "pw 1\n"
+      },
+      {
+        "cmd": "smbpasswd",
+        "args": [
+          "-a",
+          "-s",
+          "bob"
+        ],
+        "stdin": "smb\npw\nsmb\npw\n"
+      }
+    ]
+  },
+  {
+    "name": "create_minimal",
+    "req": "POST /localusers/create {\"username\":\"carol\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "pw",
+        "args": [
+          "useradd",
+          "-n",
+          "carol",
+          "-m",
+          "-s",
+          "/sbin/nologin"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "create_bad_name",
+    "req": "POST /localusers/create {\"username\":\"9bob\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "invalid username"
+    }
+  },
+  {
+    "name": "create_bad_shell",
+    "req": "POST /localusers/create {\"shell\":\"/bin/zsh\",\"username\":\"dave\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "invalid shell"
+    }
+  },
+  {
+    "name": "create_fullname_colon",
+    "req": "POST /localusers/create {\"fullname\":\"a:b,c\",\"username\":\"eve\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "pw",
+        "args": [
+          "useradd",
+          "-n",
+          "eve",
+          "-m",
+          "-s",
+          "/sbin/nologin",
+          "-c",
+          "a:b,c"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "delete_ok",
+    "req": "POST /localusers/delete {\"username\":\"bob\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "smbpasswd",
+        "args": [
+          "-x",
+          "bob"
+        ]
+      },
+      {
+        "cmd": "pw",
+        "args": [
+          "userdel",
+          "-n",
+          "bob",
+          "-r"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "delete_root",
+    "req": "POST /localusers/delete {\"username\":\"root\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "smbpasswd",
+        "args": [
+          "-x",
+          "root"
+        ]
+      },
+      {
+        "cmd": "pw",
+        "args": [
+          "userdel",
+          "-n",
+          "root",
+          "-r"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "delete_bad",
+    "req": "POST /localusers/delete {\"username\":\"-r\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "bad request"
+    }
+  },
+  {
+    "name": "smbpasswd_ok",
+    "req": "POST /localusers/smbpasswd {\"password\":\"s3cret\",\"username\":\"bob\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "smbpasswd",
+        "args": [
+          "-a",
+          "-s",
+          "bob"
+        ],
+        "stdin": "s3cret\ns3cret\n"
+      }
+    ]
+  },
+  {
+    "name": "smbpasswd_empty",
+    "req": "POST /localusers/smbpasswd {\"password\":\"\",\"username\":\"bob\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "bad request"
+    }
+  },
+  {
+    "name": "group_create",
+    "req": "POST /localgroups/create {\"name\":\"staff\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "pw",
+        "args": [
+          "groupadd",
+          "-n",
+          "staff"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "group_create_bad",
+    "req": "POST /localgroups/create {\"name\":\"st aff\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "bad request"
+    }
+  },
+  {
+    "name": "group_delete",
+    "req": "POST /localgroups/delete {\"name\":\"staff\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "pw",
+        "args": [
+          "groupdel",
+          "-n",
+          "staff"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "group_delete_wheel",
+    "req": "POST /localgroups/delete {\"name\":\"wheel\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "pw",
+        "args": [
+          "groupdel",
+          "-n",
+          "wheel"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "member_add",
+    "req": "POST /localgroups/member {\"action\":\"add\",\"group\":\"staff\",\"username\":\"bob\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "pw",
+        "args": [
+          "groupmod",
+          "staff",
+          "-m",
+          "bob"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "member_remove",
+    "req": "POST /localgroups/member {\"action\":\"remove\",\"group\":\"staff\",\"username\":\"bob\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "pw",
+        "args": [
+          "groupmod",
+          "staff",
+          "-d",
+          "bob"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "member_bad_action",
+    "req": "POST /localgroups/member {\"action\":\"x\",\"group\":\"staff\",\"username\":\"bob\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "pw",
+        "args": [
+          "groupmod",
+          "staff",
+          "-m",
+          "bob"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "create_pw_fails",
+    "req": "POST /localusers/create {\"username\":\"bob\"}",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "pw: user 'bob' already exists"
+    },
+    "calls": [
+      {
+        "cmd": "pw",
+        "args": [
+          "useradd",
+          "-n",
+          "bob",
+          "-m",
+          "-s",
+          "/sbin/nologin"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "group_create_fails",
+    "req": "POST /localgroups/create {\"name\":\"staff\"}",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "pw: user 'bob' already exists"
+    },
+    "calls": [
+      {
+        "cmd": "pw",
+        "args": [
+          "groupadd",
+          "-n",
+          "staff"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "status",
+    "req": "GET /localusers/status ",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "groups": [
+            {
+              "gid": 0,
+              "members": [
+                "root",
+                "mohicann"
+              ],
+              "name": "wheel"
+            },
+            {
+              "gid": 65533,
+              "members": [],
+              "name": "nogroup"
+            },
+            {
+              "gid": 65534,
+              "members": [],
+              "name": "nobody"
+            },
+            {
+              "gid": 3000,
+              "members": [],
+              "name": "mohicann"
+            }
+          ],
+          "users": [
+            {
+              "fullname": "Unprivileged user",
+              "gid": 65534,
+              "groups": [],
+              "has_smb": false,
+              "home": "/nonexistent",
+              "shell": "/usr/sbin/nologin",
+              "uid": 65534,
+              "username": "nobody"
+            },
+            {
+              "fullname": "mohicann",
+              "gid": 3000,
+              "groups": [
+                "wheel"
+              ],
+              "has_smb": false,
+              "home": "/home/mohicann",
+              "shell": "/bin/sh",
+              "uid": 3000,
+              "username": "mohicann"
+            }
+          ]
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "pdbedit",
+        "args": [
+          "-L"
+        ]
+      }
+    ]
+  }
+]

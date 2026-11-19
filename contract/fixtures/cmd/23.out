@@ -1,0 +1,2 @@
+	NRO	ENABLED	NAME	STATUS	HEALTH_TYPE	HEALTH_CMD	RECOVER_TYPE	RECOVER_CMD
+0	1	 	healthy	jail	fetch -qo /dev/null http://127.0.0.1:3001/health	jail	service audioserver restart	

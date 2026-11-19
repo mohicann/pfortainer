@@ -21,11 +21,11 @@ const (
 
 // AppOpts: 앱 기동 옵션.
 type AppOpts struct {
-	Env        map[string]string   // 추가/덮어쓸 env
-	NoHostd    bool                // hostd 소켓을 만들지 않음(Unavailable/로컬 실행 경로)
-	NoPodman   bool                // Podman 소켓을 만들지 않음
-	BeforeStart func(a *App)       // DB 사전 작성 등(기동 전)
-	Scheduler  bool                // 스케줄러 켜기(기본 끔)
+	Env         map[string]string // 추가/덮어쓸 env
+	NoHostd     bool              // hostd 소켓을 만들지 않음(Unavailable/로컬 실행 경로)
+	NoPodman    bool              // Podman 소켓을 만들지 않음
+	BeforeStart func(a *App)      // DB 사전 작성 등(기동 전)
+	Scheduler   bool              // 스케줄러 켜기(기본 끔)
 }
 
 // App: 실행 중인 앱 인스턴스.

@@ -27,9 +27,9 @@ func authMasker(a *h.App) *h.Masker {
 }
 
 type step struct {
-	Name string  `json:"name"`
-	Snap h.Snap  `json:"snap"`
-	DB   any     `json:"db,omitempty"`
+	Name string `json:"name"`
+	Snap h.Snap `json:"snap"`
+	DB   any    `json:"db,omitempty"`
 }
 
 func shortBody(s h.Snap) h.Snap {
@@ -151,10 +151,10 @@ func TestSchema(t *testing.T) {
 	}
 	q := `SELECT type, name, tbl_name, sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type, name`
 	out := map[string]any{
-		"config_db":           norm(h.Rows(t, db, q)),
-		"config_meta":         h.MaskNow(h.Rows(t, db, `SELECT key, value, updated_at FROM meta ORDER BY key`), "updated_at"),
-		"config_journal_mode": h.Rows(t, db, `PRAGMA journal_mode`),
-		"metrics_db":          norm(h.Rows(t, mdb, q)),
+		"config_db":            norm(h.Rows(t, db, q)),
+		"config_meta":          h.MaskNow(h.Rows(t, db, `SELECT key, value, updated_at FROM meta ORDER BY key`), "updated_at"),
+		"config_journal_mode":  h.Rows(t, db, `PRAGMA journal_mode`),
+		"metrics_db":           norm(h.Rows(t, mdb, q)),
 		"metrics_journal_mode": h.Rows(t, mdb, `PRAGMA journal_mode`),
 	}
 	h.Golden(t, "p2/schema", out)

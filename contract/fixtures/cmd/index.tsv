@@ -1,0 +1,29 @@
+1	0	sockstat -l
+2	0	jls jid name
+3	0	ps -J 5 -o pid=
+4	0	zpool status
+5	0	zpool list -H -p -o name,size,alloc,free,health
+6	0	netstat -ibn
+7	0	zpool list -Hp -o name,size,alloc
+8	0	zfs list -H -p -o name,type,used,avail,refer,mountpoint
+9	0	zfs list -H -p -t snapshot -o name,creation,used,refer -s creation
+10	0	zfs list -H -p -t snapshot -o name,creation,used,refer -s creation -r zdata/apps
+11	0	smartctl --scan
+12	0	smartctl -a /dev/ada0
+13	0	smartctl -a /dev/nvme0
+14	1	pdbedit -L
+15	1	service nfsd status
+16	1	service samba_server status
+17	0	ifconfig -a
+18	0	netstat -rn
+19	0	/usr/local/bin/appjail jail list -eHIp name status type version boot priority network_ip4 ports created
+20	0	/usr/local/bin/appjail jail list -eHIp -j audio name status type version boot priority network_ip4 ports created
+21	0	/usr/local/bin/appjail fstab jail audio list -eIp
+22	0	/usr/local/bin/appjail expose list -eIp audio
+23	0	/usr/local/bin/appjail healthcheck list -eIp audio
+24	0	zfs list -H -o used,refer zdata/appjail/jails/audio/jail
+25	0	ps -J audio -o pid= -o user= -o pcpu= -o rss= -o command=
+26	0	df -h
+27	0	mount
+28	0	ifconfig
+29	0	zfs list -H -p -t snapshot -o name -s creation -r zdata/apps

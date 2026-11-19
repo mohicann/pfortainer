@@ -3,8 +3,8 @@ package harness
 import (
 	"archive/tar"
 	"bytes"
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net"
 	"net/http"

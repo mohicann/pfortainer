@@ -176,7 +176,7 @@ func TestRouter(t *testing.T) {
 		{"cookie_dup_first_bad", nil, h.Req{Method: "GET", Path: "/profile", Header: map[string]string{"Cookie": "pfsession=x; " + h.Cookie("admin", "admin")}}},
 		{"cookie_username_with_colon", nil, h.Req{Method: "GET", Path: "/profile", Header: map[string]string{"Cookie": h.SignCookie(h.SessionSecret, "ad:min", "admin")}}},
 		{"cookie_username_with_dot", nil, h.Req{Method: "GET", Path: "/profile", Header: map[string]string{"Cookie": h.SignCookie(h.SessionSecret, "ad.min", "admin")}}},
-		{"cookie_uppercase_sig", nil, h.Req{Method: "GET", Path: "/profile", Header: map[string]string{"Cookie": strings.ToUpper(h.Cookie("admin", "admin")[len("pfsession=admin:admin."):]) }}},
+		{"cookie_uppercase_sig", nil, h.Req{Method: "GET", Path: "/profile", Header: map[string]string{"Cookie": strings.ToUpper(h.Cookie("admin", "admin")[len("pfsession=admin:admin."):])}}},
 		{"json_body_on_form_route", admin, h.Req{Method: "POST", Path: "/schedules", Body: strings.NewReader(`{}`), CT: "application/json"}},
 		{"form_body_on_json_route", admin, h.Req{Method: "PUT", Path: "/api/desktop/prefs", Body: strings.NewReader(`a=1`), CT: "application/x-www-form-urlencoded"}},
 	}

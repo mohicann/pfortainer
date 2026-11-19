@@ -1,0 +1,583 @@
+[
+  {
+    "name": "first_full",
+    "req": "POST /replication/run {\"source_dataset\":\"zdata/apps\",\"target_path\":\"zbak/apps\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "current_snapshot": "auto-3",
+          "output": "전체 복제 완료: zdata/apps@auto-3"
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zdata/apps"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zbak/apps"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "send",
+          "zdata/apps@auto-3"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "receive",
+          "-F",
+          "zbak/apps"
+        ],
+        "stdin": "ZFS-STREAM-BYTES"
+      }
+    ]
+  },
+  {
+    "name": "incremental",
+    "req": "POST /replication/run {\"last_snapshot\":\"auto-2\",\"source_dataset\":\"zdata/apps\",\"target_path\":\"zbak/apps\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "current_snapshot": "auto-3",
+          "output": "증분 복제 완료: zdata/apps@auto-3"
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zdata/apps"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "send",
+          "-i",
+          "zdata/apps@auto-2",
+          "zdata/apps@auto-3"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "receive",
+          "-F",
+          "zbak/apps"
+        ],
+        "stdin": "ZFS-STREAM-BYTES"
+      }
+    ]
+  },
+  {
+    "name": "already_latest",
+    "req": "POST /replication/run {\"last_snapshot\":\"auto-3\",\"source_dataset\":\"zdata/apps\",\"target_path\":\"zbak/apps\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "current_snapshot": "auto-3",
+          "output": "이미 최신 상태입니다."
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zdata/apps"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "recover_common",
+    "req": "POST /replication/run {\"source_dataset\":\"zdata/apps\",\"target_path\":\"zbak/apps\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "current_snapshot": "auto-3",
+          "output": "증분 복제 완료: zdata/apps@auto-3"
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zdata/apps"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zbak/apps"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "send",
+          "-i",
+          "zdata/apps@auto-2",
+          "zdata/apps@auto-3"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "receive",
+          "-F",
+          "zbak/apps"
+        ],
+        "stdin": "ZFS-STREAM-BYTES"
+      }
+    ]
+  },
+  {
+    "name": "recover_target_latest",
+    "req": "POST /replication/run {\"last_snapshot\":\"gone\",\"source_dataset\":\"zdata/apps\",\"target_path\":\"zbak/apps\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "current_snapshot": "auto-3",
+          "output": "대상이 이미 최신 상태입니다."
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zdata/apps"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zbak/apps"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "recursive",
+    "req": "POST /replication/run {\"recursive\":true,\"source_dataset\":\"zdata/apps\",\"target_path\":\"zbak/apps\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "current_snapshot": "auto-3",
+          "output": "전체 복제 완료: zdata/apps@auto-3"
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "-r",
+          "zdata/apps"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zbak/apps"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "send",
+          "-R",
+          "zdata/apps@auto-3"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "receive",
+          "-F",
+          "zbak/apps"
+        ],
+        "stdin": "ZFS-STREAM-BYTES"
+      }
+    ]
+  },
+  {
+    "name": "remote_ssh",
+    "req": "POST /replication/run {\"last_snapshot\":\"auto-1\",\"source_dataset\":\"zdata/apps\",\"target_path\":\"backup@host:tank/apps\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "current_snapshot": "auto-3",
+          "output": "증분 복제 완료: zdata/apps@auto-3"
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zdata/apps"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "send",
+          "-i",
+          "zdata/apps@auto-1",
+          "zdata/apps@auto-3"
+        ]
+      },
+      {
+        "cmd": "ssh",
+        "args": [
+          "-o",
+          "StrictHostKeyChecking=accept-new",
+          "-o",
+          "BatchMode=yes",
+          "backup@host",
+          "zfs",
+          "receive",
+          "-F",
+          "tank/apps"
+        ],
+        "stdin": "ZFS-STREAM-BYTES"
+      }
+    ]
+  },
+  {
+    "name": "no_snapshots",
+    "req": "POST /replication/run {\"source_dataset\":\"zdata/apps\",\"target_path\":\"zbak/apps\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "zdata/apps에 스냅샷이 없습니다. 먼저 스냅샷을 생성하세요."
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zdata/apps"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "list_fails",
+    "req": "POST /replication/run {\"source_dataset\":\"zdata/apps\",\"target_path\":\"zbak/apps\"}",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "zfs list snapshots 실패: exit status: 2"
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zdata/apps"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bad_source",
+    "req": "POST /replication/run {\"source_dataset\":\"zdata apps\",\"target_path\":\"zbak/apps\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "invalid source dataset"
+    }
+  },
+  {
+    "name": "bad_target",
+    "req": "POST /replication/run {\"source_dataset\":\"zdata/apps\",\"target_path\":\"zbak/a b\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "invalid target path"
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zdata/apps"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "send_fails",
+    "req": "POST /replication/run {\"last_snapshot\":\"auto-2\",\"source_dataset\":\"zdata/apps\",\"target_path\":\"zbak/apps\"}",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "zfs send 실패: send: signal received"
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zdata/apps"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "send",
+          "-i",
+          "zdata/apps@auto-2",
+          "zdata/apps@auto-3"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "receive",
+          "-F",
+          "zbak/apps"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "recv_fails",
+    "req": "POST /replication/run {\"last_snapshot\":\"auto-2\",\"source_dataset\":\"zdata/apps\",\"target_path\":\"zbak/apps\"}",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "zfs receive 실패: cannot receive: destination has been modified"
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-t",
+          "snapshot",
+          "-o",
+          "name",
+          "-s",
+          "creation",
+          "-H",
+          "zdata/apps"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "send",
+          "-i",
+          "zdata/apps@auto-2",
+          "zdata/apps@auto-3"
+        ]
+      },
+      {
+        "cmd": "zfs",
+        "args": [
+          "receive",
+          "-F",
+          "zbak/apps"
+        ],
+        "stdin": "ZFS-STREAM-BYTES"
+      }
+    ]
+  }
+]

@@ -1,0 +1,6 @@
+	NRO	ENABLED	NAME	DEVICE	MOUNTPOINT	TYPE	OPTIONS	DUMP	PASS
+0	1	 	/zdata/apps/audio-server-rs	/opt/audio-server-rs	nullfs	rw	0	0	
+1	1	 	/zdata/book-audio	/audio	nullfs	ro	0	0	
+2	1	 	/zdata/audio-hls-rs	/audio-hls	nullfs	rw	0	0	
+3	1	 	/zdata/log/audio-server-rs	/audit	nullfs	rw	0	0	
+4	1	 	/zdata/apps/audio-server-go	/opt/audio-server-go	nullfs	rw	0	0	

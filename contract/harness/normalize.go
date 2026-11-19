@@ -24,7 +24,10 @@ var snapHeaders = []string{"Content-Type", "Location", "Set-Cookie", "Allow", "C
 
 // Masker: 비결정 값 치환 규칙.
 type Masker struct {
-	pairs []struct{ re *regexp.Regexp; rep string }
+	pairs []struct {
+		re  *regexp.Regexp
+		rep string
+	}
 	lits  []struct{ from, to string }
 	funcs []func(string) string
 }

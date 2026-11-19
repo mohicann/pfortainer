@@ -1,10 +1,11 @@
 package tests
 
 // Route: 계약 대상 라우트 한 건. Layer는 Rust main.rs의 라우터 묶음.
-//   viewer   — 미들웨어 없음. 인증은 핸들러의 AuthUser 추출기에 맡김(빠진 핸들러는 익명 접근 가능)
-//   operator — require_operator 미들웨어
-//   admin    — require_admin 미들웨어
-//   public   — 로그인/로그아웃
+//
+//	viewer   — 미들웨어 없음. 인증은 핸들러의 AuthUser 추출기에 맡김(빠진 핸들러는 익명 접근 가능)
+//	operator — require_operator 미들웨어
+//	admin    — require_admin 미들웨어
+//	public   — 로그인/로그아웃
 type Route struct {
 	Layer  string
 	Method string

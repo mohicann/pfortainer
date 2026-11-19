@@ -1,0 +1,635 @@
+[
+  {
+    "name": "dataset_ok",
+    "req": "POST /zfs/dataset {\"path\":\"zdata/apps/new\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "create",
+          "zdata/apps/new"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "dataset_bad",
+    "req": "POST /zfs/dataset {\"path\":\"zdata/apps/../x;rm\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "create",
+          "zdata/apps/../x;rm"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "dataset_leading_slash",
+    "req": "POST /zfs/dataset {\"path\":\"/zdata/x\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "create",
+          "/zdata/x"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "dataset_empty",
+    "req": "POST /zfs/dataset {}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "bad request"
+    }
+  },
+  {
+    "name": "dataset_not_json",
+    "req": "POST /zfs/dataset path=x",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "Failed to parse the request body as JSON: expected value at line 1 column 1"
+    }
+  },
+  {
+    "name": "dataset_delete_ok",
+    "req": "POST /zfs/dataset/delete {\"name\":\"zdata/apps/new\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "destroy",
+          "zdata/apps/new"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "dataset_delete_pool",
+    "req": "POST /zfs/dataset/delete {\"name\":\"zdata\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "destroy",
+          "zdata"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "dataset_delete_bad",
+    "req": "POST /zfs/dataset/delete {\"name\":\"-rf zdata\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "destroy",
+          "-rf zdata"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "snapshot_ok",
+    "req": "POST /zfs/snapshot {\"dataset\":\"zdata/apps\",\"snapname\":\"manual-1\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "snapshot",
+          "zdata/apps@manual-1"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "snapshot_bad_name",
+    "req": "POST /zfs/snapshot {\"dataset\":\"zdata/apps\",\"snapname\":\"a b\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "snapshot",
+          "zdata/apps@a b"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "snapshot_bad_ds",
+    "req": "POST /zfs/snapshot {\"dataset\":\"zdata apps\",\"snapname\":\"x\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "snapshot",
+          "zdata apps@x"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "snapshot_delete_ok",
+    "req": "POST /zfs/snapshot/delete {\"name\":\"zdata/apps@manual-1\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "destroy",
+          "zdata/apps@manual-1"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "snapshot_delete_no_at",
+    "req": "POST /zfs/snapshot/delete {\"name\":\"zdata/apps\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "invalid snapshot name"
+    }
+  },
+  {
+    "name": "snapshot_delete_bad",
+    "req": "POST /zfs/snapshot/delete {\"name\":\"zdata/apps@x y\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "destroy",
+          "zdata/apps@x y"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "rollback_ok",
+    "req": "POST /zfs/rollback {\"name\":\"zdata/apps@manual-1\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "rollback",
+          "-r",
+          "zdata/apps@manual-1"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "rollback_bad",
+    "req": "POST /zfs/rollback {\"name\":\"zdata/apps\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "invalid snapshot name"
+    }
+  },
+  {
+    "name": "clone_ok",
+    "req": "POST /zfs/clone {\"name\":\"zdata/apps@manual-1\",\"target\":\"zdata/apps-clone\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "clone",
+          "zdata/apps@manual-1",
+          "zdata/apps-clone"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "clone_bad_target",
+    "req": "POST /zfs/clone {\"name\":\"zdata/apps@manual-1\",\"target\":\"zdata/a b\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "clone",
+          "zdata/apps@manual-1",
+          "zdata/a b"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "clone_bad_src",
+    "req": "POST /zfs/clone {\"name\":\"zdata/apps\",\"target\":\"zdata/c\"}",
+    "snap": {
+      "status": 400,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "invalid snapshot name"
+    }
+  },
+  {
+    "name": "prune_keep2",
+    "req": "POST /zfs/snapshot/prune {\"dataset\":\"zdata/apps\",\"keep\":2,\"prefix\":\"auto\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-H",
+          "-p",
+          "-t",
+          "snapshot",
+          "-o",
+          "name,creation",
+          "-s",
+          "creation",
+          "-r",
+          "zdata/apps"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "prune_keep0",
+    "req": "POST /zfs/snapshot/prune {\"dataset\":\"zdata/apps\",\"keep\":0,\"prefix\":\"auto\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    }
+  },
+  {
+    "name": "prune_keep_many",
+    "req": "POST /zfs/snapshot/prune {\"dataset\":\"zdata/apps\",\"keep\":10,\"prefix\":\"auto\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-H",
+          "-p",
+          "-t",
+          "snapshot",
+          "-o",
+          "name,creation",
+          "-s",
+          "creation",
+          "-r",
+          "zdata/apps"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "prune_bad_prefix",
+    "req": "POST /zfs/snapshot/prune {\"dataset\":\"zdata/apps\",\"keep\":1,\"prefix\":\"a*\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-H",
+          "-p",
+          "-t",
+          "snapshot",
+          "-o",
+          "name,creation",
+          "-s",
+          "creation",
+          "-r",
+          "zdata/apps"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "prune_empty_prefix",
+    "req": "POST /zfs/snapshot/prune {\"dataset\":\"zdata/apps\",\"keep\":1,\"prefix\":\"\"}",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "success": true
+        }
+      }
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "list",
+          "-H",
+          "-p",
+          "-t",
+          "snapshot",
+          "-o",
+          "name,creation",
+          "-s",
+          "creation",
+          "-r",
+          "zdata/apps"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "dataset_fail",
+    "req": "POST /zfs/dataset {\"path\":\"zdata/x\"}",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "cannot create: permission denied"
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "create",
+          "zdata/x"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "snapshot_fail",
+    "req": "POST /zfs/snapshot {\"dataset\":\"zdata/apps\",\"snapname\":\"s\"}",
+    "snap": {
+      "status": 500,
+      "headers": {
+        "Content-Type": [
+          "text/plain; charset=utf-8"
+        ]
+      },
+      "body": "cannot create: permission denied"
+    },
+    "calls": [
+      {
+        "cmd": "zfs",
+        "args": [
+          "snapshot",
+          "zdata/apps@s"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+USER     COMMAND      PID FD PROTO   LOCAL ADDRESS         FOREIGN ADDRESS      
+mohicann sshd-sessi 33936  9 stream  (not connected)       ??                   
+root     sshd-sessi 33934  9 stream  (not connected)       ??                   
+mohicann sshd-sessi 49804  9 stream  (not connected)       ??                   
+root     sshd-sessi 49802  9 stream  (not connected)       ??                   
+root     pfortainer 14997  9 stream  /var/run/pfortainer-r ??                   
+root     syslogd    26799  7 dgram   /var/run/log           <-                  
+root     syslogd    26799  9 dgram   /var/run/logpriv      ??                   
+1000     node       26361 41 tcp4    *:2283                *:*                  
+770      postgres   19978  8 stream  /tmp/.s.PGSQL.5432    ??                   
+root     syslogd    19899  7 dgram   /var/run/log           <-                  
+root     syslogd    19899  9 dgram   /var/run/logpriv      ??                   
+root     syslogd    13188  7 dgram   /var/run/log           <-                  
+root     syslogd    13188  9 dgram   /var/run/logpriv      ??                   
+1000     python3.12 12744  3 tcp4    *:3003                *:*                  
+root     sshd        5345  6 tcp6    *:22                  *:*                  
+root     sshd        5345  7 tcp4    *:22                  *:*                  
+root     podman      5232  6 stream  /var/run/podman/podma ??                   
+1000     node        5209 82 tcp4    *:58846               *:*                  
+root     conmon      5203  3 seqpack (not connected)       ??                   
+root     conmon      5203 13 seqpack attach                ??                   
+1000     redis-serv  5179  6 tcp4    *:6379                *:*                  
+root     conmon      5177  3 seqpack (not connected)       ??                   
+root     conmon      5177 13 seqpack attach                ??                   
+1000     python3.12  5165  3 tcp4    *:3003                *:*                  
+1000     python3.12  5165  8 stream  /config/.gunicorn/gun ??                   
+root     conmon      5163  3 seqpack (not connected)       ??                   
+root     conmon      5163 13 seqpack attach                ??                   
+1000     postgres    5142  5 tcp6    *:5432                *:*                  
+1000     postgres    5142  6 tcp4    *:5432                *:*                  
+1000     postgres    5142  7 stream  /tmp/.s.PGSQL.5432    ??                   
+root     conmon      5140  3 seqpack (not connected)       ??                   
+root     conmon      5140 13 seqpack attach                ??                   
+ntpd     ntpd        5037 20 udp6    *:123                 *:*                  
+ntpd     ntpd        5037 21 udp4    *:123                 *:*                  
+ntpd     ntpd        5037 22 udp6    [fe80::aab8:e0ff:fe03 *:*                  
+ntpd     ntpd        5037 23 udp4    192.168.0.110:123     *:*                  
+ntpd     ntpd        5037 24 udp6    [::1]:123             *:*                  
+ntpd     ntpd        5037 25 udp6    [fe80::1%lo0]:123     *:*                  
+ntpd     ntpd        5037 26 udp4    127.0.0.1:123         *:*                  
+ntpd     ntpd        5037 30 udp4    100.70.120.35:123     *:*                  
+ntpd     ntpd        5037 31 udp6    [fd7a:115c:a1e0::fd2b *:*                  
+ntpd     ntpd        5037 32 udp4    10.0.0.1:123          *:*                  
+root     syslogd     4928  6 udp6    *:514                 *:*                  
+root     syslogd     4928  7 udp4    *:514                 *:*                  
+root     syslogd     4928  8 dgram   /var/run/log           <-                  
+root     syslogd     4928 10 dgram   /var/run/logpriv      ??                   
+root     tailscaled  4729  8 stream  /var/run/tailscale/ta ??                   
+root     tailscaled  4729 10 udp6    *:41641               *:*                  
+root     tailscaled  4729 11 udp4    *:41641               *:*                  
+root     devd        4554  4 stream  /var/run/devd.pipe    ??                   
+root     devd        4554  5 seqpack /var/run/devd.seqpack ??                   
