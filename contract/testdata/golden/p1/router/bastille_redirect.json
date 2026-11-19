@@ -1,0 +1,8 @@
+{
+  "status": 303,
+  "headers": {
+    "Location": [
+      "/appjail"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "status": 405,
+  "headers": {
+    "Allow": [
+      "GET,HEAD"
+    ]
+  }
+}

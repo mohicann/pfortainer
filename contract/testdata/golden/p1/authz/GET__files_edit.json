@@ -1,0 +1,60 @@
+{
+  "admin": {
+    "status": 500,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "파일을 읽을 수 없습니다: fixture missing: GET /fs/read?path=%2Fzdata%2Fa.txt",
+    "hostd_calls": 2,
+    "podman_calls": 0
+  },
+  "anon": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "bad_sig": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "empty_user": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "ghost_admin": {
+    "status": 500,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "파일을 읽을 수 없습니다: fixture missing: GET /fs/read?path=%2Fzdata%2Fa.txt",
+    "hostd_calls": 2,
+    "podman_calls": 0
+  },
+  "operator": {
+    "status": 500,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "파일을 읽을 수 없습니다: fixture missing: GET /fs/read?path=%2Fzdata%2Fa.txt",
+    "hostd_calls": 2,
+    "podman_calls": 0
+  },
+  "other_secret": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "unknown_role": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "viewer": {
+    "status": 500,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "파일을 읽을 수 없습니다: fixture missing: GET /fs/read?path=%2Fzdata%2Fa.txt",
+    "hostd_calls": 2,
+    "podman_calls": 0
+  }
+}

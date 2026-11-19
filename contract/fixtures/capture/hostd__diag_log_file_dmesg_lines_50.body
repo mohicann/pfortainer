@@ -1,0 +1,50 @@
+ada2: <WDC WD40EFPX-68C6CN0 81.00A81> ACS-3 ATA SATA 3.x device
+ada2: Serial Number WD-WX62AA24CJHT
+ada2: 600.000MB/s transfers (SATA 3.x, UDMA6, PIO 8192bytes)
+ada2: Command Queueing enabled
+ada2: 3815447MB (7814037168 512 byte sectors)
+ada3 at ahcich4 bus 0 scbus4 target 0 lun 0
+ada3: <ST4000VN006-2DR166 HK11> ACS-3 ATA SATA 3.x device
+ada3: Serial Number ZW60C832
+ada3: 600.000MB/s transfers (SATA 3.x, UDMA6, PIO 8192bytes)
+ada3: Command Queueing enabled
+ada3: 3815447MB (7814037168 512 byte sectors)
+ada4 at ahcich5 bus 0 scbus5 target 0 lun 0
+ada4: <ST4000VN006-3CW104 SC60> ACS-3 ATA SATA 3.x device
+ada4: Serial Number WW689Z07
+ada4: 600.000MB/s transfers (SATA 3.x, UDMA6, PIO 8192bytes)
+ada4: Command Queueing enabled
+ada4: 3815447MB (7814037168 512 byte sectors)
+uhub0: 5 ports with 5 removable, self powered
+GEOM: ada1: the primary GPT table is corrupt or invalid.
+GEOM: ada1: using the secondary instead -- recovery strongly advised.
+uhub1: 16 ports with 16 removable, self powered
+ugen1.2: <vendor 0x8087 product 0x0036> at usbus1
+GEOM: ada1: the primary GPT table is corrupt or invalid.
+GEOM: ada1: using the secondary instead -- recovery strongly advised.
+ichsmb0: <Intel Alder Lake SMBus controller> port 0xefa0-0xefbf mem 0x60e8128000-0x60e81280ff at device 31.4 on pci0
+smbus0: <System Management Bus> on ichsmb0
+iwlwifi0: <iwlwifi> mem 0x51200000-0x51203fff at device 0.0 on pci2
+iwlwifi0: Detected crf-id 0x2001910, cnv-id 0x2001910 wfpm id 0x80000000
+iwlwifi0: PCI dev 272b/00f4, rev=0x472, rfid=0x112200
+iwlwifi0: Detected Intel(R) Wi-Fi 7 BE200 320MHz
+iwlwifi0: successfully loaded firmware image 'iwlwifi-gl-c0-fm-c0-c101.ucode'
+iwlwifi0: loaded firmware version 101.6e695a70.0 gl-c0-fm-c0-c101.ucode op_mode iwlmld
+iwlwifi0: Detected RF FM, rfid=0x112200
+iwlwifi0: base HW address: a0:85:27:75:38:c0
+iwlwifi0: Failed to register PHC clock (0)
+acpi_wmi0: <ACPI-WMI mapping> on acpi0
+acpi_wmi0: cannot find EC device
+acpi_wmi0: Embedded MOF found
+acpi_wmi1: <ACPI-WMI mapping> on acpi0
+acpi_wmi1: cannot find EC device
+acpi_wmi1: Embedded MOF found
+igc3: link state changed to UP
+lo0: link state changed to UP
+igc3: link state changed to DOWN
+Firmware Error (ACPI): Could not resolve symbol [\134_SB.PC00.LPCB.ITE8.GETT], AE_NOT_FOUND (20250807/psargs-507)
+ACPI Error: Aborting method \134_TZ.TZ00._TMP due to previous error (AE_NOT_FOUND) (20250807/psparse-689)
+igc3: link state changed to UP
+Firmware Error (ACPI): Could not resolve symbol [\134_SB.PC00.LPCB.ITE8.GETT], AE_NOT_FOUND (20250807/psargs-507)
+ACPI Error: Aborting method \134_TZ.TZ00._TMP due to previous error (AE_NOT_FOUND) (20250807/psparse-689)
+pflog0: promiscuous mode enabled

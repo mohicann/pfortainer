@@ -1,0 +1,65 @@
+{
+  "admin": {
+    "status": 404,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "파일을 찾을 수 없습니다.",
+    "hostd_calls": 1,
+    "podman_calls": 0
+  },
+  "anon": {
+    "status": 404,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "파일을 찾을 수 없습니다.",
+    "hostd_calls": 1,
+    "podman_calls": 0
+  },
+  "bad_sig": {
+    "status": 404,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "파일을 찾을 수 없습니다.",
+    "hostd_calls": 1,
+    "podman_calls": 0
+  },
+  "empty_user": {
+    "status": 404,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "파일을 찾을 수 없습니다.",
+    "hostd_calls": 1,
+    "podman_calls": 0
+  },
+  "ghost_admin": {
+    "status": 404,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "파일을 찾을 수 없습니다.",
+    "hostd_calls": 1,
+    "podman_calls": 0
+  },
+  "operator": {
+    "status": 404,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "파일을 찾을 수 없습니다.",
+    "hostd_calls": 1,
+    "podman_calls": 0
+  },
+  "other_secret": {
+    "status": 404,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "파일을 찾을 수 없습니다.",
+    "hostd_calls": 1,
+    "podman_calls": 0
+  },
+  "unknown_role": {
+    "status": 404,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "파일을 찾을 수 없습니다.",
+    "hostd_calls": 1,
+    "podman_calls": 0
+  },
+  "viewer": {
+    "status": 404,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "파일을 찾을 수 없습니다.",
+    "hostd_calls": 1,
+    "podman_calls": 0
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "status": 200,
+  "headers": {
+    "Content-Type": [
+      "text/html; charset=utf-8"
+    ]
+  },
+  "body": "\u003c20650 bytes html\u003e",
+  "hostd": [
+    {
+      "method": "GET",
+      "path": "/appjail/detail?name=a%2Fb"
+    }
+  ]
+}

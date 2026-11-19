@@ -1,0 +1,60 @@
+{
+  "admin": {
+    "status": 404,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "컨테이너를 찾을 수 없습니다.",
+    "hostd_calls": 0,
+    "podman_calls": 1
+  },
+  "anon": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "bad_sig": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "empty_user": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "ghost_admin": {
+    "status": 404,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "컨테이너를 찾을 수 없습니다.",
+    "hostd_calls": 0,
+    "podman_calls": 1
+  },
+  "operator": {
+    "status": 404,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "컨테이너를 찾을 수 없습니다.",
+    "hostd_calls": 0,
+    "podman_calls": 1
+  },
+  "other_secret": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "unknown_role": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "viewer": {
+    "status": 404,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "컨테이너를 찾을 수 없습니다.",
+    "hostd_calls": 0,
+    "podman_calls": 1
+  }
+}

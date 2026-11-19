@@ -1,0 +1,36 @@
+  pool: zbak
+ state: ONLINE
+  scan: scrub repaired 0B in 01:54:10 with 0 errors on Wed Nov 18 06:37:59 2026
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	zbak        ONLINE       0     0     0
+	  ada0      ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: zdata
+ state: ONLINE
+  scan: scrub repaired 0B in 01:42:40 with 0 errors on Wed Nov 18 06:26:31 2026
+expand: expanded raidz1-0 copied 1.80T in 02:22:08, on Tue Jun 30 20:17:31 2026
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	zdata       ONLINE       0     0     0
+	  raidz1-0  ONLINE       0     0     0
+	    ada1    ONLINE       0     0     0
+	    ada4    ONLINE       0     0     0
+	    ada3    ONLINE       0     0     0
+	    ada2    ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: zroot
+ state: ONLINE
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	zroot       ONLINE       0     0     0
+	  nda0p4    ONLINE       0     0     0
+
+errors: No known data errors

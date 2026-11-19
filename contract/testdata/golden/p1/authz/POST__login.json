@@ -1,0 +1,65 @@
+{
+  "admin": {
+    "status": 422,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "Failed to deserialize form body: missing field `username`",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "anon": {
+    "status": 422,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "Failed to deserialize form body: missing field `username`",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "bad_sig": {
+    "status": 422,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "Failed to deserialize form body: missing field `username`",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "empty_user": {
+    "status": 422,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "Failed to deserialize form body: missing field `username`",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "ghost_admin": {
+    "status": 422,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "Failed to deserialize form body: missing field `username`",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "operator": {
+    "status": 422,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "Failed to deserialize form body: missing field `username`",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "other_secret": {
+    "status": 422,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "Failed to deserialize form body: missing field `username`",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "unknown_role": {
+    "status": 422,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "Failed to deserialize form body: missing field `username`",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "viewer": {
+    "status": 422,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "Failed to deserialize form body: missing field `username`",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  }
+}

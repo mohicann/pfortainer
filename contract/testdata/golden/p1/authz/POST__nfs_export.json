@@ -1,0 +1,57 @@
+{
+  "admin": {
+    "status": 303,
+    "location": "/shares?tab=nfs\u0026success=NFS+export++저장됨",
+    "hostd_calls": 1,
+    "podman_calls": 0
+  },
+  "anon": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "bad_sig": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "empty_user": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "ghost_admin": {
+    "status": 303,
+    "location": "/shares?tab=nfs\u0026success=NFS+export++저장됨",
+    "hostd_calls": 1,
+    "podman_calls": 0
+  },
+  "operator": {
+    "status": 303,
+    "location": "/shares?tab=nfs\u0026success=NFS+export++저장됨",
+    "hostd_calls": 1,
+    "podman_calls": 0
+  },
+  "other_secret": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "unknown_role": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "viewer": {
+    "status": 403,
+    "content_type": "text/plain; charset=utf-8",
+    "body": "권한이 없습니다. 관리자에게 문의하세요.",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  }
+}

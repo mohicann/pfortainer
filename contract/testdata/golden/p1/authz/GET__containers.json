@@ -1,0 +1,56 @@
+{
+  "admin": {
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "hostd_calls": 0,
+    "podman_calls": 1
+  },
+  "anon": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "bad_sig": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "empty_user": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "ghost_admin": {
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "hostd_calls": 0,
+    "podman_calls": 1
+  },
+  "operator": {
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "hostd_calls": 0,
+    "podman_calls": 1
+  },
+  "other_secret": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "unknown_role": {
+    "status": 302,
+    "location": "/login",
+    "hostd_calls": 0,
+    "podman_calls": 0
+  },
+  "viewer": {
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "hostd_calls": 0,
+    "podman_calls": 1
+  }
+}
