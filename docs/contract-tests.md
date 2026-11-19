@@ -96,8 +96,7 @@ P7은 지금 Rust↔Rust로 녹색이다. Go가 생기면 `SUT_BIN`/`OTHER_BIN`�
 8. hostd fs/copy로 디렉터리를 자기 안으로 복사하면 이름이 너무 길어질 때까지 재귀 생성.
 9. hostd fs/write가 상대경로를 `/` 기준으로 씀.
 10. hostd zfs/dataset·snapshot·clone 등은 이름 패턴 검증 없이 인자로 넘김(셸은 없음).
-11. 로컬 사용자 생성 폼은 앱에서 검증 없이 성공 리다이렉트 문구를 만듦(hostd 거절도 `success`로 보임 — `user_create_bad_name` 골든 참고).
-12. SMART 디스크 표시 순서가 매번 바뀜(UX).
+11. SMART 디스크 표시 순서가 매번 바뀜(UX).
 
 ## 다음: Go 구현 G0~G7 (P와 1:1, 해당 계약이 Go로 녹색이면 완료)
 
