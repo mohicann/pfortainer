@@ -9,7 +9,7 @@ pfortainer — FreeBSD + Podman 관리 웹 UI(Go). 운영 중인 Rust 구현(`..
 go build -o bin/pfortainer ./cmd/pfortainer          # 앱, `bin/pfortainer -hostd`는 root host agent
 go test ./internal/...                                 # 단위 테스트(템플릿이 Rust 사본인지 포함)
 SUT_BIN=$PWD/bin/pfortainer OTHER_BIN=../pfortainer-rs/target/release/pfortainer go test ./contract/...
-go test ./contract/... -update                         # 골든 기록 — SUT가 Rust일 때만
+go test ./contract/... -update                         # 골든 기록 — Go(bin/pfortainer)로만 (2026-11-19 전환 뒤 Go가 원본)
 ```
 
 ## 구조
@@ -23,5 +23,5 @@ go test ./contract/... -update                         # 골든 기록 — SUT�
 ## 규칙
 
 - 동작은 Rust와 바이트 단위로 같게. 차이를 없애려 정규화를 늘리는 건 사용자와 결정.
-- 템플릿을 바꾸면 Rust와 함께 바꾸고 사본을 맞춘다(전환 뒤에는 Go가 원본).
+- 전환(2026-11-19) 뒤에는 Go가 원본. Rust 저장소는 보관됨 — 템플릿은 여기서만 고친다.
 - 오류 문구는 Rust 표기(`exit status: N`, `(os error N)`, serde 문구)를 따른다 — `rustio.go`, `httpx/serde*.go`.

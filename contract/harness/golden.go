@@ -33,8 +33,9 @@ func Golden(t testing.TB, name string, v any) {
 	got = append(got, '\n')
 	p := GoldenPath(name)
 	if *update {
-		if !SUTIsRust() {
-			t.Fatalf("-update는 SUT가 Rust일 때만 허용 (SUT_BIN=%s)", SUTBin())
+		// 2026-11-19 전환 이후 Go가 원본: 골든은 Go 빌드로 기록한다(Rust 저장소는 보관됨).
+		if SUTIsRust() {
+			t.Fatalf("-update는 Go(SUT_BIN=bin/pfortainer)로만 기록 — Rust는 보관된 구현")
 		}
 		os.MkdirAll(filepath.Dir(p), 0o755)
 		if err := os.WriteFile(p, got, 0o644); err != nil {

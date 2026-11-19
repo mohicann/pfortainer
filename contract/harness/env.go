@@ -33,12 +33,12 @@ func RustBin() string {
 	return filepath.Join(RustRepo(), "target", "release", "pfortainer")
 }
 
-// SUTBin: 테스트 대상 바이너리. 기본은 Rust.
+// SUTBin: 테스트 대상 바이너리. 기본은 이 저장소의 bin/pfortainer(Go, 2026-11-19 전환 이후 원본).
 func SUTBin() string {
 	if v := os.Getenv("SUT_BIN"); v != "" {
 		return v
 	}
-	return RustBin()
+	return filepath.Join(RepoRoot(), "bin", "pfortainer")
 }
 
 // SUTIsRust: 골든 기록(-update)은 Rust일 때만 허용한다.
@@ -57,11 +57,14 @@ func requireBin(t testing.TB) string {
 	return bin
 }
 
-// OtherBin: 호환 테스트(P7)의 상대 구현. 기본은 Rust(→ Rust↔Rust로도 녹색이어야 함).
+// OtherBin: 호환 테스트(P7)의 상대 구현. 기본은 Rust(보관본, 없으면 SUT끼리).
 // Go 구현이 생기면 SUT_BIN=Go, OTHER_BIN=Rust(또는 반대)로 교차 실행한다.
 func OtherBin() string {
 	if v := os.Getenv("OTHER_BIN"); v != "" {
 		return v
 	}
-	return RustBin()
+	if _, err := os.Stat(RustBin()); err == nil {
+		return RustBin()
+	}
+	return SUTBin()
 }
