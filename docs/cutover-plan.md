@@ -54,3 +54,13 @@
   앱 로그인 200·앱 ERROR 0·메트릭 5초 기록 계속
 - 롤백: `rm /usr/local/etc/pfortainer_hostd.bin && service pfortainer_hostd restart` (Rust 바이너리 `.rust-pre-go`도 보관)
 - 재부팅 검증은 하지 않음(부팅 경로: 스위치 파일이 가리키는 Go 바이너리가 없으면 prestart가 실패해 hostd만 안 뜸 — 부팅 자체엔 영향 없음)
+
+## 정리 실행 기록 (2026-11-19 15:50, 사용자 지시로 즉시)
+- 배포 구성을 이 저장소 `deploy/appjail/`로 옮김(Go가 기본, 스위치 제거) — fe4f378. fbnas 체크아웃은 main.
+- 데이터·.env를 `/zdata/apps/pfortainer/{data,.env}`로 이동(같은 데이터셋 안 mv), .env 경로를 `/opt/pfortainer/data/…`로
+- jail·호스트 rc.d를 Go 기본판으로 교체, 스위치 파일 두 개 삭제, 앱·hostd 재시작
+- jail fstab에서 `/zdata/apps/pfortainer-rs` 제거·umount, `/zdata/apps/pfortainer-rs`(Rust 체크아웃·바이너리·`.rust-pre-go`) 삭제,
+  jail에서 rust 패키지·`/root/.cargo` 삭제, `/tmp` rc.d 백업 삭제
+- GitHub: mohicann/pfortainer-rs README에 보관 안내 후 **archive**, deploy key 2개 삭제(bastille·appjail), fbnas의 옛 키·SSH 별칭 삭제
+- 확인: 외부 `/login` 200·익명 API 302, 앱 ERROR 0, 메트릭 기록 계속, healthcheck healthy, RSS 앱 24.3MB·hostd 22.0MB
+- 남긴 것: 스냅샷 `zdata/apps@pre-go-pf-20261119-1543`(Rust 체크아웃·데이터 그대로 들어 있음 — 되돌릴 유일한 경로), `data/config.db.bak-20261118-112255`(사용자가 나중에 지우기로 한 것)
