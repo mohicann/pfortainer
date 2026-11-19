@@ -1,0 +1,65 @@
+{
+  "config_db": [
+    {
+      "name": "alert_history",
+      "sql": "CREATE TABLE alert_history ( id INTEGER PRIMARY KEY, event_type TEXT NOT NULL, target TEXT NOT NULL, fired_at INTEGER NOT NULL )",
+      "tbl_name": "alert_history",
+      "type": "table"
+    },
+    {
+      "name": "desktop_prefs",
+      "sql": "CREATE TABLE desktop_prefs ( username TEXT PRIMARY KEY, prefs TEXT NOT NULL, updated_at INTEGER NOT NULL )",
+      "tbl_name": "desktop_prefs",
+      "type": "table"
+    },
+    {
+      "name": "meta",
+      "sql": "CREATE TABLE meta ( key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at INTEGER NOT NULL )",
+      "tbl_name": "meta",
+      "type": "table"
+    },
+    {
+      "name": "replication_tasks",
+      "sql": "CREATE TABLE replication_tasks ( id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL UNIQUE, source_dataset TEXT NOT NULL, target_path TEXT NOT NULL, recursive INTEGER NOT NULL DEFAULT 0, schedule TEXT NOT NULL DEFAULT 'manual', last_snapshot TEXT NOT NULL DEFAULT '', last_run_at INTEGER, last_status TEXT NOT NULL DEFAULT '', last_error TEXT NOT NULL DEFAULT '', enabled INTEGER NOT NULL DEFAULT 1, created_at INTEGER NOT NULL , retention INTEGER NOT NULL DEFAULT 14)",
+      "tbl_name": "replication_tasks",
+      "type": "table"
+    },
+    {
+      "name": "schedules",
+      "sql": "CREATE TABLE schedules ( id INTEGER PRIMARY KEY, type TEXT NOT NULL, target TEXT NOT NULL, frequency TEXT NOT NULL, retention INTEGER NOT NULL DEFAULT 7, prefix TEXT NOT NULL DEFAULT 'auto', enabled INTEGER NOT NULL DEFAULT 1, last_run INTEGER, next_run INTEGER, created_at INTEGER NOT NULL )",
+      "tbl_name": "schedules",
+      "type": "table"
+    },
+    {
+      "name": "users",
+      "sql": "CREATE TABLE \"users\" ( id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role INTEGER NOT NULL DEFAULT 1, created_at INTEGER NOT NULL, totp_secret TEXT NOT NULL DEFAULT '', totp_enabled INTEGER NOT NULL DEFAULT 0 )",
+      "tbl_name": "users",
+      "type": "table"
+    }
+  ],
+  "config_journal_mode": [
+    {
+      "journal_mode": "delete"
+    }
+  ],
+  "config_meta": [
+    {
+      "key": "users_role_migrated",
+      "updated_at": "\u003cnow\u003e",
+      "value": "1"
+    }
+  ],
+  "metrics_db": [
+    {
+      "name": "metrics",
+      "sql": "CREATE TABLE metrics ( time INTEGER PRIMARY KEY NOT NULL, cpu_user REAL NOT NULL DEFAULT 0, cpu_nice REAL NOT NULL DEFAULT 0, cpu_sys REAL NOT NULL DEFAULT 0, cpu_intr REAL NOT NULL DEFAULT 0, cpu_temp REAL NOT NULL DEFAULT 0, mem_free REAL NOT NULL DEFAULT 0, mem_active REAL NOT NULL DEFAULT 0, mem_inactive REAL NOT NULL DEFAULT 0, mem_wired REAL NOT NULL DEFAULT 0, load1 REAL NOT NULL DEFAULT 0, load5 REAL NOT NULL DEFAULT 0, load15 REAL NOT NULL DEFAULT 0, net_igc0_rx REAL NOT NULL DEFAULT 0, net_igc0_tx REAL NOT NULL DEFAULT 0, net_ts_rx REAL NOT NULL DEFAULT 0, net_ts_tx REAL NOT NULL DEFAULT 0, disk_read REAL NOT NULL DEFAULT 0, disk_write REAL NOT NULL DEFAULT 0, arc_size REAL NOT NULL DEFAULT 0, arc_hit REAL NOT NULL DEFAULT 0, arc_miss REAL NOT NULL DEFAULT 0, tcp_estab REAL NOT NULL DEFAULT 0, pool_zdata_pct REAL NOT NULL DEFAULT 0, pool_zdata_used REAL NOT NULL DEFAULT 0, pool_zdata_total REAL NOT NULL DEFAULT 0, pool_zboot_pct REAL NOT NULL DEFAULT 0, pool_zboot_used REAL NOT NULL DEFAULT 0, pool_zboot_total REAL NOT NULL DEFAULT 0 )",
+      "tbl_name": "metrics",
+      "type": "table"
+    }
+  ],
+  "metrics_journal_mode": [
+    {
+      "journal_mode": "wal"
+    }
+  ]
+}

@@ -1,0 +1,1949 @@
+[
+  {
+    "name": "page",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "text/html; charset=utf-8"
+        ]
+      },
+      "body": "\u003c!DOCTYPE html\u003e\u003chtml lang=\"ko\"\u003e\u003chead\u003e\u003cmeta charset=\"UTF-8\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\u003ctitle\u003e사용자 관리 — pfortainer\u003c/title\u003e\u003cscript\u003eif (window.top !== window.self) document.documentElement.classList.add('embedded');\u003c/script\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\"\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css\" rel=\"stylesheet\"\u003e\u003cstyle\u003e :root { --sidebar-bg: #1a2332; --sidebar-w: 220px; --header-bg: #1f2d3d; --nav-text: #b3c0d1; --nav-active: #2d4263; --content-bg: #f0f2f5; } body { margin: 0; background: var(--content-bg); } /* /desktop 창(iframe) 안에서는 사이드바·상단바 숨김 */ html.embedded .sidebar, html.embedded .topbar { display: none !important; } html.embedded .main { margin-left: 0; } @media (max-width: 767px) { .desktop-link { display: none; } } .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; } .sidebar-logo { padding: 1.1rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.07); } .sidebar-logo a { color: #fff; font-size: 1.05rem; font-weight: 700; text-decoration: none; } .sidebar-section-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: .7rem 1rem .25rem; background: none; border: none; cursor: pointer; font-size: .67rem; text-transform: uppercase; color: rgba(255,255,255,.28); letter-spacing: .09em; transition: color .15s; } .sidebar-section-btn:hover { color: rgba(255,255,255,.5); } .sidebar-section-btn .chv { font-size: .65rem; transition: transform .2s; } .sidebar-section-btn.collapsed .chv { transform: rotate(-90deg); } .sidebar .nav-link { color: var(--nav-text); padding: 0.5rem 0.85rem; font-size: 0.86rem; display: flex; align-items: center; gap: 0.55rem; border-radius: 5px; margin: 1px 8px; transition: background .12s, color .12s; } .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,0.07); } .sidebar .nav-link.active { color: #fff; background: var(--nav-active); } .sidebar \u003e .nav-collapse { overflow: hidden; } .sidebar-footer { margin-top: auto; padding: 0.75rem 1rem; border-top: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; } .sidebar-nav-scroll { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.1) transparent; } .main { margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-height: 100vh; } .topbar { background: var(--header-bg); padding: 0.7rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; border-bottom: 1px solid rgba(255,255,255,0.07); } .topbar .title { color: #fff; font-size: 0.95rem; font-weight: 500; margin: 0; } .content { flex: 1; padding: 1.5rem; } .badge-running { background: #28a745 !important; } .badge-exited, .badge-stopped { background: #dc3545 !important; } .badge-paused { background: #ffc107 !important; color: #212529 !important; } .badge-created { background: #6c757d !important; } .badge-restarting{ background: #17a2b8 !important; } .stat-card { background: #fff; border-radius: 8px; padding: 1.2rem 1.4rem; border: 1px solid rgba(0,0,0,0.07); } .stat-card .num { font-size: 2rem; font-weight: 700; line-height: 1; margin-bottom: .2rem; } .stat-card .lbl { font-size: .75rem; color: #6c757d; text-transform: uppercase; letter-spacing: .05em; } .card-table { background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.08); } .card-table .ct-header { padding: .75rem 1rem; border-bottom: 1px solid #e9ecef; display: flex; align-items: center; justify-content: space-between; } .card-table table { margin-bottom: 0; font-size: .875rem; } .card-table thead th { background: #f8f9fa; border-bottom: 2px solid #e9ecef; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #6c757d; white-space: nowrap; padding: .6rem .75rem; } .card-table tbody tr:hover { background: #fafbfc; } .card-table td { vertical-align: middle; padding: .6rem .75rem; } .cname { font-weight: 500; color: #1a73e8; text-decoration: none; } .cname:hover { text-decoration: underline; } .mono { font-family: 'SF Mono','Fira Code',monospace; font-size: .82rem; color: #6c757d; } .ptag { display: inline-block; background: #e8f0fe; color: #1a73e8; padding: 1px 7px; border-radius: 3px; font-size: .76rem; font-family: monospace; margin: 1px; } \u003c/style\u003e\u003c/head\u003e\u003cbody\u003e\u003cnav class=\"sidebar\"\u003e\u003cdiv class=\"sidebar-logo\"\u003e\u003ca href=\"/appjail\"\u003e\u003ci class=\"bi bi-grid-3x3-gap-fill me-2\" style=\"color:#4d9eff\"\u003e\u003c/i\u003epfortainer\u003c/a\u003e\u003ca href=\"/desktop\" class=\"desktop-link\" title=\"데스크탑 모드\" style=\"float:right;font-weight:400;opacity:.6\"\u003e\u003ci class=\"bi bi-window-stack\"\u003e\u003c/i\u003e\u003c/a\u003e\u003c/div\u003e\u003cdiv class=\"sidebar-nav-scroll\"\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-app\" aria-expanded=\"false\"\u003e\u003cspan\u003e앱\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-app\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/appjail\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-hdd-stack\"\u003e\u003c/i\u003e AppJail\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/containers\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-boxes\"\u003e\u003c/i\u003e Containers\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/files\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-folder2-open\"\u003e\u003c/i\u003e 파일매니저\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-system\" aria-expanded=\"false\"\u003e\u003cspan\u003e시스템\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-system\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/system\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-pc-display\"\u003e\u003c/i\u003e 시스템\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/metrics\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-activity\"\u003e\u003c/i\u003e 주요 메트릭\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/storage\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-hdd-network\"\u003e\u003c/i\u003e 스토리지\u003c/a\u003e\u003c…\u003c14164 bytes\u003e"
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      }
+    ]
+  },
+  {
+    "name": "page_with_msgs_ignored",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "text/html; charset=utf-8"
+        ]
+      },
+      "body": "\u003c!DOCTYPE html\u003e\u003chtml lang=\"ko\"\u003e\u003chead\u003e\u003cmeta charset=\"UTF-8\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\u003ctitle\u003e사용자 관리 — pfortainer\u003c/title\u003e\u003cscript\u003eif (window.top !== window.self) document.documentElement.classList.add('embedded');\u003c/script\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\"\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css\" rel=\"stylesheet\"\u003e\u003cstyle\u003e :root { --sidebar-bg: #1a2332; --sidebar-w: 220px; --header-bg: #1f2d3d; --nav-text: #b3c0d1; --nav-active: #2d4263; --content-bg: #f0f2f5; } body { margin: 0; background: var(--content-bg); } /* /desktop 창(iframe) 안에서는 사이드바·상단바 숨김 */ html.embedded .sidebar, html.embedded .topbar { display: none !important; } html.embedded .main { margin-left: 0; } @media (max-width: 767px) { .desktop-link { display: none; } } .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; } .sidebar-logo { padding: 1.1rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.07); } .sidebar-logo a { color: #fff; font-size: 1.05rem; font-weight: 700; text-decoration: none; } .sidebar-section-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: .7rem 1rem .25rem; background: none; border: none; cursor: pointer; font-size: .67rem; text-transform: uppercase; color: rgba(255,255,255,.28); letter-spacing: .09em; transition: color .15s; } .sidebar-section-btn:hover { color: rgba(255,255,255,.5); } .sidebar-section-btn .chv { font-size: .65rem; transition: transform .2s; } .sidebar-section-btn.collapsed .chv { transform: rotate(-90deg); } .sidebar .nav-link { color: var(--nav-text); padding: 0.5rem 0.85rem; font-size: 0.86rem; display: flex; align-items: center; gap: 0.55rem; border-radius: 5px; margin: 1px 8px; transition: background .12s, color .12s; } .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,0.07); } .sidebar .nav-link.active { color: #fff; background: var(--nav-active); } .sidebar \u003e .nav-collapse { overflow: hidden; } .sidebar-footer { margin-top: auto; padding: 0.75rem 1rem; border-top: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; } .sidebar-nav-scroll { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.1) transparent; } .main { margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-height: 100vh; } .topbar { background: var(--header-bg); padding: 0.7rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; border-bottom: 1px solid rgba(255,255,255,0.07); } .topbar .title { color: #fff; font-size: 0.95rem; font-weight: 500; margin: 0; } .content { flex: 1; padding: 1.5rem; } .badge-running { background: #28a745 !important; } .badge-exited, .badge-stopped { background: #dc3545 !important; } .badge-paused { background: #ffc107 !important; color: #212529 !important; } .badge-created { background: #6c757d !important; } .badge-restarting{ background: #17a2b8 !important; } .stat-card { background: #fff; border-radius: 8px; padding: 1.2rem 1.4rem; border: 1px solid rgba(0,0,0,0.07); } .stat-card .num { font-size: 2rem; font-weight: 700; line-height: 1; margin-bottom: .2rem; } .stat-card .lbl { font-size: .75rem; color: #6c757d; text-transform: uppercase; letter-spacing: .05em; } .card-table { background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.08); } .card-table .ct-header { padding: .75rem 1rem; border-bottom: 1px solid #e9ecef; display: flex; align-items: center; justify-content: space-between; } .card-table table { margin-bottom: 0; font-size: .875rem; } .card-table thead th { background: #f8f9fa; border-bottom: 2px solid #e9ecef; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #6c757d; white-space: nowrap; padding: .6rem .75rem; } .card-table tbody tr:hover { background: #fafbfc; } .card-table td { vertical-align: middle; padding: .6rem .75rem; } .cname { font-weight: 500; color: #1a73e8; text-decoration: none; } .cname:hover { text-decoration: underline; } .mono { font-family: 'SF Mono','Fira Code',monospace; font-size: .82rem; color: #6c757d; } .ptag { display: inline-block; background: #e8f0fe; color: #1a73e8; padding: 1px 7px; border-radius: 3px; font-size: .76rem; font-family: monospace; margin: 1px; } \u003c/style\u003e\u003c/head\u003e\u003cbody\u003e\u003cnav class=\"sidebar\"\u003e\u003cdiv class=\"sidebar-logo\"\u003e\u003ca href=\"/appjail\"\u003e\u003ci class=\"bi bi-grid-3x3-gap-fill me-2\" style=\"color:#4d9eff\"\u003e\u003c/i\u003epfortainer\u003c/a\u003e\u003ca href=\"/desktop\" class=\"desktop-link\" title=\"데스크탑 모드\" style=\"float:right;font-weight:400;opacity:.6\"\u003e\u003ci class=\"bi bi-window-stack\"\u003e\u003c/i\u003e\u003c/a\u003e\u003c/div\u003e\u003cdiv class=\"sidebar-nav-scroll\"\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-app\" aria-expanded=\"false\"\u003e\u003cspan\u003e앱\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-app\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/appjail\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-hdd-stack\"\u003e\u003c/i\u003e AppJail\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/containers\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-boxes\"\u003e\u003c/i\u003e Containers\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/files\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-folder2-open\"\u003e\u003c/i\u003e 파일매니저\u003c/a\u003e\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003cbutton class=\"sidebar-section-btn collapsed\" data-bs-toggle=\"collapse\" data-bs-target=\"#nav-system\" aria-expanded=\"false\"\u003e\u003cspan\u003e시스템\u003c/span\u003e\u003ci class=\"bi bi-chevron-down chv\"\u003e\u003c/i\u003e\u003c/button\u003e\u003cdiv class=\"collapse \" id=\"nav-system\"\u003e\u003cul class=\"nav flex-column mb-0 px-0 pb-1\"\u003e\u003cli\u003e\u003ca href=\"/system\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-pc-display\"\u003e\u003c/i\u003e 시스템\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/metrics\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-activity\"\u003e\u003c/i\u003e 주요 메트릭\u003c/a\u003e\u003c/li\u003e\u003cli\u003e\u003ca href=\"/storage\" class=\"nav-link \"\u003e\u003ci class=\"bi bi-hdd-network\"\u003e\u003c/i\u003e 스토리지\u003c/a\u003e\u003c…\u003c14164 bytes\u003e"
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      }
+    ]
+  },
+  {
+    "name": "create_empty",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?error=사용자명과+비밀번호를+입력하세요."
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      }
+    ]
+  },
+  {
+    "name": "create_short_pw",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?error=비밀번호는+8자+이상이어야+합니다."
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      }
+    ]
+  },
+  {
+    "name": "create_ok_operator",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?success=newbie+생성+완료"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      }
+    ]
+  },
+  {
+    "name": "create_dup",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?error=생성+실패:+UNIQUE%20constraint%20failed%3A%20users.username"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      }
+    ]
+  },
+  {
+    "name": "create_bad_role_defaults_viewer",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?success=r2+생성+완료"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      }
+    ]
+  },
+  {
+    "name": "create_no_role",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?success=r3+생성+완료"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      }
+    ]
+  },
+  {
+    "name": "create_weird_name",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?success=%ED%95%9C%EA%B8%80%20%EC%9D%B4%EB%A6%84%3C%3E%26+생성+완료"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      }
+    ]
+  },
+  {
+    "name": "create_pw_multibyte_len",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?success=mb+생성+완료"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "login_new_user",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/"
+        ],
+        "Set-Cookie": [
+          "pfsession=newbie:operator.c99949fc47303550c4770886d2b9a6daa7216296e322beaa571db1f6ec14c20a; Path=/; Max-Age=28800; HttpOnly; SameSite=Lax"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "role_change",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?success=역할+변경+완료"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "role_change_bad",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?success=역할+변경+완료"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "role_self_demote",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?error=자신의+관리자+권한을+제거할+수+없습니다"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "role_self_admin",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?success=역할+변경+완료"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "role_missing_user",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?error=user%20not%20found%3A%20ghost"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "password_short",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?error=비밀번호는+8자+이상이어야+합니다"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "password_ok",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?success=비밀번호+변경+완료"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "password_missing_user",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?error=user%20not%20found%3A%20ghost"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "login_after_pw_change",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/"
+        ],
+        "Set-Cookie": [
+          "pfsession=newbie:viewer.9dcda692f4a8509d14019eb8cfbdde760ec07e46677f8d5198ef9812c5e9c098; Path=/; Max-Age=28800; HttpOnly; SameSite=Lax"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "delete_self",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?error=자신의+계정을+삭제할+수+없습니다"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 4,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "newbie"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "delete_ok",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?success=newbie+삭제+완료"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "desktop_prefs_after_delete",
+    "snap": {
+      "status": 0
+    },
+    "db": null
+  },
+  {
+    "name": "delete_missing",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?error=user%20not%20found%3A%20newbie"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 7,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "한글 이름\u003c\u003e\u0026"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "delete_encoded_name",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/admin/users?success=%ED%95%9C%EA%B8%80%20%EC%9D%B4%EB%A6%84%3C%3E%26+삭제+완료"
+        ]
+      }
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  },
+  {
+    "name": "stale_cookie_role",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/shares?tab=nfs\u0026success=mountd%20reload%20%EC%99%84%EB%A3%8C"
+        ]
+      },
+      "hostd": [
+        {
+          "method": "POST",
+          "path": "/nfs/reload",
+          "content_type": "application/json"
+        }
+      ]
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 5,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r2"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 6,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "r3"
+      },
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 8,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "mb"
+      }
+    ]
+  }
+]

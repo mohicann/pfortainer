@@ -1,0 +1,182 @@
+[
+  {
+    "name": "bootstrap_users",
+    "snap": {
+      "status": 0
+    },
+    "db": [
+      {
+        "created_at": "\u003cnow\u003e",
+        "has_totp_secret": 0,
+        "id": 1,
+        "password_hash": "\u003cbcrypt $2b$12$\u003e",
+        "role": 3,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "admin"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 2,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 1,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "viewer1"
+      },
+      {
+        "created_at": 1763500000,
+        "has_totp_secret": 0,
+        "id": 3,
+        "password_hash": "\u003cbcrypt $2a$04$\u003e",
+        "role": 2,
+        "role_type": "integer",
+        "totp_enabled": 0,
+        "username": "operator1"
+      }
+    ]
+  },
+  {
+    "name": "login_ok_admin",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/"
+        ],
+        "Set-Cookie": [
+          "pfsession=admin:admin.9c3124f02a5b503607ebae002d212a72aacbac9abd97320775d772c64433ff2d; Path=/; Max-Age=28800; HttpOnly; SameSite=Lax"
+        ]
+      }
+    }
+  },
+  {
+    "name": "login_ok_trim_username",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/"
+        ],
+        "Set-Cookie": [
+          "pfsession=operator1:operator.e2eb22f9f7f2935c9a6a855b5b2008946df8543f16cbdd8bda02ed576c2b38b3; Path=/; Max-Age=28800; HttpOnly; SameSite=Lax"
+        ]
+      }
+    }
+  },
+  {
+    "name": "login_password_not_trimmed",
+    "snap": {
+      "status": 401,
+      "headers": {
+        "Content-Type": [
+          "text/html; charset=utf-8"
+        ]
+      },
+      "body": "\u003c!DOCTYPE html\u003e\u003chtml lang=\"ko\"\u003e\u003chead\u003e\u003cmeta charset=\"UTF-8\"\u003e\u003ctitle\u003e로그인 - pfortainer-rs\u003c/title\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\"\u003e\u003c/head\u003e\u003cbody class=\"bg-light\"\u003e\u003cdiv class=\"container\" style=\"max-width:400px;margin-top:10vh;\"\u003e\u003ch3 class=\"mb-3\"\u003epfortainer-rs 로그인\u003c/h3\u003e\u003cdiv class=\"alert alert-danger\"\u003e사용자명 또는 비밀번호가 올바르지 않습니다.\u003c/div\u003e\u003cform method=\"post\" action=\"/login\"\u003e\u003cdiv class=\"mb-3\"\u003e\u003clabel class=\"form-label\"\u003e사용자명\u003c/label\u003e\u003cinput type=\"text\" name=\"username\" class=\"form-control\" required\u003e\u003c/div\u003e\u003cdiv class=\"mb-3\"\u003e\u003clabel class=\"form-label\"\u003e비밀번호\u003c/label\u003e\u003cinput type=\"password\" name=\"password\" class=\"form-control\" required\u003e\u003c/div\u003e\u003cbutton type=\"submit\" class=\"btn btn-primary w-100\"\u003e로그인\u003c/button\u003e\u003c/form\u003e\u003c/div\u003e\u003c/body\u003e\u003c/html\u003e"
+    }
+  },
+  {
+    "name": "login_wrong_password",
+    "snap": {
+      "status": 401,
+      "headers": {
+        "Content-Type": [
+          "text/html; charset=utf-8"
+        ]
+      },
+      "body": "\u003c!DOCTYPE html\u003e\u003chtml lang=\"ko\"\u003e\u003chead\u003e\u003cmeta charset=\"UTF-8\"\u003e\u003ctitle\u003e로그인 - pfortainer-rs\u003c/title\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\"\u003e\u003c/head\u003e\u003cbody class=\"bg-light\"\u003e\u003cdiv class=\"container\" style=\"max-width:400px;margin-top:10vh;\"\u003e\u003ch3 class=\"mb-3\"\u003epfortainer-rs 로그인\u003c/h3\u003e\u003cdiv class=\"alert alert-danger\"\u003e사용자명 또는 비밀번호가 올바르지 않습니다.\u003c/div\u003e\u003cform method=\"post\" action=\"/login\"\u003e\u003cdiv class=\"mb-3\"\u003e\u003clabel class=\"form-label\"\u003e사용자명\u003c/label\u003e\u003cinput type=\"text\" name=\"username\" class=\"form-control\" required\u003e\u003c/div\u003e\u003cdiv class=\"mb-3\"\u003e\u003clabel class=\"form-label\"\u003e비밀번호\u003c/label\u003e\u003cinput type=\"password\" name=\"password\" class=\"form-control\" required\u003e\u003c/div\u003e\u003cbutton type=\"submit\" class=\"btn btn-primary w-100\"\u003e로그인\u003c/button\u003e\u003c/form\u003e\u003c/div\u003e\u003c/body\u003e\u003c/html\u003e"
+    }
+  },
+  {
+    "name": "login_unknown_user",
+    "snap": {
+      "status": 401,
+      "headers": {
+        "Content-Type": [
+          "text/html; charset=utf-8"
+        ]
+      },
+      "body": "\u003c!DOCTYPE html\u003e\u003chtml lang=\"ko\"\u003e\u003chead\u003e\u003cmeta charset=\"UTF-8\"\u003e\u003ctitle\u003e로그인 - pfortainer-rs\u003c/title\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\"\u003e\u003c/head\u003e\u003cbody class=\"bg-light\"\u003e\u003cdiv class=\"container\" style=\"max-width:400px;margin-top:10vh;\"\u003e\u003ch3 class=\"mb-3\"\u003epfortainer-rs 로그인\u003c/h3\u003e\u003cdiv class=\"alert alert-danger\"\u003e사용자명 또는 비밀번호가 올바르지 않습니다.\u003c/div\u003e\u003cform method=\"post\" action=\"/login\"\u003e\u003cdiv class=\"mb-3\"\u003e\u003clabel class=\"form-label\"\u003e사용자명\u003c/label\u003e\u003cinput type=\"text\" name=\"username\" class=\"form-control\" required\u003e\u003c/div\u003e\u003cdiv class=\"mb-3\"\u003e\u003clabel class=\"form-label\"\u003e비밀번호\u003c/label\u003e\u003cinput type=\"password\" name=\"password\" class=\"form-control\" required\u003e\u003c/div\u003e\u003cbutton type=\"submit\" class=\"btn btn-primary w-100\"\u003e로그인\u003c/button\u003e\u003c/form\u003e\u003c/div\u003e\u003c/body\u003e\u003c/html\u003e"
+    }
+  },
+  {
+    "name": "login_empty",
+    "snap": {
+      "status": 401,
+      "headers": {
+        "Content-Type": [
+          "text/html; charset=utf-8"
+        ]
+      },
+      "body": "\u003c!DOCTYPE html\u003e\u003chtml lang=\"ko\"\u003e\u003chead\u003e\u003cmeta charset=\"UTF-8\"\u003e\u003ctitle\u003e로그인 - pfortainer-rs\u003c/title\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\"\u003e\u003c/head\u003e\u003cbody class=\"bg-light\"\u003e\u003cdiv class=\"container\" style=\"max-width:400px;margin-top:10vh;\"\u003e\u003ch3 class=\"mb-3\"\u003epfortainer-rs 로그인\u003c/h3\u003e\u003cdiv class=\"alert alert-danger\"\u003e사용자명 또는 비밀번호가 올바르지 않습니다.\u003c/div\u003e\u003cform method=\"post\" action=\"/login\"\u003e\u003cdiv class=\"mb-3\"\u003e\u003clabel class=\"form-label\"\u003e사용자명\u003c/label\u003e\u003cinput type=\"text\" name=\"username\" class=\"form-control\" required\u003e\u003c/div\u003e\u003cdiv class=\"mb-3\"\u003e\u003clabel class=\"form-label\"\u003e비밀번호\u003c/label\u003e\u003cinput type=\"password\" name=\"password\" class=\"form-control\" required\u003e\u003c/div\u003e\u003cbutton type=\"submit\" class=\"btn btn-primary w-100\"\u003e로그인\u003c/button\u003e\u003c/form\u003e\u003c/div\u003e\u003c/body\u003e\u003c/html\u003e"
+    }
+  },
+  {
+    "name": "login_case_sensitive",
+    "snap": {
+      "status": 401,
+      "headers": {
+        "Content-Type": [
+          "text/html; charset=utf-8"
+        ]
+      },
+      "body": "\u003c!DOCTYPE html\u003e\u003chtml lang=\"ko\"\u003e\u003chead\u003e\u003cmeta charset=\"UTF-8\"\u003e\u003ctitle\u003e로그인 - pfortainer-rs\u003c/title\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\"\u003e\u003c/head\u003e\u003cbody class=\"bg-light\"\u003e\u003cdiv class=\"container\" style=\"max-width:400px;margin-top:10vh;\"\u003e\u003ch3 class=\"mb-3\"\u003epfortainer-rs 로그인\u003c/h3\u003e\u003cdiv class=\"alert alert-danger\"\u003e사용자명 또는 비밀번호가 올바르지 않습니다.\u003c/div\u003e\u003cform method=\"post\" action=\"/login\"\u003e\u003cdiv class=\"mb-3\"\u003e\u003clabel class=\"form-label\"\u003e사용자명\u003c/label\u003e\u003cinput type=\"text\" name=\"username\" class=\"form-control\" required\u003e\u003c/div\u003e\u003cdiv class=\"mb-3\"\u003e\u003clabel class=\"form-label\"\u003e비밀번호\u003c/label\u003e\u003cinput type=\"password\" name=\"password\" class=\"form-control\" required\u003e\u003c/div\u003e\u003cbutton type=\"submit\" class=\"btn btn-primary w-100\"\u003e로그인\u003c/button\u003e\u003c/form\u003e\u003c/div\u003e\u003c/body\u003e\u003c/html\u003e"
+    }
+  },
+  {
+    "name": "login_extra_fields",
+    "snap": {
+      "status": 303,
+      "headers": {
+        "Location": [
+          "/"
+        ],
+        "Set-Cookie": [
+          "pfsession=viewer1:viewer.ce02b9e246bbe5eab483cb64d67c845e5faf332ce35a4b2c5369057f17229da0; Path=/; Max-Age=28800; HttpOnly; SameSite=Lax"
+        ]
+      }
+    }
+  },
+  {
+    "name": "login_page_while_logged_in",
+    "snap": {
+      "status": 200,
+      "headers": {
+        "Content-Type": [
+          "text/html; charset=utf-8"
+        ]
+      },
+      "body": "\u003c!DOCTYPE html\u003e\u003chtml lang=\"ko\"\u003e\u003chead\u003e\u003cmeta charset=\"UTF-8\"\u003e\u003ctitle\u003e로그인 - pfortainer-rs\u003c/title\u003e\u003clink href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\"\u003e\u003c/head\u003e\u003cbody class=\"bg-light\"\u003e\u003cdiv class=\"container\" style=\"max-width:400px;margin-top:10vh;\"\u003e\u003ch3 class=\"mb-3\"\u003epfortainer-rs 로그인\u003c/h3\u003e\u003cform method=\"post\" action=\"/login\"\u003e\u003cdiv class=\"mb-3\"\u003e\u003clabel class=\"form-label\"\u003e사용자명\u003c/label\u003e\u003cinput type=\"text\" name=\"username\" class=\"form-control\" required\u003e\u003c/div\u003e\u003cdiv class=\"mb-3\"\u003e\u003clabel class=\"form-label\"\u003e비밀번호\u003c/label\u003e\u003cinput type=\"password\" name=\"password\" class=\"form-control\" required\u003e\u003c/div\u003e\u003cbutton type=\"submit\" class=\"btn btn-primary w-100\"\u003e로그인\u003c/button\u003e\u003c/form\u003e\u003c/div\u003e\u003c/body\u003e\u003c/html\u003e"
+    }
+  },
+  {
+    "name": "logout",
+    "snap": {
+      "status": 302,
+      "headers": {
+        "Location": [
+          "/login"
+        ],
+        "Set-Cookie": [
+          "pfsession=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax"
+        ]
+      }
+    }
+  },
+  {
+    "name": "logout_anon",
+    "snap": {
+      "status": 302,
+      "headers": {
+        "Location": [
+          "/login"
+        ],
+        "Set-Cookie": [
+          "pfsession=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax"
+        ]
+      }
+    }
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "default_password_login": 303,
+  "users_default": [
+    {
+      "created_at": "\u003cnow\u003e",
+      "has_totp_secret": 0,
+      "id": 1,
+      "password_hash": "\u003cbcrypt $2b$12$\u003e",
+      "role": 3,
+      "role_type": "integer",
+      "totp_enabled": 0,
+      "username": "admin"
+    }
+  ],
+  "users_existing": [
+    {
+      "created_at": 1763500000,
+      "has_totp_secret": 0,
+      "id": 1,
+      "password_hash": "\u003cbcrypt $2b$04$\u003e",
+      "role": 2,
+      "role_type": "integer",
+      "totp_enabled": 0,
+      "username": "solo"
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "meta": [
+    {
+      "key": "users_role_migrated",
+      "updated_at": "\u003cnow\u003e",
+      "value": "1"
+    }
+  ],
+  "table_info": [
+    {
+      "dflt_value": null,
+      "name": "id",
+      "notnull": 0,
+      "pk": 1,
+      "type": "INTEGER"
+    },
+    {
+      "dflt_value": null,
+      "name": "username",
+      "notnull": 1,
+      "pk": 0,
+      "type": "TEXT"
+    },
+    {
+      "dflt_value": null,
+      "name": "password_hash",
+      "notnull": 1,
+      "pk": 0,
+      "type": "TEXT"
+    },
+    {
+      "dflt_value": "1",
+      "name": "role",
+      "notnull": 1,
+      "pk": 0,
+      "type": "INTEGER"
+    },
+    {
+      "dflt_value": null,
+      "name": "created_at",
+      "notnull": 1,
+      "pk": 0,
+      "type": "INTEGER"
+    },
+    {
+      "dflt_value": "''",
+      "name": "totp_secret",
+      "notnull": 1,
+      "pk": 0,
+      "type": "TEXT"
+    },
+    {
+      "dflt_value": "0",
+      "name": "totp_enabled",
+      "notnull": 1,
+      "pk": 0,
+      "type": "INTEGER"
+    }
+  ],
+  "tables": [
+    {
+      "name": "alert_history"
+    },
+    {
+      "name": "desktop_prefs"
+    },
+    {
+      "name": "meta"
+    },
+    {
+      "name": "replication_tasks"
+    },
+    {
+      "name": "schedules"
+    },
+    {
+      "name": "sqlite_sequence"
+    },
+    {
+      "name": "users"
+    }
+  ],
+  "users": [
+    {
+      "created_at": "\u003cnow\u003e",
+      "id": 1,
+      "password_hash": "\u003cbcrypt $2b$12$\u003e",
+      "role": 3,
+      "role_type": "integer",
+      "totp_enabled": 0,
+      "totp_secret": "",
+      "username": "admin"
+    }
+  ]
+}
