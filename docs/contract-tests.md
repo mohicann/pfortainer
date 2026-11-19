@@ -78,7 +78,7 @@ Go에서 맞추기 어려운 문구가 나오면 그때 정규화 목록에 추�
 | P4 | 파일시스템·스토리지·스냅샷·스케줄 CRUD/즉시 실행·파일 관리자(클립보드 쿠키·업로드)·공유·로컬 사용자·서비스·네트워크·AppJail·진단, hostd 없음(로컬 실행 폴백) | b1caf0c |
 | P5 | 메트릭(ring·DB 버킷)·데스크탑 prefs·알림 설정/테스트(웹훅·Discord(프록시)·SMTP 오류)·백그라운드 알림 점검·스케줄/복제 틱·복제 CRUD | 4dbea5f |
 | P6 | hostd 단독: 조회(실제 출력)·명령 실패·ZFS 변경·prune·복제 파이프(send→receive stdin)·last_snapshot 복구·pw/smbpasswd(stdin)·SMB/NFS 파일·AppJail 락·compose·fs·라우터 | 4e5dfa0 |
-| P7 | 교차 호환: 앱↔실제 hostd(가짜 없음), DB를 한 구현으로 만들고 다른 구현으로 열기, 쿠키·pre-auth 상호 인정 | (이 커밋) |
+| P7 | 교차 호환: 앱↔실제 hostd(가짜 없음), DB를 한 구현으로 만들고 다른 구현으로 열기, 쿠키·pre-auth 상호 인정 | 19bcbfe |
 
 P7은 지금 Rust↔Rust로 녹색이다. Go가 생기면 `SUT_BIN`/`OTHER_BIN`으로 양방향을 돌린다.
 
